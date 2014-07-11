@@ -1,4 +1,5 @@
 0.39
+ - Add metadata to Makefile.PL
  - Add Rmpz_bin_si, as suggested by Dana Jacobsen. (Added even though the gmp
    library provides only mpz_bin_ui and mpz_bin_uiui.)
  - Tweaks to Math::GMPz::gmp_v() and Math::GMPz::V::gmp_v()
