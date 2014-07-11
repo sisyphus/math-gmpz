@@ -58,6 +58,16 @@ my %options = (
   LICENSE  => 'perl',
   VERSION_FROM => 'GMPz.pm',
   clean   => { FILES => 'out1.txt out2.txt out3.txt out4.txt out5.txt out6.txt out7.txt' },
+  META_MERGE => {
+   'meta-spec' => { version => 2 },
+    resources => {
+      repository => {
+        type => 'git',
+        url => 'https://github.com/sisyphus/math-gmpz.git',
+        web => 'https://github.com/sisyphus/math-gmpz',
+      },
+    },
+  },
 );
 WriteMakefile(%options);
 
