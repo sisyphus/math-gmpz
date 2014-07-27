@@ -42,12 +42,12 @@ SV * Rmpz_init_set_str_nobless(pTHX_ SV * num, SV * base) {
      unsigned long b = SvUV(base);
      SV * obj_ref, * obj;
 
-     if(b == 1 || b > 62) croak("Second argument supplied to Rmpz_init_set_str_nobless(aTHX) is not in acceptable range");
+     if(b == 1 || b > 62) croak("Second argument supplied to Rmpz_init_set_str_nobless is not in acceptable range");
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in Rmpz_create function");
      if(mpz_init_set_str (*mpz_t_obj, SvPV_nolen(num), b))
-        croak("First argument supplied to Rmpz_create_init_nobless() is not a valid base %u integer", b);
+        croak("First argument supplied to Rmpz_create_init_nobless is not a valid base %u integer", b);
 
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, NULL);
@@ -254,12 +254,12 @@ SV * Rmpz_init_set_str(pTHX_ SV * num, SV * base) {
      unsigned long b = SvUV(base);
      SV * obj_ref, * obj;
 
-     if(b == 1 || b > 62) croak("Second argument supplied to Rmpz_init_set_str(aTHX) is not in acceptable range");
+     if(b == 1 || b > 62) croak("Second argument supplied to Rmpz_init_set_str is not in acceptable range");
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in Rmpz_init_set_str function");
      if(mpz_init_set_str (*mpz_t_obj, SvPV_nolen(num), b))
-        croak("First argument supplied to Rmpz_init_set_str(aTHX) is not a valid base %u integer", b);
+        croak("First argument supplied to Rmpz_init_set_str is not a valid base %u integer", b);
 
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
@@ -290,7 +290,7 @@ SV * Rmpz_get_str(pTHX_ mpz_t * p, SV * base) {
      SV * outsv;
      int c = (int)SvIV(base), b = (int)SvIV(base);
 
-     if((b > -2 && b < 2) || b < -36 || b > 62) croak("Second argument supplied to Rmpz_get_str(aTHX) is not in acceptable range");
+     if((b > -2 && b < 2) || b < -36 || b > 62) croak("Second argument supplied to Rmpz_get_str is not in acceptable range");
 
      if(c < 0) c *= -1;
 
@@ -1241,7 +1241,7 @@ SV * trial_div_ul(pTHX_ mpz_t * num, SV * x_arg) {
      unsigned short *v, set[16] = {65534,65533,65531,65527,65519,65503,65471,65407,65279,65023,64511,63487,61439,57343,49151,32767};
      unsigned long leap, i, size, b, imax, k, x = SvUV(x_arg);
 
-     if(x & 1) croak("Second argument supplied to trial_div_ul(aTHX) must be even");
+     if(x & 1) croak("Second argument supplied to trial_div_ul must be even");
 
      imax = sqrt(x - 1) / 2;
 
@@ -1251,7 +1251,7 @@ SV * trial_div_ul(pTHX_ mpz_t * num, SV * x_arg) {
      else size = (b / 16) + 1;
 
      Newz(2, v, size, unsigned short);
-     if(v == NULL) croak("2: Unable to allocate memory in trial_div_ul(aTHX) function");
+     if(v == NULL) croak("2: Unable to allocate memory in trial_div_ul function");
 
      for(i = 1; i < size; ++i) v[i] = 65535;
      v[0] = 65534;
@@ -3331,7 +3331,7 @@ unsigned char *v, set[8] = {254,253,251,247,239,223,191,127};
 unsigned long leap, i, size, b, imax, k, x = (unsigned long)SvUV(x_arg);
 SV * ret;
 
-if(x & 1) croak("max_num argument must be even in eratosthenes_string(aTHX)");
+if(x & 1) croak("max_num argument must be even in eratosthenes_string");
 
 imax = sqrt(x - 1) / 2;
 
