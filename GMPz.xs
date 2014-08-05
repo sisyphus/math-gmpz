@@ -3969,6 +3969,7 @@ int Rlong_run(mpz_t * bitstream) {
         }
 
     if(init < 34 && count < 34) return 1;
+    else warn("init: %d count: %d", init, count);
     return 0;
 
 }
@@ -4103,6 +4104,92 @@ SV * query_eratosthenes_string(pTHX_ int candidate, char * str) {
      return newSVuv(0);
 }
 
+void autocorrelation(pTHX_ mpz_t * bitstream, int offset) {
+     dXSARGS;
+     int i, index, last, count = 0, short_ = 0;
+     mpz_t temp;
+     double x, diff;
+     int len = mpz_sizeinbase(*bitstream, 2);
+
+     if(len > 20000) croak("Wrong size random sequence for autocorrelation test");
+     if(len < 19967) {
+        warn("More than 33 leading zeroes in autocorrelation test\n");
+        ST(0) = sv_2mortal(newSViv(0));
+        ST(1) = sv_2mortal(newSVnv(0.0));
+        XSRETURN(2);
+        }
+
+/* make sure *bitstream has a length of 20000 bits. */
+     if(20000 - len) {
+       short_ = 1;
+       mpz_init_set_ui(temp, 1);
+       mpz_mul_2exp(temp, temp, 19999);
+       mpz_add(*bitstream, *bitstream, temp);
+     }
+     if(mpz_sizeinbase(*bitstream, 2) != 20000) croak("Bit sequence has length of %d bits in autocorrelation function", mpz_sizeinbase(*bitstream, 2));
+
+     index = 19999 - offset;
+     for(i = 0; i < index - 1; ++i) {
+       if(mpz_tstbit(*bitstream, i) ^ mpz_tstbit(*bitstream, i + offset)) count += 1;
+     }
+
+     last = short_ ? 0 : 1;
+
+     if(mpz_tstbit(*bitstream, index - 1) ^ last) count += 1;
+
+/* restore *bitstream to its original value && free temp (iff necessary) */
+     if(short_) {
+       mpz_sub(*bitstream, *bitstream, temp);
+       mpz_clear(temp);
+     }
+
+   ST(0) = sv_2mortal(newSViv(count));
+
+   diff = 20000.0 - (double)offset;
+   x = (2 * ((double)count - (diff / 2))) / (sqrt(diff));
+
+   ST(1) = sv_2mortal(newSVnv(x));
+   XSRETURN(2);
+}
+
+int autocorrelation_20000(pTHX_ mpz_t * bitstream, int offset) {
+    dXSARGS;
+    int i, last, count = 0, short_ = 0;
+    mpz_t temp;
+    double x, diff;
+    int len = mpz_sizeinbase(*bitstream, 2);
+
+    if(len > 20000 + offset) croak("Wrong size random sequence for autocorrelation_20000 test");
+    if(len < 19967 + offset) {
+      warn("More than 33 leading zeroes in autocorrelation_20000 test\n");
+      return 0;
+    }
+
+/* make sure *bitstream has a length of 20000 + offset bits. */
+    if(20000 + offset - len) {
+      short_ = 1;
+      mpz_init_set_ui(temp, 1);
+      mpz_mul_2exp(temp, temp, 19999 + offset);
+      mpz_add(*bitstream, *bitstream, temp);
+    }
+   if(mpz_sizeinbase(*bitstream, 2) != 20000 + offset) croak("Bit sequence has length of %d bits in autocorrelation_20000 function; should have size of %d bits", mpz_sizeinbase(*bitstream, 2), 20000 + offset);
+
+    for(i = 0; i < 19999; ++i) {
+      if(mpz_tstbit(*bitstream, i) ^ mpz_tstbit(*bitstream, i + offset)) count += 1;
+    }
+
+    last = short_ ? 0 : 1;
+
+    if(mpz_tstbit(*bitstream, 19999) ^ last) count += 1;
+
+/* restore *bitstream to its original value && free temp (iff necessary) */
+    if(short_) {
+      mpz_sub(*bitstream, *bitstream, temp);
+      mpz_clear(temp);
+    }
+    if(count > 9654 && count < 10346) return 1;
+    return 0;
+}
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
 
 PROTOTYPES: DISABLE
@@ -6836,5 +6923,30 @@ query_eratosthenes_string (candidate, str)
 	char *	str
 CODE:
   RETVAL = query_eratosthenes_string (aTHX_ candidate, str);
+OUTPUT:  RETVAL
+
+void
+autocorrelation (bitstream, offset)
+	mpz_t *	bitstream
+	int	offset
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        autocorrelation(aTHX_ bitstream, offset);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+int
+autocorrelation_20000 (bitstream, offset)
+	mpz_t *	bitstream
+	int	offset
+CODE:
+  RETVAL = autocorrelation_20000 (aTHX_ bitstream, offset);
 OUTPUT:  RETVAL
 
