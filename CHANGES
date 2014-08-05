@@ -1,3 +1,7 @@
+0.40
+ - Add autocorrelation and autocorrelation_20000 (neither of which is documented
+   or exported)
+
 0.39
  - Add metadata to Makefile.PL
  - Add Rmpz_bin_si, as suggested by Dana Jacobsen. (Added even though the gmp
