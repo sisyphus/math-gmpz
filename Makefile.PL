@@ -22,10 +22,10 @@ $use_long_double = 0;# Let perl decide whether to include 'long double' support
 my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
 
 if($use_64_bit_int == -1) {}
-elsif($use_64_bit_int == 1) {$defines .= " -DUSE_64_BIT_INT"}
+elsif($use_64_bit_int == 1) {$defines .= " -DMATH_GMPZ_NEED_LONG_LONG_INT"}
 else {
-  unless($Config::Config{ivsize} < 8) {
-    $defines .= " -DUSE_64_BIT_INT";
+  unless($Config::Config{ivsize} < 8 || $Config{ivtype} eq 'long') {
+    $defines .= " -DMATH_GMPZ_NEED_LONG_LONG_INT";
   }
 }
 
@@ -37,7 +37,7 @@ else {
   }
 }
 
-$defines =~ /-DUSE_64_BIT_INT/ ? print "Building with 64-bit'long long' support\n" :
+$defines =~ /-DMATH_GMPZ_NEED_LONG_LONG_INT/ ? print "Building with 64-bit'long long' support\n" :
                                  print "Building without 64-bit 'long long' support\n";
 
 print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
