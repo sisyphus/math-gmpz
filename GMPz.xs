@@ -19,7 +19,7 @@
 #pragma warning(disable:4700 4715 4716)
 #endif
 
-#if defined USE_64_BIT_INT
+#if defined MATH_GMPZ_NEED_LONG_LONG_INT
 #ifndef _MSC_VER
 #include <inttypes.h>
 #endif
@@ -1320,7 +1320,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
        SvREADONLY_on(obj);
      }
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak(" Invalid string supplied to Math::GMPz::overload_mul");
@@ -1417,7 +1417,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
        SvREADONLY_on(obj);
      }
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak(" Invalid string supplied to Math::GMPz::overload_add");
@@ -1519,7 +1519,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      }
 
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak(" Invalid string supplied to Math::GMPz::overload_sub");
@@ -1633,7 +1633,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
 
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string supplied to Math::GMPz::overload_div");
@@ -1747,7 +1747,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
      SvREADONLY_on(obj);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string supplied to Math::GMPz::overload_mod");
@@ -2012,7 +2012,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
      SvREADONLY_on(obj);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_and");
@@ -2079,7 +2079,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
      SvREADONLY_on(obj);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_ior");
@@ -2145,7 +2145,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
      SvREADONLY_on(obj);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_xor");
@@ -2219,7 +2219,7 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      char buffer[50];
 #endif
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_gt");
@@ -2288,7 +2288,7 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      char buffer[50];
 #endif
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_gte");
@@ -2358,7 +2358,7 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      char buffer[50];
 #endif
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_lt");
@@ -2428,7 +2428,7 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      char buffer[50];
 #endif
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_lte");
@@ -2498,7 +2498,7 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      char buffer[50];
 #endif
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_spaceship");
@@ -2562,7 +2562,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      char buffer[50];
 #endif
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_equiv");
@@ -2627,7 +2627,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      char buffer[50];
 #endif
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_not_equiv");
@@ -2705,7 +2705,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -2775,7 +2775,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -2844,7 +2844,7 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -2981,7 +2981,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -3056,7 +3056,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -3127,7 +3127,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -3197,7 +3197,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -3268,7 +3268,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      SvREFCNT_inc(a);
 
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
@@ -3692,7 +3692,7 @@ void rand_clear(pTHX_ SV * p) {
      }
 
 int _has_longlong(void) {
-#ifdef USE_64_BIT_INT
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
     return 1;
 #else
     return 0;
@@ -3712,7 +3712,7 @@ int _has_inttypes(void) {
 #ifdef _MSC_VER
 return 0;
 #else
-#if defined USE_64_BIT_INT
+#if defined MATH_GMPZ_NEED_LONG_LONG_INT
 return 1;
 #else
 return 0;
