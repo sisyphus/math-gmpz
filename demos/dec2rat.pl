@@ -1,4 +1,4 @@
-# Converts a recurring decimal to a rational number
+# Converts a recurring (unsigned) decimal to a rational number
 #
 # Expects 3 command line arguments - the leading (non-recurring part) of the
 # decimal, and the recurring (trailing) part, and a third arg that specifies
@@ -30,13 +30,15 @@ use Scalar::Util qw(looks_like_number);
 die "Usage 'perl dec2rat.pl [leading] [recurring] [dp]'"
   if(@ARGV != 3);
 
+die "1st arg must not be signed" if $ARGV[0] =~ /^[\-\+]/;
+die "2nd arg must not be signed" if $ARGV[1] =~ /^[\-\+]/;
+
 die "Non-numeric characters detected in one (or more) of the supplied args"
+  if($ARGV[0] =~ /[^0-9]/ || $ARGV[1] =~ /[^0-9]/ || $ARGV[2] =~ /[^0-9\-\+]/);
+
+die "looks_like_number returned false for one (or more) of the supplied args"
   if(!looks_like_number $ARGV[0] || !looks_like_number $ARGV[1] ||
      !looks_like_number $ARGV[2]);
-
-die "2nd arg cannot contain \"-\" or \"+\" or \".\"" if $ARGV[1] =~ /[\+\-\.]/;
-
-die "No decimal points allowed in args" if ($ARGV[0] =~ /\./ || $ARGV[2] =~ /\./);
 
 my @rat = dec2rat(@ARGV);
 print "$rat[0] / $rat[1]\n";
@@ -45,7 +47,7 @@ print "$rat[0] / $rat[1]\n";
 sub dec2rat {
   my $denominator = Math::GMPz->new(10) ** length $ARGV[1];
   $denominator--;
-  my $numerator = Math::GMPz->new($ARGV[0] . $ARGV[1]) - $ARGV[0];
+  my $numerator = Math::GMPz->new($ARGV[0] . $ARGV[1], 10) - $ARGV[0];
 
   $numerator   *= Math::GMPz->new(10) ** $ARGV[2] if $ARGV[2] > 0;
   $denominator *= Math::GMPz->new(10) ** ($ARGV[2] * -1) if $ARGV[2] < 0;
