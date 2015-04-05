@@ -1,3 +1,5 @@
+# Converts a recurring decimal to a rational number
+#
 # Expects 3 command line arguments - the leading (non-recurring part) of the
 # decimal, and the recurring (trailing) part, and a third arg that specifies
 # the location of the decimal point.
@@ -12,7 +14,8 @@
 #    20.0414141... requires args 200, 41, -1
 #    200.414141... requires args 200, 41, 0
 
-# For decimals that terminate, just specify a second arg of 0
+# For decimals that terminate (ie that are not recurring, just specify a
+# second arg of 0
 # eg 0.02004 requires args 2004, 0, -5
 #     2.004 requires args 2004, 0, -3
 #     20.04 requires args 2004, 0, -2
