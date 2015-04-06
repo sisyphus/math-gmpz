@@ -216,7 +216,7 @@ sub new {
       if(@_ > 1) {die "Too many arguments supplied to new() - expected no more than two"}
       $base = shift if @_;
       if($base < 0 || $base == 1 || $base > 62) {die "Invalid value for base"}
-      $arg1 =~ s/^\+//;
+      $arg1 =~ s/^(\s+)?\+//; # Rmpz_init_set_str() dies if there's a leading '+'.
       return Rmpz_init_set_str($arg1, $base);
     }
 
