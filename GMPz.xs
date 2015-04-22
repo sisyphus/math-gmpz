@@ -15,6 +15,10 @@
 #include <stdlib.h>
 #include <gmp.h>
 
+#if !defined(__GNU_MP_VERSION) || __GNU_MP_VERSION < 5
+#define mp_bitcnt_t unsigned long int
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(disable:4700 4715 4716)
 #endif
@@ -3969,7 +3973,7 @@ int Rlong_run(mpz_t * bitstream) {
         }
 
     if(init < 34 && count < 34) return 1;
-    else warn("init: %d count: %d", init, count);
+    else warn("init: %u count: %u", init, count);
     return 0;
 
 }
