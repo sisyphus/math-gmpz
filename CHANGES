@@ -1,4 +1,5 @@
 0.40
+ - Define mp_bitcnt_t to unsigned long int in GMPz.xs if version is less than 5.0.0
  - Add autocorrelation and autocorrelation_20000 (neither of which is documented
    or exported)
  - No longer define USE_64_BIT_INT if ivtype is 'long'.
