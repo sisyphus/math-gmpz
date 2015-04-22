@@ -15,7 +15,7 @@
 #include <stdlib.h>
 #include <gmp.h>
 
-#if __GNU_MP_VERSION < 5
+#if !defined(__GNU_MP_VERSION) || __GNU_MP_VERSION < 5
 #define mp_bitcnt_t unsigned long int
 #endif
 
