@@ -104,7 +104,7 @@ zgmp_randinit_set zgmp_randinit_default_nobless zgmp_randinit_mt_nobless
 zgmp_randinit_lc_2exp_nobless zgmp_randinit_lc_2exp_size_nobless zgmp_randinit_set_nobless
 zgmp_urandomb_ui zgmp_urandomm_ui
     );
-    our $VERSION = '0.40';
+    our $VERSION = '0.41';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::GMPz $VERSION;
