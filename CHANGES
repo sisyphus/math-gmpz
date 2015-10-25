@@ -1,4 +1,6 @@
 0.41
+ - Add overloading of comparison operators with Math::GMPq objects - gmp-6.1.0
+   and later. (Uses mpq_cmp_z function.)
 
 0.40
  - Define mp_bitcnt_t to unsigned long int in GMPz.xs if version is less than 5.0.0
