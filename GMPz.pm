@@ -1418,9 +1418,10 @@ __END__
 
    OPERATOR OVERLOADING
 
-    Overloading works with numbers, strings, Math::GMPz objects
-    and, to a limited extent, Math::MPFR objects (iff version 3.13
-    or later of Math::MPFR has been installed).
+    Overloading works with numbers, strings, Math::GMPz objects and, to
+    a limited extent, Math::GMPq objects (iff the gmp library is version
+    6.1.0 or later) and Math::MPFR objects (iff version 3.13 or later of
+    Math::MPFR has been installed).
 
    The following operators are overloaded:
     + - * / %
@@ -1442,6 +1443,9 @@ __END__
     and '**' operators, and will work only if Math::MPFR is at
     version 3.13 or later - in which case the operation will
     return a Math::MPFR object.
+    Math::GMPq objects can be used only with the comparison operators
+    ( == != < <= > >= <=> ), and only if Math::GMPq has been built against
+    gmp-6.1.0 or later.
 
     In those situations where the overload subroutine operates on 2
     perl variables, then obviously one of those perl variables is
@@ -1473,8 +1477,8 @@ __END__
        message.
 
     5. If the variable is a Math::GMPz object (or, for operators
-       specified above, a Math::MPFR object) then the value of that
-       object is used.
+       specified above, a Math::MPFR/Math::GMPq object) then the value
+       of that object is used.
 
     6. If none of the above is true, then the second variable is
        deemed to be of an invalid type. The subroutine croaks with
@@ -1488,10 +1492,6 @@ __END__
     my $x = Rmpz_init_set_ui(112);
     $x *= 2.9;
     print "$x"; # prints 224
-
-    Atempting to use the overloaded operators with objects that
-    have been blessed into some package other than 'Math::GMPz'
-    will not work.
 
    #####
 
