@@ -2232,20 +2232,20 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #else
      if(SvUOK(b)) {
        ret = mpz_cmp_ui(*a, SvUV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
      if(SvIOK(b)) {
        ret = mpz_cmp_si(*a, SvIV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 
      if(SvNOK(b)) {
@@ -2261,7 +2261,7 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvPOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
@@ -2271,7 +2271,7 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
@@ -2279,8 +2279,18 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
          ret = mpz_cmp(*a, *(INT2PTR(mpz_t *, SvIV(SvRV(b)))));
          if(ret > 0) return newSViv(1);
          return newSViv(0);
-         }
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+#if __GNU_MP_RELEASE < 60099
+         croak("overloading \">\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+#else
+         ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIV(SvRV(b)))), *a);
+         if(ret < 0) return newSViv(1);
+         return newSViv(0);
+#endif
+       }
+     }
 
      croak("Invalid argument supplied to Math::GMPz::overload_gt");
 }
@@ -2301,21 +2311,21 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #else
      if(SvUOK(b)) {
        ret = mpz_cmp_ui(*a, SvUV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvIOK(b)) {
        ret = mpz_cmp_si(*a, SvIV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 
      if(SvNOK(b)) {
@@ -2331,7 +2341,7 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvPOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
@@ -2341,7 +2351,7 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
@@ -2349,8 +2359,18 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
          ret = mpz_cmp(*a, *(INT2PTR(mpz_t *, SvIV(SvRV(b)))));
          if(ret >= 0) return newSViv(1);
          return newSViv(0);
-         }
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+#if __GNU_MP_RELEASE < 60099
+         croak("overloading \">=\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+#else
+         ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIV(SvRV(b)))), *a);
+         if(ret <= 0) return newSViv(1);
+         return newSViv(0);
+#endif
+       }
+     }
 
      croak("Invalid argument supplied to Math::GMPz::overload_gte");
 }
@@ -2371,21 +2391,21 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #else
      if(SvUOK(b)) {
        ret = mpz_cmp_ui(*a, SvUV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvIOK(b)) {
        ret = mpz_cmp_si(*a, SvIV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 
      if(SvNOK(b)) {
@@ -2401,7 +2421,7 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvPOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
@@ -2411,7 +2431,7 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
@@ -2419,8 +2439,18 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
          ret = mpz_cmp(*a, *(INT2PTR(mpz_t *, SvIV(SvRV(b)))));
          if(ret < 0) return newSViv(1);
          return newSViv(0);
-         }
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+#if __GNU_MP_RELEASE < 60099
+         croak("overloading \"<\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+#else
+         ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIV(SvRV(b)))), *a);
+         if(ret > 0) return newSViv(1);
+         return newSViv(0);
+#endif
+       }
+     }
 
      croak("Invalid argument supplied to Math::GMPz::overload_lt");
 }
@@ -2441,21 +2471,21 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #else
      if(SvUOK(b)) {
        ret = mpz_cmp_ui(*a, SvUV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvIOK(b)) {
        ret = mpz_cmp_si(*a, SvIV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 
      if(SvNOK(b)) {
@@ -2471,7 +2501,7 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvPOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
@@ -2481,7 +2511,7 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
@@ -2489,8 +2519,18 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
          ret = mpz_cmp(*a, *(INT2PTR(mpz_t *, SvIV(SvRV(b)))));
          if(ret <= 0) return newSViv(1);
          return newSViv(0);
-         }
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+#if __GNU_MP_RELEASE < 60099
+         croak("overloading \"<=\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+#else
+         ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIV(SvRV(b)))), *a);
+         if(ret >= 0) return newSViv(1);
+         return newSViv(0);
+#endif
+       }
+     }
 
      croak("Invalid argument supplied to Math::GMPz::overload_lte");
 }
@@ -2510,19 +2550,19 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
        mpz_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
        return newSViv(ret);
-       }
+     }
 #else
      if(SvUOK(b)) {
        ret = mpz_cmp_ui(*a, SvUV(b));
        if(third == &PL_sv_yes) ret *= -1;
        return newSViv(ret);
-       }
+     }
 
      if(SvIOK(b)) {
        ret = mpz_cmp_si(*a, SvIV(b));
        if(third == &PL_sv_yes) ret *= -1;
        return newSViv(ret);
-       }
+     }
 #endif
 
      if(SvNOK(b)) {
@@ -2537,7 +2577,7 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
        if(third == &PL_sv_yes) ret *= -1;
        return newSViv(ret);
-       }
+     }
 
      if(SvPOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
@@ -2546,15 +2586,23 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
        mpz_clear(t);
        if(third == &PL_sv_yes) ret *= -1;
        return newSViv(ret);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
        if(strEQ(h, "Math::GMPz")) {
          ret = mpz_cmp(*a, *(INT2PTR(mpz_t *, SvIV(SvRV(b)))));
          return newSViv(ret);
-         }
        }
+       if(strEQ(h, "Math::GMPq")) {
+#if __GNU_MP_RELEASE < 60099
+         croak("overloading \"<=>\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+#else
+         ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIV(SvRV(b)))), *a);
+         return newSViv(ret * -1);
+#endif
+       }
+     }
 
      croak("Invalid argument supplied to Math::GMPz::overload_spaceship");
 }
@@ -2574,19 +2622,19 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
        mpz_clear(t);
        if(ret == 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #else
      if(SvUOK(b)) {
        ret = mpz_cmp_ui(*a, SvUV(b));
        if(ret == 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvIOK(b)) {
        ret = mpz_cmp_si(*a, SvIV(b));
        if(ret == 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 
      if(SvNOK(b)) {
@@ -2601,7 +2649,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
        if(ret == 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvPOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
@@ -2610,7 +2658,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
        mpz_clear(t);
        if(ret == 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
@@ -2618,8 +2666,18 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
          ret = mpz_cmp(*a, *(INT2PTR(mpz_t *, SvIV(SvRV(b)))));
          if(ret == 0) return newSViv(1);
          return newSViv(0);
-         }
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+#if __GNU_MP_RELEASE < 60099
+         croak("overloading \"==\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+#else
+         ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIV(SvRV(b)))), *a);
+         if(ret == 0) return newSViv(1);
+         return newSViv(0);
+#endif
+       }
+     }
 
      croak("Invalid argument supplied to Math::GMPz::overload_equiv");
 }
@@ -2640,21 +2698,21 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret != 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #else
      if(SvUOK(b)) {
        ret = mpz_cmp_ui(*a, SvUV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret != 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvIOK(b)) {
        ret = mpz_cmp_si(*a, SvIV(b));
        if(third == &PL_sv_yes) ret *= -1;
        if(ret != 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 #endif
 
      if(SvNOK(b)) {
@@ -2670,7 +2728,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret != 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(SvPOK(b)) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
@@ -2680,7 +2738,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
        if(third == &PL_sv_yes) ret *= -1;
        if(ret != 0) return newSViv(1);
        return newSViv(0);
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
@@ -2688,8 +2746,18 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
          ret = mpz_cmp(*a, *(INT2PTR(mpz_t *, SvIV(SvRV(b)))));
          if(ret != 0) return newSViv(1);
          return newSViv(0);
-         }
        }
+
+       if(strEQ(h, "Math::GMPq")) {
+#if __GNU_MP_RELEASE < 60099
+         croak("overloading \"!=\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+#else
+         ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIV(SvRV(b)))), *a);
+         if(ret != 0) return newSViv(1);
+         return newSViv(0);
+#endif
+       }
+     }
 
      croak("Invalid argument supplied to Math::GMPz::overload_not_equiv");
 }
