@@ -4262,6 +4262,24 @@ int autocorrelation_20000(pTHX_ mpz_t * bitstream, int offset) {
     if(count > 9654 && count < 10346) return 1;
     return 0;
 }
+
+SV * _GMP_LIMB_BITS(pTHX) {
+#ifdef GMP_LIMB_BITS
+     return newSVuv(GMP_LIMB_BITS);
+#else
+     return &PL_sv_undef;
+#endif
+}
+
+SV * _GMP_NAIL_BITS(pTHX) {
+#ifdef GMP_NAIL_BITS
+     return newSVuv(GMP_NAIL_BITS);
+#else
+     return &PL_sv_undef;
+#endif
+}
+
+
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
 
 PROTOTYPES: DISABLE
@@ -7021,4 +7039,18 @@ autocorrelation_20000 (bitstream, offset)
 CODE:
   RETVAL = autocorrelation_20000 (aTHX_ bitstream, offset);
 OUTPUT:  RETVAL
+
+SV *
+_GMP_LIMB_BITS ()
+CODE:
+  RETVAL = _GMP_LIMB_BITS (aTHX);
+OUTPUT:  RETVAL
+
+
+SV *
+_GMP_NAIL_BITS ()
+CODE:
+  RETVAL = _GMP_NAIL_BITS (aTHX);
+OUTPUT:  RETVAL
+
 
