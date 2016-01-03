@@ -1609,7 +1609,7 @@ __END__
 
     This program is free software; you may redistribute it and/or
     modify it under the same terms as Perl itself.
-    Copyright 2006-20011, 2013-14, Sisyphus
+    Copyright 2006-20011, 2013-16, Sisyphus
 
 =head1 AUTHOR
 
