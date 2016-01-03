@@ -17,7 +17,7 @@
     use constant _MATH_MPC_T    => 10;
 
 use subs qw( __GNU_MP_VERSION __GNU_MP_VERSION_MINOR __GNU_MP_VERSION_PATCHLEVEL
-             __GNU_MP_RELEASE __GMP_CC __GMP_CFLAGS);
+             __GNU_MP_RELEASE __GMP_CC __GMP_CFLAGS GMP_LIMB_BITS GMP_NAIL_BITS);
 
 use overload
     '+'    => \&overload_add,
@@ -104,7 +104,7 @@ zgmp_randinit_set zgmp_randinit_default_nobless zgmp_randinit_mt_nobless
 zgmp_randinit_lc_2exp_nobless zgmp_randinit_lc_2exp_size_nobless zgmp_randinit_set_nobless
 zgmp_urandomb_ui zgmp_urandomm_ui
     );
-    our $VERSION = '0.41';
+    our $VERSION = '0.42';
     #$VERSION = eval $VERSION;
 
     DynaLoader::bootstrap Math::GMPz $VERSION;
@@ -516,6 +516,8 @@ sub __GNU_MP_VERSION_PATCHLEVEL {return ___GNU_MP_VERSION_PATCHLEVEL()}
 sub __GNU_MP_RELEASE {return ___GNU_MP_RELEASE()}
 sub __GMP_CC {return ___GMP_CC()}
 sub __GMP_CFLAGS {return ___GMP_CFLAGS()}
+sub GMP_LIMB_BITS {return _GMP_LIMB_BITS()}
+sub GMP_NAIL_BITS {return _GMP_NAIL_BITS()}
 
 *zgmp_randseed =                      \&Math::GMPz::Random::Rgmp_randseed;
 *zgmp_randseed_ui =                   \&Math::GMPz::Random::Rgmp_randseed_ui;
