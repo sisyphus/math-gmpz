@@ -4018,7 +4018,7 @@ int Rmonobit(mpz_t * bitstream) {
 }
 
 int Rlong_run(mpz_t * bitstream) {
-    unsigned long i, el, init = 0, count = 0, len, t;
+    unsigned int i, el, init = 0, count = 0, len, t;
 
     len = mpz_sizeinbase(*bitstream, 2);
 
