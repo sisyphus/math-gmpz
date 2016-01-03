@@ -9,9 +9,11 @@ warn "\n# Using Math::GMPz version ", $Math::GMPz::VERSION, "\n";
 warn "# Using gmp library version ", Math::GMPz::gmp_v(), "\n";
 warn "# CC is ", Math::GMPz::__GMP_CC, "\n" if defined Math::GMPz::__GMP_CC;
 warn "# CFLAGS are ", Math::GMPz::__GMP_CFLAGS, "\n" if defined Math::GMPz::__GMP_CFLAGS;
+warn "# GMP_LIMB_BITS is ", Math::GMPz::_GMP_LIMB_BITS, "\n" if defined Math::GMPz::_GMP_LIMB_BITS;
+warn "# GMP_NAIL_BITS is ", Math::GMPz::_GMP_NAIL_BITS, "\n" if defined Math::GMPz::_GMP_NAIL_BITS;
 
-if($Math::GMPz::VERSION eq '0.41' && $Math::GMPz::Random::VERSION eq '0.41' &&
-   $Math::GMPz::V::VERSION eq '0.41' &&
+if($Math::GMPz::VERSION eq '0.42' && $Math::GMPz::Random::VERSION eq '0.42' &&
+   $Math::GMPz::V::VERSION eq '0.42' &&
    Math::GMPz::_get_xs_version() eq $Math::GMPz::VERSION) {print "ok 1\n"}
 else {print "not ok 1 $Math::GMPz::VERSION $Math::GMPz::Random::VERSION ", Math::GMPz::_get_xs_version(), "\n"}
 
