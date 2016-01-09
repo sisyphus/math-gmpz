@@ -22,6 +22,8 @@ t/cmp.t
 t/cmp_q.t
 t/fac.t
 t/imp_exp.t
+t/math_bigint.t
+t/math_bigint_gmp.t
 t/misc.t
 t/power.t
 t/primes.t
