@@ -224,6 +224,13 @@ sub new {
       if(@_) {die "Too many arguments supplied to new() - expected only one"}
       return Rmpz_init_set($arg1);
     }
+
+    if($type < 0) { # Math::BigInt
+      if(@_) {die "Too many arguments supplied to new() - expected only one"}
+      return Rmpz_init_set_str($arg1, 10);
+    }
+
+    die "Unrecognised argument provided to new()";
 }
 
 sub Rmpz_out_str {
@@ -748,14 +755,14 @@ __END__
    $rop = Math::GMPz::new($arg);
    $rop = new Math::GMPz($arg);
     Returns a Math::GMPz object with the value of $arg.
-    $arg can be either an integer (signed integer, unsigned
-    integer, signed fraction or unsigned fraction) or a string that
-    represents a numeric value. If $arg is a string, an optional
-    additional argument that specifies the base of the number can be
-    supplied to new(). If base is 0 (or not supplied) then the leading
-    characters of the string are used: 0x or 0X for hex, 0b or 0B for
-    binary, 0 for octal, or decimal otherwise. Legal values for the
-    base are 0 and 2..62 .
+    $arg can be either a Math::GMPz object, a Math::BigInt object, a
+    number (signed integer, unsigned integer, signed fraction or
+    unsigned fraction) or a string that represents a numeric value. If
+    $arg is a string, an optional additional argument that specifies
+    the base of the number can be supplied to new(). If base is 0 (or
+    not supplied) then the leading characters of the string are used:
+    0x or 0X for hex, 0b or 0B for binary, 0 for octal, or decimal
+    otherwise. Legal values for the base are 0 and 2..62 .
 
    $rop = Rmpz_init_set($op);
    $rop = Rmpz_init_set_nobless($op);
@@ -1420,27 +1427,33 @@ __END__
 
    OPERATOR OVERLOADING
 
-    Overloading works with numbers, strings, Math::GMPz objects and, to
-    a limited extent, Math::GMPq objects (iff the gmp library is version
-    6.1.0 or later) and Math::MPFR objects (iff version 3.13 or later of
-    Math::MPFR has been installed).
+    Overloading works with numbers, strings, Math::GMPz objects,
+    Math::BigInt objects and, to a limited extent, Math::GMPq objects
+    (iff the gmp library is version 6.1.0 or later) and Math::MPFR
+    objects (iff version 3.13 or later of Math::MPFR has been
+    installed).
 
    The following operators are overloaded:
-    + - * / %
-    += -= *= /= %=
+    + - * / % **
+    += -= *= /= %= **=
     << >> <<= >>=
     & | ^ ~
     &= |= ^=
     < <= > >= == != <=>
     ! abs
 
+    The "power" operators ('**' and '**=') overload only positive
+    integers, or strings that represent a positive value that will
+    fit into an unsigned long int
+
     Division uses 'tdiv' (see 'Integer Division', above).
     Check that '~', '%', and '%=' are working as you expect
     (especially in relation to negative values).
 
-    Atempting to use the overloaded operators with objects that
-    have been blessed into some package other than 'Math::GMPz'
-    or 'Math::MPFR' (limited applications) will not work.
+    Attempting to use the overloaded operators with objects that
+    have been blessed into some package other than 'Math::BigInt',
+   'Math::GMPz', 'Math::GMPq' (comparison operators), or 'Math::MPFR'
+    (limited applications) will not work.
     Math::MPFR objects can be used only with '+', '-', '*', '/'
     and '**' operators, and will work only if Math::MPFR is at
     version 3.13 or later - in which case the operation will
