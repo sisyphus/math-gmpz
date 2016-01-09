@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 use Math::GMPz qw(:mpz);
-use Math::BigInt; # for some error checks
+use Math::BigFloat; # for some error checks
 
 print "1..7\n";
 
@@ -99,7 +99,7 @@ else {print "not ok 2 $ok\n"}
 
 $ok = '';
 
-my $mbi = Math::BigInt->new(123);
+my $mbi = Math::BigFloat->new(123);
 eval {Rmpz_printf("%Zd", $mbi);};
 if($@ =~ /Unrecognised object/) {$ok .= 'a'}
 else {warn "3a got: $@\n"}
