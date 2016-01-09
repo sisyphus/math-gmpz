@@ -1,7 +1,6 @@
 use strict;
 use warnings;
 use Math::GMPz qw(:mpz);
-use Math::BigInt;
 
 #$| = 1;
 print "1..34\n";
