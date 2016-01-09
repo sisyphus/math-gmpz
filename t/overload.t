@@ -1,10 +1,10 @@
 use strict;
 use warnings;
 use Math::GMPz qw(:mpz);
-use Math::BigInt; # for some error checking
+use Math::BigFloat; # for some error checking
 #use Devel::Peek;
 
-print "1..39\n";
+print "1..40\n";
 
 print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 
@@ -694,7 +694,7 @@ if($z2 == $z
    && Math::GMPz::get_refcnt($z2) == 1) {print "ok 33\n"}
 else {print "not ok 33\n"}
 
-my $mbi = Math::BigInt->new(112345);
+my $mbi = Math::BigFloat->new(112345);
 my $p = Rmpz_init_set_ui(10);
 my $q = Rmpz_init();
 
@@ -859,7 +859,20 @@ eval{$p ^= $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'p'}
 
 if($ok eq 'AabcdeFfghijklmnop') {print "ok 39\n"}
-else {print "not ok 39 $ok\n"}
+else {
+  warn "\n\$ok: $ok\n";
+  print "not ok 39 $ok\n";
+}
+
+my $negative = "1702" - Math::GMPz->new("11702");
+
+if($negative == -10000) {print "ok 40\n"}
+else {
+  warn "\nexpected -10000, got $negative\n";
+  print "not ok 40\n";
+}
+
+
 
 ## *,+,/,-,*=,+=,-=,/=,&,&=,|,|=,^,^=,
 ## >,>=,<,<=,<=>,==, !=
