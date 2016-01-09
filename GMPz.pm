@@ -675,7 +675,7 @@ __END__
    eg "1234567890987654321234567" which might be a base 10 number,
    or "zsa34760sdfgq123r5" which would have to represent at least
    a base 36 number (because "z" is a valid digit only in bases 36
-   and higher). Valid bases for GMP numbers are 0 and 2..62 .
+   and higher). Valid bases for GMP numbers are 2..62 .
 
    "$NULL" is $Math::GMPz::NULL (the NULL mpz type).
 
@@ -1442,9 +1442,9 @@ __END__
     < <= > >= == != <=>
     ! abs
 
-    The "power" operators ('**' and '**=') overload only positive
-    integers, or strings that represent a positive value that will
-    fit into an unsigned long int
+    The "power" operators ('**' and '**=') overload accept only +ve
+    integers (ie +IV or UV). Values that are too large to fit into
+    a C 'unsigned long int' will be silently truncated.
 
     Division uses 'tdiv' (see 'Integer Division', above).
     Check that '~', '%', and '%=' are working as you expect
@@ -1459,8 +1459,8 @@ __END__
     version 3.13 or later - in which case the operation will
     return a Math::MPFR object.
     Math::GMPq objects can be used only with the comparison operators
-    ( == != < <= > >= <=> ), and only if Math::GMPq has been built against
-    gmp-6.1.0 or later.
+    ( == != < <= > >= <=> ), and only if Math::GMPq has been built
+    against gmp-6.1.0 or later.
 
     In those situations where the overload subroutine operates on 2
     perl variables, then obviously one of those perl variables is
@@ -1472,13 +1472,15 @@ __END__
     1. If the variable is an unsigned long then that value is used.
        The variable is considered to be an unsigned long if
        (perl 5.8) the UOK flag is set or if (perl 5.6) SvIsUV()
-       returns true.
+       returns true. (In the case of perls whose ivtype is long long,
+       the variable is treated as an unsigned long long int if the
+       UOK/SvISUV flag is set.)
 
     2. If the variable is a signed long int, then that value is used.
        The variable is considered to be a signed long int if the
-       IOK flag is set. (In the case of perls built with
-       -Duse64bitint, the variable is treated as a signed long long
-       int if the IOK flag is set.)
+       IOK flag is set. (In the case of perls whose ivtype is long long,
+       the variable is treated as a signed long long int if the IOK flag
+       is set.)
 
     3. If the variable is a double, then that value is used. The
        variable is considered to be a double if the NOK flag is set.
