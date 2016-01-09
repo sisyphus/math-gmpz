@@ -1,7 +1,7 @@
 use warnings;
 use strict;
 use Math::GMPz qw(:mpz);
-use Math::BigInt;
+use Math::BigFloat;
 use Config;
 
 print "1..4\n";
@@ -134,7 +134,7 @@ else {
 
 #############################
 
-my $bi = Math::BigInt->new(123456789);
+my $bi = Math::BigFloat->new(123456789);
 
 $ok = '';
 
