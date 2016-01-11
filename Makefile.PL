@@ -21,6 +21,8 @@ $use_long_double = 0;# Let perl decide whether to include 'long double' support
 
 my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
 
+$defines .= " -DENABLE_MATH_BIGINT_GMP_OVERLOAD";
+
 if($use_64_bit_int == -1) {}
 elsif($use_64_bit_int == 1) {$defines .= " -DMATH_GMPZ_NEED_LONG_LONG_INT"}
 else {
