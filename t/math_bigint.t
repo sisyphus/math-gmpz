@@ -5,7 +5,12 @@ use Math::BigInt;
 
 #use Devel::Peek;
 
-print "1..41\n";
+print "1..49\n";
+
+#fine with: 1.88, 1.89, 1.999715
+
+my $v = $Math::BigInt::VERSION;
+warn "\nUsing Math::BigInt version $v\n";
 
 my $str = '1234567' x 8;
 
@@ -388,3 +393,69 @@ else {
 
 ############################
 
+eval{$discard = $z * $nan};
+
+if($@ =~ /^Invalid Math::BigInt object supplied to Math::GMPz::overload_mul/) {print "ok 42\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 42\n";
+}
+
+eval{$discard = $z + $nan};
+
+if($@ =~ /^Invalid Math::BigInt object supplied to Math::GMPz::overload_add/) {print "ok 43\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 43\n";
+}
+
+eval{$discard = $z - $nan};
+
+if($@ =~ /^Invalid Math::BigInt object supplied to Math::GMPz::overload_sub/) {print "ok 44\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 44\n";
+}
+
+eval{$discard = $z / $nan};
+
+if($@ =~ /^Invalid Math::BigInt object supplied to Math::GMPz::overload_div/) {print "ok 45\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 45\n";
+}
+
+eval{$discard = $z % $nan};
+
+if($@ =~ /^Invalid Math::BigInt object supplied to Math::GMPz::overload_mod/) {print "ok 46\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 46\n";
+}
+
+my $ninf = Math::BigInt->new(-10) / Math::BigInt->new(0);
+my $pinf = Math::BigInt->new(10) / Math::BigInt->new(0);
+
+eval {if($z == $ninf){}};
+
+if($@ =~ /^Invalid Math::BigInt object supplied to Math::GMPz::overload_equiv/) {print "ok 47\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 47\n";
+}
+
+eval {if($z == $pinf){}};
+
+if($@ =~ /^Invalid Math::BigInt object supplied to Math::GMPz::overload_equiv/) {print "ok 48\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 48\n";
+}
+
+my $neg = Math::BigInt->new('-1023456');
+
+if($z + $neg == $z - 1023456) {print "ok 49\n"}
+else {
+  warn "Expected ", $z - 1023456, ", got ", $z + $neg, "\n";
+  print "not ok 49\n";
+}
