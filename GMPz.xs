@@ -41,6 +41,80 @@
 #  define Newxz(v,n,t) Newz(0,v,n,t)
 #endif
 
+/* for Math::BigInt overloading */
+#define MBI_DECLARATIONS	\
+     mpz_t * mpz;		\
+     const char * sign;		\
+     SV ** sign_key;
+
+#define VALIDATE_MBI_OBJECT				\
+     sign_key  = hv_fetch((HV*)SvRV(b), "sign", 4, 0);	\
+     sign = SvPV_nolen(*sign_key);			\
+     if(strNE("-", sign) && strNE("+", sign))
+
+#ifdef ENABLE_MATH_BIGINT_GMP_OVERLOAD		/* start ENABLE_MATH_BIGINT_GMP_OVERLOAD */
+
+#ifndef PERL_MAGIC_ext
+#  define PERL_MAGIC_ext '~'
+#endif
+
+#ifdef sv_magicext
+#  define MATH_GMPz_HAS_MAGICEXT 1
+#else
+#  define MATH_GMPz_HAS_MAGICEXT 0
+#endif
+
+#define MBI_GMP_DECLARATIONS 	\
+     const char * h2;		\
+     MAGIC * mg;		\
+     SV ** value_key;
+
+/* define to: else warn("Falling through to string overload"); */
+#define MBI_GMP_FALLTHRU_WARNING
+
+#if MATH_GMPz_HAS_MAGICEXT
+
+#define VALUE_TO_MPZ 							\
+  for(mg = SvMAGIC(SvRV(*value_key)); mg; mg = mg->mg_moremagic) {	\
+    if(mg->mg_type == PERL_MAGIC_ext) {					\
+      mpz = (mpz_t *)mg->mg_ptr;					\
+      break;								\
+    }									\
+  }
+
+#else
+
+#define VALUE_TO_MPZ 							\
+  for(mg = SvMAGIC(SvRV(*value_key)); mg; mg = mg->mg_moremagic) {	\
+    if(mg->mg_type == PERL_MAGIC_ext) {					\
+      mpz = INT2PTR(mpz_t *, SvIV((SV *)mg->mg_ptr));			\
+      break;								\
+    }									\
+  }
+
+#endif
+
+#define MBI_GMP_INSERT 							\
+  value_key = hv_fetch((HV*)SvRV(b), "value", 5, 0);			\
+  if(sv_isobject(*value_key)) {						\
+    h2 = HvNAME(SvSTASH(SvRV(*value_key)));				\
+    if(strEQ(h2, "Math::BigInt::GMP")) {				\
+      VALUE_TO_MPZ							\
+      if(mpz) {								\
+        if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);	\
+      }									\
+      MBI_GMP_FALLTHRU_WARNING						\
+    }									\
+  }
+
+
+#else
+
+#define MBI_GMP_DECLARATIONS
+#define MBI_GMP_INSERT
+
+#endif						/* end ENABLE_MATH_BIGINT_GMP_OVERLOAD */
+
 SV * Rmpz_init_set_str_nobless(pTHX_ SV * num, SV * base) {
      mpz_t * mpz_t_obj;
      unsigned long b = SvUV(base);
@@ -1307,6 +1381,8 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      const char *h;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
@@ -1356,7 +1432,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(SvPOK(b) || strEQ(h, "Math::BigInt")) {
+     if(SvPOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak(" Invalid string supplied to Math::GMPz::overload_mul");
        mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *mpz_t_obj);
@@ -1395,6 +1471,22 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          LEAVE;
          return ret;
        }
+
+       if(strEQ(h, "Math::BigInt")) {
+         VALIDATE_MBI_OBJECT
+         croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_mul");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
+         mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *mpz_t_obj);
+         return obj_ref;
+       }
      }
 
      croak("Invalid argument supplied to Math::GMPz::overload_mul");
@@ -1404,6 +1496,8 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      const char *h;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
@@ -1456,7 +1550,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(SvPOK(b) || strEQ(h, "Math::BigInt")) {
+     if(SvPOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak(" Invalid string supplied to Math::GMPz::overload_add");
        mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *mpz_t_obj);
@@ -1495,6 +1589,22 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          LEAVE;
          return ret;
        }
+
+       if(strEQ(h, "Math::BigInt")) {
+         VALIDATE_MBI_OBJECT
+         croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_add");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
+         mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *mpz_t_obj);
+         return obj_ref;
+       }
      }
 
      croak("Invalid argument supplied to Math::GMPz::overload_add function");
@@ -1505,6 +1615,8 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      const char *h;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
@@ -1569,7 +1681,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(SvPOK(b) || strEQ(h, "Math::BigInt")) {
+     if(SvPOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak(" Invalid string supplied to Math::GMPz::overload_sub");
        if(third == &PL_sv_yes) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))));
@@ -1608,6 +1720,22 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          LEAVE;
          return ret;
        }
+
+       if(strEQ(h, "Math::BigInt")) {
+         VALIDATE_MBI_OBJECT
+         croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_sub");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
+         mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *mpz_t_obj);
+         return obj_ref;
+       }
      }
 
      croak("Invalid argument supplied to Math::GMPz::overload_sub function");
@@ -1618,6 +1746,8 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      const char *h;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
@@ -1690,7 +1820,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(SvPOK(b) || strEQ(h, "Math::BigInt")) {
+     if(SvPOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string supplied to Math::GMPz::overload_div");
        if(third == &PL_sv_yes) mpz_tdiv_q(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))));
@@ -1730,6 +1860,22 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          LEAVE;
          return ret;
        }
+
+       if(strEQ(h, "Math::BigInt")) {
+         VALIDATE_MBI_OBJECT
+           croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_div");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
+         mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *mpz_t_obj);
+         return obj_ref;
+       }
      }
 
      croak("Invalid argument supplied to Math::GMPz::overload_div function");
@@ -1739,6 +1885,8 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t *mpz_t_obj;
      SV * obj_ref, * obj;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -1818,8 +1966,17 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
          return obj_ref;
          }
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-           croak(" Invalid string supplied to Math::GMPz::overload_mod");
+         VALIDATE_MBI_OBJECT
+           croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_mod");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_mod(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_mod(*mpz_t_obj, *a, *mpz_t_obj);
          return obj_ref;
        }
@@ -2010,6 +2167,8 @@ SV * overload_sqrt(pTHX_ mpz_t * p, SV * second, SV * third) {
 SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2070,8 +2229,17 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_and");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_and(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_and(*mpz_t_obj, *a, *mpz_t_obj);
          return obj_ref;
        }
@@ -2083,6 +2251,8 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2142,8 +2312,17 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_ior");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_ior(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_ior(*mpz_t_obj, *a, *mpz_t_obj);
          return obj_ref;
        }
@@ -2155,6 +2334,8 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2214,8 +2395,17 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_xor");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_xor(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+           return obj_ref;
+         }
+
+         mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_xor(*mpz_t_obj, *a, *mpz_t_obj);
          return obj_ref;
        }
@@ -2243,6 +2433,8 @@ SV * overload_com(pTHX_ mpz_t * p, SV * second, SV * third) {
 SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2316,8 +2508,18 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_gt");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+           if(ret > 0) return newSViv(1);
+           return newSViv(0);
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
          /* if(third == &PL_sv_yes) ret *= -1; */
@@ -2332,6 +2534,8 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2406,8 +2610,18 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_gte");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+           if(ret >= 0) return newSViv(1);
+           return newSViv(0);
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
          /* if(third == &PL_sv_yes) ret *= -1; */
@@ -2422,6 +2636,8 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2496,8 +2712,18 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_lt");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+           if(ret < 0) return newSViv(1);
+           return newSViv(0);
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
          /* if(third == &PL_sv_yes) ret *= -1; */
@@ -2512,6 +2738,8 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2586,8 +2814,18 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_lte");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+           if(ret <= 0) return newSViv(1);
+           return newSViv(0);
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
          /* if(third == &PL_sv_yes) ret *= -1; */
@@ -2602,6 +2840,8 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2669,8 +2909,17 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_spaceship");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+           return newSViv(ret);
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
          /* if(third == &PL_sv_yes) ret *= -1; */
@@ -2684,6 +2933,8 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2753,8 +3004,18 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_equiv");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+           if(ret == 0) return newSViv(1);
+           return newSViv(0);
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
          if(ret == 0) return newSViv(1);
@@ -2768,6 +3029,8 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2842,8 +3105,18 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0))
+         VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_not_equiv");
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+           if(ret != 0) return newSViv(1);
+           return newSViv(0);
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
          if(ret != 0) return newSViv(1);
@@ -2863,6 +3136,8 @@ SV * overload_not(pTHX_ mpz_t * a, SV * second, SV * third) {
 
 SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -2927,10 +3202,19 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_xor_eq");
          }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_xor(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          mpz_xor(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
          mpz_clear(t);
          return a;
@@ -2943,6 +3227,8 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -3006,10 +3292,19 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_ior_eq");
          }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_ior(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          mpz_ior(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
          mpz_clear(t);
          return a;
@@ -3022,6 +3317,8 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -3085,10 +3382,19 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_and_eq");
          }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_and(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          mpz_and(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
          mpz_clear(t);
          return a;
@@ -3169,6 +3475,8 @@ SV * overload_dec(pTHX_ SV * p, SV * second, SV * third) {
 
 SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -3234,10 +3542,19 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_mod_eq");
          }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_mod(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          mpz_mod(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
          mpz_clear(t);
          return a;
@@ -3254,6 +3571,8 @@ SV * get_refcnt(pTHX_ SV * s) {
 
 SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -3265,7 +3584,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
          SvREFCNT_dec(a);
          croak("Invalid string supplied to Math::GMPz::overload_div_eq");
-         }
+       }
        mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
        mpz_clear(t);
        return a;
@@ -3318,13 +3637,22 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-       if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
          SvREFCNT_dec(a);
          croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_div_eq");
-       }
-       mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
-       mpz_clear(t);
-       return a;
+         }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
+         mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
+         mpz_clear(t);
+         return a;
        }
      }
 
@@ -3335,6 +3663,8 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -3398,10 +3728,19 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_sub_eq");
          }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_sub(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          mpz_sub(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
          mpz_clear(t);
          return a;
@@ -3415,6 +3754,8 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -3478,10 +3819,19 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_add_eq");
          }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_add(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          mpz_add(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
          mpz_clear(t);
          return a;
@@ -3495,6 +3845,8 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
+     MBI_DECLARATIONS
+     MBI_GMP_DECLARATIONS
 #ifdef USE_LONG_DOUBLE
      char buffer[50];
 #endif
@@ -3554,10 +3906,19 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(strEQ(h, "Math::BigInt")) {
-         if(mpz_init_set_str(t, SvPV_nolen(b), 0)) {
+         VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_mul_eq");
          }
+
+         MBI_GMP_INSERT
+
+         if(mpz) {
+           mpz_mul(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+           return a;
+         }
+
+         mpz_init_set_str(t, SvPV_nolen(b), 0);
          mpz_mul(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), t);
          mpz_clear(t);
          return a;
@@ -3612,7 +3973,7 @@ SV * gmp_v(pTHX) {
 #if __GNU_MP_VERSION >= 4
      return newSVpv(gmp_version, 0);
 #else
-     warn("From Math::GMPz::gmp_v(aTHX): 'gmp_version' is not implemented - returning '0'");
+     warn("From Math::GMPz::gmp_v function: 'gmp_version' is not implemented - returning '0'");
      return newSVpv("0", 0);
 #endif
 }
@@ -4450,6 +4811,8 @@ SV * _GMP_NAIL_BITS(pTHX) {
      return &PL_sv_undef;
 #endif
 }
+
+
 
 
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
