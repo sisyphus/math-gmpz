@@ -42,9 +42,9 @@
 #endif
 
 /* for Math::BigInt overloading */
-#define MBI_DECLARATIONS	\
-     mpz_t * mpz;		\
-     const char * sign;		\
+#define MBI_DECLARATIONS		\
+     mpz_t * mpz = (mpz_t *)NULL;	\
+     const char * sign;			\
      SV ** sign_key;
 
 #define VALIDATE_MBI_OBJECT				\
@@ -68,9 +68,6 @@
      const char * h2;		\
      MAGIC * mg;		\
      SV ** value_key;
-
-/* define to: else warn("Falling through to string overload"); */
-#define MBI_GMP_FALLTHRU_WARNING
 
 #if MATH_GMPz_HAS_MAGICEXT
 
@@ -100,10 +97,6 @@
     h2 = HvNAME(SvSTASH(SvRV(*value_key)));				\
     if(strEQ(h2, "Math::BigInt::GMP")) {				\
       VALUE_TO_MPZ							\
-      if(mpz) {								\
-        if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);	\
-      }									\
-      MBI_GMP_FALLTHRU_WARNING						\
     }									\
   }
 
@@ -1479,6 +1472,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -1597,6 +1591,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -1728,6 +1723,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -1868,6 +1864,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -1972,6 +1969,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_mod(*mpz_t_obj, *a, (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -2235,6 +2233,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_and(*mpz_t_obj, *a, (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -2318,6 +2317,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_ior(*mpz_t_obj, *a, (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -2401,6 +2401,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_xor(*mpz_t_obj, *a, (mpz_srcptr)mpz);
            return obj_ref;
          }
@@ -2514,6 +2515,7 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret > 0) return newSViv(1);
            return newSViv(0);
@@ -2616,6 +2618,7 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret >= 0) return newSViv(1);
            return newSViv(0);
@@ -2718,6 +2721,7 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret < 0) return newSViv(1);
            return newSViv(0);
@@ -2820,6 +2824,7 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret <= 0) return newSViv(1);
            return newSViv(0);
@@ -2915,6 +2920,7 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            return newSViv(ret);
          }
@@ -3010,6 +3016,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret == 0) return newSViv(1);
            return newSViv(0);
@@ -3111,6 +3118,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret != 0) return newSViv(1);
            return newSViv(0);
@@ -3210,6 +3218,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_xor(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -3300,6 +3309,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_ior(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -3390,6 +3400,7 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_and(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -3550,6 +3561,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_mod(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -3645,6 +3657,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -3736,6 +3749,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_sub(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -3827,6 +3841,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_add(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -3914,6 +3929,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
+           if(strEQ("-", sign)) mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
            mpz_mul(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
