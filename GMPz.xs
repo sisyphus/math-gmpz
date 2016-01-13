@@ -1978,7 +1978,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
 
          if(mpz) {
            mpz_mod(*mpz_t_obj, *a, (mpz_srcptr)mpz);
-           /* if(strEQ("-", sign)) ...... sign of dividend has no bearing on mod */
+           /* if(strEQ("-", sign)) ...... sign of divisor has no bearing on mod */
            return obj_ref;
          }
 
@@ -3653,7 +3653,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           /* if(strEQ("-", sign)) ...... not an issue for the dividend in a mod operation */
+           /* if(strEQ("-", sign)) ...... not an issue for the divisor in a mod operation */
            mpz_mod(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
