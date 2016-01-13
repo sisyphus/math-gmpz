@@ -11,6 +11,7 @@ warn "# CC is ", Math::GMPz::__GMP_CC, "\n" if defined Math::GMPz::__GMP_CC;
 warn "# CFLAGS are ", Math::GMPz::__GMP_CFLAGS, "\n" if defined Math::GMPz::__GMP_CFLAGS;
 warn "# GMP_LIMB_BITS is ", Math::GMPz::GMP_LIMB_BITS, "\n" if defined Math::GMPz::GMP_LIMB_BITS;
 warn "# GMP_NAIL_BITS is ", Math::GMPz::GMP_NAIL_BITS, "\n" if defined Math::GMPz::GMP_NAIL_BITS;
+warn "# MATH_GMPz_HAS_MAGICEXT is ", Math::GMPz::_magic_status(), "\n" if defined Math::GMPz::_magic_status();
 
 if($Math::GMPz::VERSION eq '0.43' && $Math::GMPz::Random::VERSION eq '0.43' &&
    $Math::GMPz::V::VERSION eq '0.43' &&
