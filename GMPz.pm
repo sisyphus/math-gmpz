@@ -81,7 +81,7 @@ Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
-Rmpz_invert Rmpz_ior
+Rmpz_invert Rmpz_ior new_from_MBI
 Rmpz_jacobi Rmpz_kronecker Rmpz_kronecker_si Rmpz_kronecker_ui Rmpz_lcm
 Rmpz_lcm_ui Rmpz_legendre Rmpz_lucnum2_ui Rmpz_lucnum_ui Rmpz_mod Rmpz_mod_ui
 Rmpz_mul Rmpz_mul_2exp Rmpz_mul_si Rmpz_mul_ui Rmpz_neg Rmpz_nextprime
@@ -132,7 +132,7 @@ Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
-Rmpz_invert Rmpz_ior
+Rmpz_invert Rmpz_ior new_from_MBI
 Rmpz_jacobi Rmpz_kronecker Rmpz_kronecker_si Rmpz_kronecker_ui Rmpz_lcm
 Rmpz_lcm_ui Rmpz_legendre Rmpz_lucnum2_ui Rmpz_lucnum_ui Rmpz_mod Rmpz_mod_ui
 Rmpz_mul Rmpz_mul_2exp Rmpz_mul_si Rmpz_mul_ui Rmpz_neg Rmpz_nextprime
@@ -225,12 +225,17 @@ sub new {
       return Rmpz_init_set($arg1);
     }
 
-    if($type < 0) { # Math::BigInt
+    if($type == -1) { # Math::BigInt
       if(@_) {die "Too many arguments supplied to new() - expected only one"}
-      return Rmpz_init_set_str($arg1, 10);
+      return _new_from_MBI($arg1);
     }
 
     die "Unrecognised argument provided to new()";
+}
+
+sub new_from_MBI {
+    return _new_from_MBI($_[0]) if _itsa($_[0]) == -1;
+    die "Inappropriate arg supplied to new_from_MBI function";
 }
 
 sub Rmpz_out_str {
@@ -774,6 +779,8 @@ __END__
    $rop = Rmpz_init_set_d_nobless($double);
    $rop = Rmpz_init_set_str($str, $base);
    $rop = Rmpz_init_set_str_nobless($str, $base);
+
+   $rop = new_from_MBI($mbi); # $mbi is a Math::BigInt object.
 
    ###################
 
