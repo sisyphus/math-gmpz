@@ -1591,12 +1591,12 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           if(strEQ("-", sign))
+           if(strEQ("-", sign)) {
              mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+             return obj_ref;
+           }
 
-           else
-             mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
-
+           mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return obj_ref;
          }
 
@@ -1727,12 +1727,12 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           if(strEQ("-", sign))
+           if(strEQ("-", sign)) {
              mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+             return obj_ref;
+           }
 
-           else
-             mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
-
+           mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return obj_ref;
          }
 
@@ -2241,9 +2241,14 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           mpz_set(*mpz_t_obj, (mpz_srcptr)mpz);
-           if(strEQ("-", sign)) mpz_neg(*mpz_t_obj, *mpz_t_obj);
-           mpz_and(*mpz_t_obj, *a, *mpz_t_obj);
+           if(strEQ("-", sign)) {
+             mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
+             mpz_and(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+             mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             return obj_ref;
+           }
+
+           mpz_and(*mpz_t_obj, *a, (mpz_srcptr)mpz);
            return obj_ref;
          }
 
@@ -2326,9 +2331,14 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           mpz_set(*mpz_t_obj, (mpz_srcptr)mpz);
-           if(strEQ("-", sign)) mpz_neg(*mpz_t_obj, *mpz_t_obj);
-           mpz_ior(*mpz_t_obj, *a, *mpz_t_obj);
+           if(strEQ("-", sign)) {
+             mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
+             mpz_ior(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+             mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             return obj_ref;
+           }
+
+           mpz_ior(*mpz_t_obj, *a, (mpz_srcptr)mpz);
            return obj_ref;
          }
 
@@ -2411,9 +2421,14 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           mpz_set(*mpz_t_obj, (mpz_srcptr)mpz);
-           if(strEQ("-", sign)) mpz_neg(*mpz_t_obj, *mpz_t_obj);
-           mpz_xor(*mpz_t_obj, *a, *mpz_t_obj);
+           if(strEQ("-", sign)) {
+             mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
+             mpz_xor(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+             mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             return obj_ref;
+           }
+
+           mpz_xor(*mpz_t_obj, *a, (mpz_srcptr)mpz);
            return obj_ref;
          }
 
@@ -2530,9 +2545,11 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              ret = mpz_cmp(*a, (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             if(ret > 0) return newSViv(1);
+             return newSViv(0);
            }
-           else
-             ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret > 0) return newSViv(1);
            return newSViv(0);
          }
@@ -2638,9 +2655,11 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              ret = mpz_cmp(*a, (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             if(ret >= 0) return newSViv(1);
+             return newSViv(0);
            }
-           else
-             ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret >= 0) return newSViv(1);
            return newSViv(0);
          }
@@ -2746,9 +2765,11 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              ret = mpz_cmp(*a, (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             if(ret < 0) return newSViv(1);
+             return newSViv(0);
            }
-           else
-             ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret < 0) return newSViv(1);
            return newSViv(0);
          }
@@ -2854,9 +2875,11 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              ret = mpz_cmp(*a, (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             if(ret <= 0) return newSViv(1);
+             return newSViv(0);
            }
-           else
-             ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret <= 0) return newSViv(1);
            return newSViv(0);
          }
@@ -2955,9 +2978,10 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              ret = mpz_cmp(*a, (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             return newSViv(ret);
            }
-           else
-             ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            return newSViv(ret);
          }
 
@@ -3056,9 +3080,11 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              ret = mpz_cmp(*a, (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             if(ret == 0) return newSViv(1);
+             return newSViv(0);
            }
-           else
-             ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret == 0) return newSViv(1);
            return newSViv(0);
          }
@@ -3163,9 +3189,11 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              ret = mpz_cmp(*a, (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             if(ret != 0) return newSViv(1);
+             return newSViv(0);
            }
-           else
-             ret = mpz_cmp(*a, (mpz_srcptr)mpz);
+
+           ret = mpz_cmp(*a, (mpz_srcptr)mpz);
            if(ret != 0) return newSViv(1);
            return newSViv(0);
          }
@@ -3268,10 +3296,10 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              mpz_xor(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             return a;
            }
-           else
-             mpz_xor(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
 
+           mpz_xor(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
 
@@ -3365,10 +3393,10 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              mpz_ior(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             return a;
            }
-           else
-             mpz_ior(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
 
+           mpz_ior(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
 
@@ -3462,10 +3490,10 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz);
              mpz_and(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
              mpz_neg((mpz_ptr)mpz, (mpz_srcptr)mpz); /* restore to original */
+             return a;
            }
-           else
-             mpz_and(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
 
+           mpz_and(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
 
@@ -3813,10 +3841,12 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           if(strEQ("-", sign))
+           if(strEQ("-", sign)) {
              mpz_add(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
-           else
-             mpz_sub(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+             return a;
+           }
+
+           mpz_sub(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
 
@@ -3907,10 +3937,12 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           if(strEQ("-", sign))
+           if(strEQ("-", sign)) {
              mpz_sub(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
-           else
-             mpz_add(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
+             return a;
+           }
+
+           mpz_add(*(INT2PTR(mpz_t *, SvIV(SvRV(a)))), *(INT2PTR(mpz_t *, SvIV(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
 
