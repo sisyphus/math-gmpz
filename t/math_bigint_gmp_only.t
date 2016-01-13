@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Math::GMPz;
+use Math::GMPz qw(:mpz);
 
 #use Devel::Peek;
 
@@ -17,7 +17,7 @@ else {
   exit 0;
 }
 
-print "1..49\n";
+print "1..123\n";
 
 my $v = $Math::BigInt::GMP::VERSION;
 warn "\nUsing Math::BigInt::GMP version $v\n" if $v;
@@ -472,3 +472,648 @@ else {
   warn "Expected ", $z - 1023456, ", got ", $z + $neg, "\n";
   print "not ok 49\n";
 }
+
+my $check1 = Math::GMPz->new($neg);
+
+if($check1 == Math::GMPz->new(-1023456)) {print "ok 50\n"}
+else {
+  warn "\nexpected -1023456, got $check1\n";
+  print "not ok 50\n";
+}
+
+my $check2 = new_from_MBI($neg);
+
+if($check2 == Math::GMPz->new(-1023456)) {print "ok 51\n"}
+else {
+  warn "\nexpected -1023456, got $check1\n";
+  print "not ok 51\n";
+}
+
+eval {$check2 = new_from_MBI(Math::GMPz->new(1234))};
+
+if($@ =~ /^Inappropriate arg supplied to new_from_MBI/) {print "ok 52\n"}
+else {
+  warn "\n\$\@: $@\n";
+  print "not ok 52\n";
+}
+
+my $check3 = Math::GMPz::_new_from_MBI($neg + 6);
+
+if($check3 == Math::GMPz->new(-1023450)) {print "ok 53\n"}
+else {
+  warn "\nexpected -1023450, got $check3\n";
+  print "not ok 53\n";
+}
+
+# Check that -ve values are being handled correctly.
+
+my $bitop = Math::BigInt->new(-5);
+my $checkop = Math::GMPz->new(-5);
+my $zop   = Math::GMPz->new(17);
+
+########################################
+
+if(($zop & $bitop) == 17) {print "ok 54\n"}
+else {
+  warn "\nexpected 17, got ", $zop & $bitop, "\n";
+  print "not ok 54\n";
+}
+
+if($checkop == $bitop) {print "ok 55\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 55\n";
+}
+
+########################################
+########################################
+
+$zop *= -1;
+
+if(($zop & $bitop) == -21) {print "ok 56\n"}
+else {
+  warn "\nexpected -21, got ", $zop & $bitop, "\n";
+  print "not ok 56\n";
+}
+
+if($checkop == $bitop) {print "ok 57\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 57\n";
+}
+
+########################################
+
+########################################
+
+$zop *= -1; # +17
+
+if(($zop | $bitop) == -5) {print "ok 58\n"}
+else {
+  warn "\nexpected -5, got ", $zop | $bitop, "\n";
+  print "not ok 58\n";
+}
+
+if($checkop == $bitop) {print "ok 59\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 59\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+
+if(($zop | $bitop) == -1) {print "ok 60\n"}
+else {
+  warn "\nexpected -1, got ", $zop | $bitop, "\n";
+  print "not ok 60\n";
+}
+
+if($checkop == $bitop) {print "ok 61\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 61\n";
+}
+
+########################################
+
+########################################
+
+$zop *= -1; # +17
+
+if(($zop ^ $bitop) == -22) {print "ok 62\n"}
+else {
+  warn "\nexpected -22, got ", $zop ^ $bitop, "\n";
+  print "not ok 62\n";
+}
+
+if($checkop == $bitop) {print "ok 63\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 63\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+
+if(($zop ^ $bitop) == 20) {print "ok 64\n"}
+else {
+  warn "\nexpected 20, got ", $zop ^ $bitop, "\n";
+  print "not ok 64\n";
+}
+
+if($checkop == $bitop) {print "ok 65\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 65\n";
+}
+
+########################################
+#//////////////////////////////////////#
+########################################
+
+my $zcopy;
+
+$zop *= -1; # +17
+$zcopy = $zop;
+$zcopy &= $bitop;
+
+if($zcopy == 17) {print "ok 66\n"}
+else {
+  warn "\nexpected 17, got ", $zcopy, "\n";
+  print "not ok 66\n";
+}
+
+if($checkop == $bitop) {print "ok 67\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 67\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+$zcopy = $zop;
+$zcopy &= $bitop;
+
+if($zcopy == -21) {print "ok 68\n"}
+else {
+  warn "\nexpected -21, got ", $zcopy, "\n";
+  print "not ok 68\n";
+}
+
+if($checkop == $bitop) {print "ok 69\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 69\n";
+}
+
+########################################
+
+########################################
+
+$zop *= -1; # +17
+$zcopy = $zop;
+$zcopy |= $bitop;
+
+if($zcopy == -5) {print "ok 70\n"}
+else {
+  warn "\nexpected -5, got ", $zcopy, "\n";
+  print "not ok 70\n";
+}
+
+if($checkop == $bitop) {print "ok 71\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 71\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+$zcopy = $zop;
+$zcopy |= $bitop;
+
+if($zcopy == -1) {print "ok 72\n"}
+else {
+  warn "\nexpected -1, got ", $zcopy, "\n";
+  print "not ok 72\n";
+}
+
+if($checkop == $bitop) {print "ok 73\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 73\n";
+}
+
+########################################
+
+########################################
+
+$zop *= -1; # +17
+$zcopy = $zop;
+$zcopy ^= $bitop;
+
+if($zcopy == -22) {print "ok 74\n"}
+else {
+  warn "\nexpected -22, got ", $zcopy, "\n";
+  print "not ok 74\n";
+}
+
+if($checkop == $bitop) {print "ok 75\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 75\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+$zcopy = $zop;
+$zcopy ^= $bitop;
+
+if($zcopy == 20) {print "ok 76\n"}
+else {
+  warn "\nexpected 20, got ", $zcopy, "\n";
+  print "not ok 76\n";
+}
+
+if($checkop == $bitop) {print "ok 77\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 77\n";
+}
+
+########################################
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!#
+########################################
+
+$zop *= -1; # 17
+
+if(($zop * $bitop) == -85) {print "ok 78\n"}
+else {
+  warn "\nexpected -85, got ", $zop * $bitop, "\n";
+  print "not ok 78\n";
+}
+
+if($checkop == $bitop) {print "ok 79\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 79\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+
+if(($zop * $bitop) == 85) {print "ok 80\n"}
+else {
+  warn "\nexpected 85, got ", $zop* $bitop, "\n";
+  print "not ok 80\n";
+}
+
+if($checkop == $bitop) {print "ok 81\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 81\n";
+}
+
+########################################
+
+########################################
+
+$zop *= -1; # +17
+
+if(($zop + $bitop) == 12) {print "ok 82\n"}
+else {
+  warn "\nexpected 12, got ", $zop + $bitop, "\n";
+  print "not ok 82\n";
+}
+
+if($checkop == $bitop) {print "ok 83\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 83\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+
+if(($zop + $bitop) == -22) {print "ok 84\n"}
+else {
+  warn "\nexpected -22, got ", $zop + $bitop, "\n";
+  print "not ok 84\n";
+}
+
+if($checkop == $bitop) {print "ok 85\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 85\n";
+}
+
+########################################
+
+########################################
+
+$zop *= -1; # +17
+
+if(($zop - $bitop) == 22) {print "ok 86\n"}
+else {
+  warn "\nexpected 22, got ", $zop - $bitop, "\n";
+  print "not ok 86\n";
+}
+
+if($checkop == $bitop) {print "ok 87\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 87\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+
+if(($zop - $bitop) == -12) {print "ok 88\n"}
+else {
+  warn "\nexpected -12, got ", $zop - $bitop, "\n";
+  print "not ok 88\n";
+}
+
+if($checkop == $bitop) {print "ok 89\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 89\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # +17
+
+if(($zop / $bitop) == -3) {print "ok 90\n"}
+else {
+  warn "\nexpected -3, got ", $zop / $bitop, "\n";
+  print "not ok 90\n";
+}
+
+if($checkop == $bitop) {print "ok 91\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 91\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+
+if(($zop / $bitop) == 3) {print "ok 92\n"}
+else {
+  warn "\nexpected 3, got ", $zop / $bitop, "\n";
+  print "not ok 92\n";
+}
+
+if($checkop == $bitop) {print "ok 93\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 93\n";
+}
+
+########################################
+
+########################################
+
+$zop *= -1; # +17
+
+if(($zop % $bitop) == 2) {print "ok 94\n"}
+else {
+  warn "\nexpected 2, got ", $zop % $bitop, "\n";
+  print "not ok 94\n";
+}
+
+if($checkop == $bitop) {print "ok 95\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 95\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+
+if(($zop % $bitop) == 3) {print "ok 96\n"}
+else {
+  warn "\nexpected 3, got ", $zop % $bitop, "\n";
+  print "not ok 96\n";
+}
+
+if($checkop == $bitop) {print "ok 97\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 97\n";
+}
+
+########################################
+#//////////////////////////////////////#
+########################################
+
+$zop *= -1; # +17
+$zcopy = $zop;
+$zcopy *= $bitop;
+
+if($zcopy == -85) {print "ok 98\n"}
+else {
+  warn "\nexpected -85, got ", $zcopy, "\n";
+  print "not ok 98\n";
+}
+
+if($checkop == $bitop) {print "ok 99\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 99\n";
+}
+
+########################################
+########################################
+
+$zcopy = $zop;
+$zcopy += $bitop;
+
+if($zcopy == 12) {print "ok 100\n"}
+else {
+  warn "\nexpected 12, got ", $zcopy, "\n";
+  print "not ok 100\n";
+}
+
+if($checkop == $bitop) {print "ok 101\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 101\n";
+}
+
+########################################
+
+########################################
+
+$zcopy = $zop;
+$zcopy -= $bitop;
+
+if($zcopy == 22) {print "ok 102\n"}
+else {
+  warn "\nexpected 22, got ", $zcopy, "\n";
+  print "not ok 102\n";
+}
+
+if($checkop == $bitop) {print "ok 103\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 103\n";
+}
+
+########################################
+########################################
+
+$zcopy = $zop;
+$zcopy /= $bitop;
+
+if($zcopy == -3) {print "ok 104\n"}
+else {
+  warn "\nexpected -1, got ", $zcopy, "\n";
+  print "not ok 104\n";
+}
+
+if($checkop == $bitop) {print "ok 105\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 105\n";
+}
+
+########################################
+
+########################################
+
+$zcopy = $zop;
+$zcopy %= $bitop;
+
+if($zcopy == 2) {print "ok 106\n"}
+else {
+  warn "\nexpected 2, got ", $zcopy, "\n";
+  print "not ok 106\n";
+}
+
+if($checkop == $bitop) {print "ok 107\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 107\n";
+}
+
+########################################
+########################################
+
+$zop *= -1; # -17
+$zcopy = $zop;
+$zcopy %= $bitop;
+
+if($zcopy == 3) {print "ok 108\n"}
+else {
+  warn "\nexpected 3, got ", $zcopy, "\n";
+  print "not ok 108\n";
+}
+
+if($checkop == $bitop) {print "ok 109\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 109\n";
+}
+
+########################################
+
+
+if($zop < $bitop) {print "ok 110\n"}
+else {
+  warn "\n$zop is not less than $bitop\n";
+  print "not ok 110\n";
+}
+
+if($checkop == $bitop) {print "ok 111\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 111\n";
+}
+
+if($zop <= $bitop) {print "ok 112\n"}
+else {
+  warn "\n$zop is not less than or equal to $bitop\n";
+  print "not ok 112\n";
+}
+
+if($checkop == $bitop) {print "ok 113\n"}
+else {
+  warn "\nexpected -5, got $bitop\n";
+  print "not ok 113\n";
+}
+
+$zop *= -1;     # +17
+$bitop -= 20;   # -25
+$checkop -= 20; # -25
+
+if($zop > $bitop) {print "ok 114\n"}
+else {
+  warn "\n$zop is not greater than $bitop\n";
+  print "not ok 114\n";
+}
+
+if($checkop == $bitop) {print "ok 115\n"}
+else {
+  warn "\nexpected -25, got $bitop\n";
+  print "not ok 115\n";
+}
+
+if($zop >= $bitop) {print "ok 116\n"}
+else {
+  warn "\n$zop is not greater than or equal to $bitop\n";
+  print "not ok 116\n";
+}
+
+if($checkop == $bitop) {print "ok 117\n"}
+else {
+  warn "\nexpected -25, got $bitop\n";
+  print "not ok 117\n";
+}
+
+if($zop != $bitop) {print "ok 118\n"}
+else {
+  warn "\n$zop is not equal to $bitop\n";
+  print "not ok 118\n";
+}
+
+if($checkop == $bitop) {print "ok 119\n"}
+else {
+  warn "\nexpected -25, got $bitop\n";
+  print "not ok 119\n";
+}
+
+my $c = $zop <=> $bitop;
+if($c > 0) {print "ok 120\n"}
+else {
+  warn "\nexpected a positive value, got $c\n";
+  print "not ok 120\n";
+}
+
+if($checkop == $bitop) {print "ok 121\n"}
+else {
+  warn "\nexpected -25, got $bitop\n";
+  print "not ok 121\n";
+}
+
+$zop *= -2; # -34
+
+$c = $zop <=> $bitop;
+if($c < 0) {print "ok 122\n"}
+else {
+  warn "\nexpected a negative value, got $c\n";
+  print "not ok 122\n";
+}
+
+if($checkop == $bitop) {print "ok 123\n"}
+else {
+  warn "\nexpected -25, got $bitop\n";
+  print "not ok 123\n";
+}
+
+
+
+
