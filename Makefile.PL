@@ -21,6 +21,10 @@ $use_long_double = 0;# Let perl decide whether to include 'long double' support
 
 my $defines = $] < 5.008 ? "-DOLDPERL" : "-DNEWPERL";
 
+# Comment out the next line of code to turn off the optimised overloading for
+# Math::BigInt objects whose value is a Math::BigInt::GMP object.
+# Overloading of such objects will then fall back to the (less efficient)
+# method of overloading via stringification.
 $defines .= " -DENABLE_MATH_BIGINT_GMP_OVERLOAD";
 
 if($use_64_bit_int == -1) {}
