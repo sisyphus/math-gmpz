@@ -1,4 +1,8 @@
+0.44
+
 0.43
+ - Overload operations with Math::BigInt objects, and allow new() to accept a
+   Math::BigInt object.
 
 0.42
  - PREREQ_PM => {'Exporter' => '5.58'} to avoid test failures on pre perl-5.8.4
