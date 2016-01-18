@@ -13,8 +13,8 @@ warn "# GMP_LIMB_BITS is ", Math::GMPz::GMP_LIMB_BITS, "\n" if defined Math::GMP
 warn "# GMP_NAIL_BITS is ", Math::GMPz::GMP_NAIL_BITS, "\n" if defined Math::GMPz::GMP_NAIL_BITS;
 warn "# MATH_GMPz_HAS_MAGICEXT is ", Math::GMPz::_magic_status(), "\n" if defined Math::GMPz::_magic_status();
 
-if($Math::GMPz::VERSION eq '0.43' && $Math::GMPz::Random::VERSION eq '0.43' &&
-   $Math::GMPz::V::VERSION eq '0.43' &&
+if($Math::GMPz::VERSION eq '0.44' && $Math::GMPz::Random::VERSION eq '0.44' &&
+   $Math::GMPz::V::VERSION eq '0.44' &&
    Math::GMPz::_get_xs_version() eq $Math::GMPz::VERSION) {print "ok 1\n"}
 else {print "not ok 1 $Math::GMPz::VERSION $Math::GMPz::Random::VERSION ", Math::GMPz::_get_xs_version(), "\n"}
 
