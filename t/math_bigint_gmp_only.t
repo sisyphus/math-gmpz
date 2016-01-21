@@ -1,3 +1,15 @@
+
+BEGIN {
+  eval {require 5.008};
+
+  if($@) {
+    print "1..1\n";
+    warn "\nSkipping for perl $\]\n";
+    print "ok 1\n";
+    exit 0;
+  }
+}
+
 use strict;
 use warnings;
 use Math::GMPz qw(:mpz);
