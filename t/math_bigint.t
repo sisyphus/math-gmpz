@@ -5,6 +5,15 @@ use Math::BigInt;
 
 #use Devel::Peek;
 
+eval {require 5.008};
+
+if($@) {
+  print "1..1\n";
+  warn "\nSkipping for perl $\]\n";
+  print "ok 1\n";
+  exit 0;
+}
+
 print "1..123\n";
 
 #fine with: 1.88, 1.89, 1.999715
