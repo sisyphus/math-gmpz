@@ -43,6 +43,8 @@ SV * ___GMP_CFLAGS(pTHX) {
 #endif
 }
 
+/*
+Removed as we don't want any library functions in  this module
 
 SV * gmp_v(pTHX) {
 #if __GNU_MP_VERSION >= 4
@@ -52,7 +54,7 @@ SV * gmp_v(pTHX) {
      return newSVpv("0", 0);
 #endif
 }
-
+*/
 
 MODULE = Math::GMPz::V  PACKAGE = Math::GMPz::V
 
@@ -91,13 +93,6 @@ SV *
 ___GMP_CFLAGS ()
 CODE:
   RETVAL = ___GMP_CFLAGS (aTHX);
-OUTPUT:  RETVAL
-
-
-SV *
-gmp_v ()
-CODE:
-  RETVAL = gmp_v (aTHX);
 OUTPUT:  RETVAL
 
 
