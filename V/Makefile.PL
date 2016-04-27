@@ -1,8 +1,9 @@
+# The aim is that this module will not call any library functions - hence no -lgmp link
+
 use ExtUtils::MakeMaker;
 my %options = %{
 {
   'NAME' => 'Math::GMPz::V',
-  'LIBS' => $LIBS,
   'INC' => $INC,
   'VERSION_FROM' => 'V.pm'
 }
