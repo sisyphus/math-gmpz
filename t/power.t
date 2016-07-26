@@ -3,7 +3,7 @@ use warnings;
 use Math::GMPz qw(:mpz);
 
 #$| = 1;
-print "1..11\n";
+print "1..13\n";
 
 print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 
@@ -86,4 +86,21 @@ else {
   if($@ =~ /Rmpz_powm_sec not implemented/)
        {print "ok 11\n"}
   else {print "not ok 11\n"}
+}
+
+eval{$q = $p ** -1;};
+if($@ =~ /Negative argument/) {
+  print "ok 12\n";
+}
+else {
+  warn "\$\@: $@\n";
+  print "not ok 12\n";
+}
+eval{$p **= -1;};
+if($@ =~ /Negative argument/) {
+  print "ok 13\n";
+}
+else {
+  warn "\$\@: $@\n";
+  print "not ok 13\n";
 }
