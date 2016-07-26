@@ -2109,13 +2109,13 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
      }
 
      if(SvUOK(b)) {
-       mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))) , SvUV(b));
+       mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))) , SvUVX(b));
        return obj_ref;
        }
 
      if(SvIOK(b)) {
-       if(SvIV(b) < 0) croak("Invalid argument supplied to Math::GMPz::overload_pow");
-       mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUV(b));
+       if(SvIVX(b) < 0) croak("Negative argument supplied to Math::GMPz::overload_pow");
+       mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
        return obj_ref;
        }
 
@@ -3512,13 +3512,13 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
      SvREFCNT_inc(a);
 
      if(SvUOK(b)) {
-       mpz_pow_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUV(b));
+       mpz_pow_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
        return a;
        }
 
      if(SvIOK(b)) {
-       if(SvIV(b) < 0) croak("Invalid argument supplied to Math::GMPz::overload_pow_eq");
-       mpz_pow_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUV(b));
+       if(SvIVX(b) < 0) croak("Negative argument supplied to Math::GMPz::overload_pow_eq");
+       mpz_pow_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
        return a;
        }
 
