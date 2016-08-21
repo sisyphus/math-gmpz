@@ -34,6 +34,7 @@ t/div2.t
 t/cdiv.t
 t/fdiv.t
 t/io_raw.t
+t/IV_UV_NV.t
 t/longdouble.t
 t/out_str.t
 t/overload.t
