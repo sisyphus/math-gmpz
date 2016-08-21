@@ -17,7 +17,8 @@
     use constant _MATH_MPC_T    => 10;
 
 use subs qw( __GNU_MP_VERSION __GNU_MP_VERSION_MINOR __GNU_MP_VERSION_PATCHLEVEL
-             __GNU_MP_RELEASE __GMP_CC __GMP_CFLAGS GMP_LIMB_BITS GMP_NAIL_BITS);
+             __GNU_MP_RELEASE __GMP_CC __GMP_CFLAGS GMP_LIMB_BITS GMP_NAIL_BITS
+             __MATH_GMPz_IV_MAX);
 
 use overload
     '+'    => \&overload_add,
@@ -60,7 +61,8 @@ use overload
 
     @Math::GMPz::EXPORT_OK = qw(
 __GNU_MP_VERSION __GNU_MP_VERSION_MINOR __GNU_MP_VERSION_PATCHLEVEL
-__GNU_MP_RELEASE __GMP_CC __GMP_CFLAGS
+__GNU_MP_RELEASE __GMP_CC __GMP_CFLAGS MATH_GMPz_IV_MAX MATH_GMPz_IV_MIN
+MATH_GMPz_UV_MAX
 Rmpz_abs Rmpz_add Rmpz_add_ui Rmpz_addmul Rmpz_addmul_ui Rmpz_and Rmpz_bin_ui
 Rmpz_bin_uiui Rmpz_bin_si Rmpz_cdiv_q Rmpz_cdiv_q_2exp Rmpz_cdiv_q_ui Rmpz_cdiv_qr
 Rmpz_cdiv_qr_ui Rmpz_cdiv_r Rmpz_cdiv_r_2exp Rmpz_cdiv_r_ui Rmpz_cdiv_ui
@@ -78,6 +80,9 @@ Rmpz_fprintf Rmpz_sprintf Rmpz_snprintf
 Rmpz_gcd Rmpz_gcd_ui Rmpz_gcdext Rmpz_get_d_2exp Rmpz_get_si Rmpz_get_str
 Rmpz_get_ui Rmpz_getlimbn Rmpz_hamdist Rmpz_import Rmpz_init Rmpz_init2
 Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
+Rmpz_init_set_IV Rmpz_init_set_NV
+Rmpz_set_IV Rmpz_set_NV
+Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
@@ -112,6 +117,7 @@ zgmp_urandomb_ui zgmp_urandomm_ui
     $Math::GMPz::NULL = _Rmpz_NULL();
 
     %Math::GMPz::EXPORT_TAGS =(mpz => [qw(
+MATH_GMPz_IV_MAX MATH_GMPz_IV_MIN MATH_GMPz_UV_MAX
 Rmpz_abs Rmpz_add Rmpz_add_ui Rmpz_addmul Rmpz_addmul_ui Rmpz_and Rmpz_bin_ui
 Rmpz_bin_uiui Rmpz_bin_si Rmpz_cdiv_q Rmpz_cdiv_q_2exp Rmpz_cdiv_q_ui Rmpz_cdiv_qr
 Rmpz_cdiv_qr_ui Rmpz_cdiv_r Rmpz_cdiv_r_2exp Rmpz_cdiv_r_ui Rmpz_cdiv_ui
@@ -132,6 +138,9 @@ Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
+Rmpz_init_set_IV Rmpz_init_set_NV
+Rmpz_set_IV Rmpz_set_NV
+Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
 Rmpz_invert Rmpz_ior new_from_MBI
 Rmpz_jacobi Rmpz_kronecker Rmpz_kronecker_si Rmpz_kronecker_ui Rmpz_lcm
 Rmpz_lcm_ui Rmpz_legendre Rmpz_lucnum2_ui Rmpz_lucnum_ui Rmpz_mod Rmpz_mod_ui
@@ -200,15 +209,12 @@ sub new {
     # Die if there are any additional args (unless $type == _POK_T)
     if($type == _UOK_T || $type == _IOK_T) {
       if(@_ ) {die "Too many arguments supplied to new() - expected only one"}
-      return Rmpz_init_set_str($arg1, 10);
+      return Rmpz_init_set_IV($arg1);
     }
 
     if($type == _NOK_T) {
       if(@_ ) {die "Too many arguments supplied to new() - expected only one"}
-      if(Math::GMPz::_has_longdouble()) {
-        return _Rmpz_init_set_ld($arg1);
-        }
-      return Rmpz_init_set_d($arg1);
+      return Rmpz_init_set_NV($arg1);
 
     }
 
@@ -744,11 +750,20 @@ __END__
     hexadecimal is assumed, otherwise if the first character is "0",
     octal is assumed, otherwise decimal is assumed.
 
+   Rmpz_set_IV($rop, $IV) # $IV is a perl integer value
+    Set $rop to the value of $IV. (If $IV is an unsigned integer
+    value then that unsigned value is assigned.)
+
+   Rmpz_set_NV($rop, $NV) # $NV is a perl floating point value
+    Set $rop to the value of $NV.
+
    Rmpz_swap($rop1, $rop2); # swap the values
 
    ######################################
 
    COMBINED INITIALIZATION AND ASSIGNMENT
+
+   Both initialise and set the value in one step.
 
    NOTE: Do NOT use these functions if $rop has already
    been initialised. Instead use the Rmpz_set* functions
@@ -780,6 +795,9 @@ __END__
    $rop = Rmpz_init_set_str($str, $base);
    $rop = Rmpz_init_set_str_nobless($str, $base);
 
+   $rop = Rmpz_init_set_IV($IV); # $IV is a perl integer value
+   $rop - Rmpz_init_set_NV($NV); # $NV is a perl floating point value
+
    $rop = new_from_MBI($mbi); # $mbi is a Math::BigInt object.
 
    ###################
@@ -790,14 +808,29 @@ __END__
    $ui = Rmpz_get_ui($op);
     Return the value of $op as an `unsigned long'.
     The sign of $op is ignored, only the absolute value is used.
+    If $op is either too big to fit into an `unsigned long int', or
+    is negative, the returned result is probably not very useful.
+    To find out if the value will fit, use the function
+    `Rmpz_fits_ulong_p'.
 
    $si = Rmpz_get_si($op);
     If $op fits into a `signed long int' return the value of $op.
-    Otherwise return the least significant part of OP, with the
+    Otherwise return the least significant part of $op, with the
     same sign as $op. If $op is too big to fit in a `signed long
     int', the returned result is probably not very useful.  To
     find out if the value will fit, use the function
     `Rmpz_fits_slong_p'.
+
+   $IV = Rmpz_get_IV($op);
+    If $op fits into either an IV or a UV return the value of $op.
+    Otherwise return the least significant part of $op, with the
+    same sign as $op. If $op does not fit into either an IV or a
+    UV, the returned result is probably not very useful. To find
+    find out if the value will fit, use the functions
+    'Rmpz_fits_IV_p' and 'Rmpz_fits_UV_p'.
+    $IV may, in fact, be a string representing the integer value,
+    which will of course be coerced to an IV as soon as $IV is used
+    in numeric context.
 
    $double = Rmpz_get_d($op);
      Place the value of $op into a normal perl scalar.
@@ -1404,17 +1437,21 @@ __END__
 
    MISCELLANEOUS INTEGER FUNCTIONS
 
-   $bool = Rmpz_fits_ulong_p($op);
-   $bool = Rmpz_fits_slong_p($op);
-   $bool = Rmpz_fits_uint_p($op);
-   $bool = Rmpz_fits_sint_p($op);
+   $bool = Rmpz_fits_ulong_p ($op);
+   $bool = Rmpz_fits_slong_p ($op);
+   $bool = Rmpz_fits_uint_p  ($op);
+   $bool = Rmpz_fits_sint_p  ($op);
    $bool = Rmpz_fits_ushort_p($op);
    $bool = Rmpz_fits_sshort_p($op);
-    Return non-zero iff the value of $op fits an `unsigned long int',
-    `signed long int', `unsigned int', `signed int', `unsigned short
-    int', or `signed short int', respectively. Otherwise, return zero.
+   $bool = Rmpz_fits_UV_p    ($op);
+   $bool = Rmpz_fits_IV_p    ($op);
 
-   $bool = Rmpz_odd_p($op);
+    Return non-zero iff the value of $op fits an 'unsigned long int',
+    'signed long int', 'unsigned int', 'signed int', 'unsigned short
+    int', or 'signed short int', 'UV', or 'IV' respectively.
+    Otherwise, return zero.
+
+   $bool = Rmpz_odd_p ($op);
    $bool = Rmpz_even_p($op);
     Determine whether $op is odd or even, respectively.
     Return non-zero if yes, zero if no.
