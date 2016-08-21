@@ -1,6 +1,7 @@
 use warnings;
 use strict;
-use Math::GMPz qw(__GNU_MP_VERSION __GNU_MP_VERSION_MINOR __GNU_MP_VERSION_PATCHLEVEL);
+use Math::GMPz qw(__GNU_MP_VERSION __GNU_MP_VERSION_MINOR __GNU_MP_VERSION_PATCHLEVEL MATH_GMPz_IV_MAX
+                  MATH_GMPz_IV_MIN MATH_GMPz_UV_MAX);
 use Math::GMPz::V;
 
 print "1..9\n";
@@ -12,6 +13,9 @@ warn "# CFLAGS are ", Math::GMPz::__GMP_CFLAGS, "\n" if defined Math::GMPz::__GM
 warn "# GMP_LIMB_BITS is ", Math::GMPz::GMP_LIMB_BITS, "\n" if defined Math::GMPz::GMP_LIMB_BITS;
 warn "# GMP_NAIL_BITS is ", Math::GMPz::GMP_NAIL_BITS, "\n" if defined Math::GMPz::GMP_NAIL_BITS;
 warn "# MATH_GMPz_HAS_MAGICEXT is ", Math::GMPz::_magic_status(), "\n" if defined Math::GMPz::_magic_status();
+warn "# MATH_GMPz_IV_MAX is ", MATH_GMPz_IV_MAX(), "\n";
+warn "# MATH_GMPz_IV_MIN is ", MATH_GMPz_IV_MIN(), "\n";
+warn "# MATH_GMPz_UV_MAX is ", MATH_GMPz_UV_MAX(), "\n";
 
 if($Math::GMPz::VERSION eq '0.44' && $Math::GMPz::Random::VERSION eq '0.44' &&
    $Math::GMPz::V::VERSION eq '0.44' &&
