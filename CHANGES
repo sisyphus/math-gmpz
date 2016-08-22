@@ -5,6 +5,10 @@
  - Remove the private function _Rmpz_init_set_ld, which has been replaced with the
    public function Rmpz_init_set_NV.
  - Also add Rmpz_set_NV, Rmpz_set_IV, Rmpz_get_IV, Rmpz_fits_IV and Rmpz_fits_UV.
+ - Rmpz_init_set_d, Rmpz_set_d now throw an error if the supplied double is a NaN or
+   an Inf. (As do Rmpz_init_set_NV and Rmpz_set_NV when the supplied NV is Inf/NaN.)
+   The gmp library does not accept Inf/Nan arguments - and it's better to have Math::GMPz
+   present a meaningful error message than to have the gmp library dump core.
 
 0.43
  - Overload operations with Math::BigInt objects, and allow new() to accept a
