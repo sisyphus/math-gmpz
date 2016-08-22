@@ -220,12 +220,17 @@ SV * Rmpz_init_set_si_nobless(pTHX_ SV * p) {
 SV * Rmpz_init_set_d_nobless(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+     double d = SvNV(p);
+
+     if(d != d) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
+     if(d != 0 && (d / d != 1))
+       croak("In Rmpz_init_set_d_nobless, cannot coerce an Inf to a Math::GMPz value");
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in Rmpz_init_set_d_nobless function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, NULL);
-     mpz_init_set_d(*mpz_t_obj, SvNV(p));
+     mpz_init_set_d(*mpz_t_obj, d);
 
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
      SvREADONLY_on(obj);
@@ -337,12 +342,17 @@ void Rmpz_set_IV(pTHX_ mpz_t * copy, SV * original) {
 SV * Rmpz_init_set_d(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+     double d = SvNV(p);
+
+     if(d != d) croak("In Rmpz_init_set_d, cannot coerce a NaN to a Math::GMPz value");
+     if(d != 0 && (d / d != 1))
+       croak("In Rmpz_init_set_d, cannot coerce an Inf to a Math::GMPz value");
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in Rmpz_init_set_d function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
-     mpz_init_set_d(*mpz_t_obj, SvNV(p));
+     mpz_init_set_d(*mpz_t_obj, d);
 
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
      SvREADONLY_on(obj);
@@ -502,8 +512,12 @@ void Rmpz_set_ui(mpz_t * copy, unsigned long original) {
      mpz_set_ui(*copy, original);
 }
 
-void Rmpz_set_d(mpz_t * copy, double original) {
-     mpz_set_d(*copy, original);
+void Rmpz_set_d(mpz_t * copy, double d) {
+
+     if(d != d) croak("In Rmpz_set_d, cannot coerce a NaN to a Math::GMPz value");
+     if(d != 0 && (d / d != 1))
+       croak("In Rmpz_set_d, cannot coerce an Inf to a Math::GMPz value");
+     mpz_set_d(*copy, d);
 }
 
 void Rmpz_set_str(pTHX_ mpz_t * copy, SV * original, int base) {
@@ -547,8 +561,6 @@ SV * Rmpz_get_IV(pTHX_ mpz_t * n) {
 
 #ifndef MATH_GMPZ_NEED_LONG_LONG_INT
 
-   warn("In Rmpz_get_IV, value does NOT fit into an IV/UV and will therefore be truncated");
-
    if(mpz_cmp_ui(*n, 0) > 0)
      return newSVuv(mpz_get_ui(*n));
 
@@ -566,7 +578,6 @@ SV * Rmpz_get_IV(pTHX_ mpz_t * n) {
      mpz_init_set_str(_iv_min, SvPV_nolen(MATH_GMPz_IV_MIN(aTHX)), 10);
      if(mpz_cmp(*n, _iv_min) < 0) { /* must be less than IV_MIN */
        mpz_clear(_iv_min);
-       warn("In Rmpz_get_IV, -ve value does NOT fit into an IV and will therefore be truncated");
        mpz_init(temp);
        mpz_init_set_str(_iv_max, SvPV_nolen(MATH_GMPz_IV_MAX(aTHX)), 10);
        mpz_abs(temp, *n);
@@ -5552,14 +5563,14 @@ Rmpz_set_ui (copy, original)
         return; /* assume stack size is correct */
 
 void
-Rmpz_set_d (copy, original)
+Rmpz_set_d (copy, d)
 	mpz_t *	copy
-	double	original
+	double	d
         PREINIT:
         I32* temp;
         PPCODE:
         temp = PL_markstack_ptr++;
-        Rmpz_set_d(copy, original);
+        Rmpz_set_d(copy, d);
         if (PL_markstack_ptr != temp) {
           /* truly void, because dXSARGS not invoked */
           PL_markstack_ptr = temp;
