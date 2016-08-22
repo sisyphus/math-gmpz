@@ -1,8 +1,9 @@
 use strict;
 use warnings;
 use Math::GMPz qw(:mpz);
+use Config;
 
-print "1..21\n";
+print "1..30\n";
 
 #####################################
 
@@ -119,6 +120,7 @@ else {
 }
 
 #####################################
+#####################################
 
 if($big_uv == Math::GMPz->new($big_uv)) {print "ok 16\n"}
 else {
@@ -155,3 +157,156 @@ else {
   warn "$small_iv != ", Math::GMPz->new("$small_iv"), "\n";
   print "not ok 21\n";
 }
+
+#####################################
+#####################################
+
+my $ok = '';
+
+if(!Math::GMPz::_has_longlong()) { # _IV/_UV matches _si/_ui
+  my $t1 = Rmpz_init_set_IV(MATH_GMPz_UV_MAX());
+  my $t2 = Rmpz_init_set_ui(MATH_GMPz_UV_MAX());
+  my $t3 = Rmpz_init_set_IV(MATH_GMPz_IV_MAX());
+  my $t4 = Rmpz_init_set_si(MATH_GMPz_IV_MAX());
+  my $t5 = Rmpz_init_set_IV(MATH_GMPz_IV_MIN());
+  my $t6 = Rmpz_init_set_si(MATH_GMPz_IV_MIN());
+
+  if($t1 == $t2) {$ok .= 'a'}
+  else {warn "\n22a: $t1 != $t2\n"}
+
+  if(Rmpz_get_IV($t1) == Rmpz_get_ui($t2)) {$ok .= 'b'}
+  else {warn "\n22b: ", Rmpz_get_IV($t1), " != ", Rmpz_get_ui($t2), "\n"}
+
+  $t1 += 1234567;
+
+  my $overflow1_uv = Rmpz_get_IV($t1);
+  my $overflow2_uv = Rmpz_get_ui($t1);
+
+  if($overflow1_uv == $overflow2_uv) {$ok .= 'c'}
+  else {warn "\n22c: $overflow1_uv != $overflow2_uv\n"}
+
+  if($t3 == $t4) {$ok .= 'd'}
+  else {warn "\n22d: $t3 != $t4\n"}
+
+  if(Rmpz_get_IV($t3) == Rmpz_get_si($t4)) {$ok .= 'e'}
+  else {warn "\n22e: ", Rmpz_get_IV($t3), " != ", Rmpz_get_si($t4), "\n"}
+
+  if(Rmpz_get_IV($t3) == Rmpz_get_ui($t4)) {$ok .= 'f'}
+  else {warn "\n22f: ", Rmpz_get_IV($t3), " != ", Rmpz_get_ui($t4), "\n"}
+
+  $t3 += 1234567;
+
+  my $overflow1_iv = Rmpz_get_IV($t3);
+  my $overflow2_iv = Rmpz_get_ui($t3);
+  my $overflow3_iv = Rmpz_get_si($t3);
+
+  if($overflow1_iv += $overflow2_iv) {$ok .= 'g'}
+  else {warn "\n22g: $overflow1_iv != $overflow2_iv\n"}
+
+  if($overflow2_iv != $overflow3_iv) {$ok .= 'h'}
+  else {warn "\n22h: $overflow2_iv == $overflow3_iv\n"}
+
+  if($t5 == $t6) {$ok .= 'i'}
+  else {warn "\n22i: $t5 != $t6\n"}
+
+  if(Rmpz_get_IV($t5) == Rmpz_get_si($t6)) {$ok .= 'j'}
+  else {warn "\n22j: ", Rmpz_get_IV($t5), " != ", Rmpz_get_si($t6), "\n"}
+
+  if(Rmpz_get_IV($t5) != Rmpz_get_ui($t6)) {$ok .= 'k'}
+  else {warn "\n22k: ", Rmpz_get_IV($t5), " != ", Rmpz_get_ui($t6), "\n"}
+
+  $t5 -= 1234567;
+
+  my $underflow1_iv = Rmpz_get_IV($t5);
+  my $underflow2_iv = Rmpz_get_ui($t5);
+  my $underflow3_iv = Rmpz_get_si($t5);
+
+  if(-$t5 == $underflow2_iv) {$ok .= 'l'} # because the value of abs($t5) fits into a UV and
+                                          # Rmpz_get_ui() simply ignores the sign and returns
+                                          # abs($t5) coerced to an unsigned long.
+  else {warn "\n22l: ", $t5 * -1, " != $underflow2_iv\n"}
+
+  if($underflow1_iv != $underflow2_iv) {$ok .= 'm'}
+  else {warn "\n22m: $underflow1_iv == $underflow2_iv\n"}
+
+  if($underflow1_iv == $underflow3_iv) {$ok .= 'n'}
+  else {warn "\n22n: $underflow1_iv != $underflow3_iv\n"}
+
+  if($ok eq 'abcdefghijklmn') {print "ok 22\n"}
+  else {
+    warn "\n\$ok: $ok\n";
+    print "not ok 22\n";
+  }
+}
+else {
+  warn "\nSkipping test 22\n";
+  print "ok 22\n";
+}
+
+my $inf = 99 ** (99 ** 99);
+my $nan = $inf / $inf;
+
+eval{my $x = Rmpz_init_set_NV($inf)};
+
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 23\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 23\n";
+}
+
+eval{my $x = Rmpz_init_set_NV($nan)};
+
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 24\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 24\n";
+}
+
+eval{my $x = Rmpz_init_set_d($inf)};
+
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 25\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 25\n";
+}
+
+eval{my $x = Rmpz_init_set_d($nan)};
+
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 26\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 26\n";
+}
+
+eval{Rmpz_set_NV($mpz1, $inf)};
+
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 27\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 27\n";
+}
+
+eval{Rmpz_set_NV($mpz1, $nan)};
+
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 28\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 28\n";
+}
+
+eval{Rmpz_set_d($mpz1, $inf)};
+
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 29\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 29\n";
+}
+
+eval{Rmpz_set_d($mpz1, $nan)};
+
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 30\n"}
+else {
+  warn "\n\$\@: $@";
+  print "not ok 30\n";
+}
+
