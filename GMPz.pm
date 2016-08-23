@@ -278,6 +278,16 @@ sub TRmpz_out_str {
     die "Wrong number of arguments supplied to TRmpz_out_str()";
 }
 
+# _Rmpz_get_IV may have returned a "string" - in which case we want to coerce it
+# to an IV. It would be more efficient to do this in XS space (TODO), but in the
+# meantime I've taken the soft option of having perl perform the coercion:
+
+sub Rmpz_get_IV {
+   my $ret = _Rmpz_get_IV(shift);
+   $ret += 0 unless _SvIOK($ret); # Set the IV flag
+   return $ret;
+}
+
 sub Rpi_x {
   Rmpz_set_ui($_[0], 1);
   Rmpz_mul_2exp($_[0], $_[0], $_[1]);
@@ -832,9 +842,6 @@ __END__
     UV, the returned result is probably not very useful. To find
     find out if the value will fit, use the functions
     'Rmpz_fits_IV_p' and 'Rmpz_fits_UV_p'.
-    $IV may, in fact, be a string representing the integer value,
-    which will of course be coerced to an IV as soon as $IV is used
-    in numeric context.
 
    $double = Rmpz_get_d($op);
      Place the value of $op into a normal perl scalar.
