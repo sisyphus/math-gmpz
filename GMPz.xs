@@ -362,28 +362,36 @@ SV * Rmpz_init_set_d(pTHX_ SV * p) {
 SV * Rmpz_init_set_NV(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
-     char buffer[50];
 
 #ifdef USE_LONG_DOUBLE
+     char * buffer;
+     long double buffer_size;
      long double ld = (long double)SvNV(p) >= 0 ? floorl((long double)SvNV(p)) : ceill((long double)SvNV(p));
      if(ld != ld) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
      if(ld != 0 && (ld / ld != 1))
        croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
-     New(1, mpz_t_obj, 1, mpz_t);
+     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+     if(buffer_size == 0) buffer_size = 1;
+     else buffer_size = ceill(logl(buffer_size) / logl(2.0L));
+
+     Newxz(buffer, buffer_size + 5, char);
+
+     Newx(mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
 
      sprintf(buffer, "%.0Lf", ld);
      mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
 #else
      double d = SvNV(p);
      if(d != d) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
      if(d != 0 && (d / d != 1))
        croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
-     New(1, mpz_t_obj, 1, mpz_t);
+     Newx(mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
@@ -397,16 +405,24 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
 }
 
 void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
-     char buffer[50];
 
 #ifdef USE_LONG_DOUBLE
+     char * buffer;
+     long double buffer_size;
      long double ld = (long double)SvNV(original) >= 0 ? floorl((long double)SvNV(original)) : ceill((long double)SvNV(original));
      if(ld != ld) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
      if(ld != 0 && (ld / ld != 1))
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
+     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+     if(buffer_size == 0) buffer_size = 1;
+     else buffer_size = ceill(logl(buffer_size) / logl(2.0L));
+
+     Newxz(buffer, buffer_size + 5, char);
+
      sprintf(buffer, "%.0Lf", ld);
      mpz_set_str(*copy, buffer, 10);
+     Safefree(buffer);
 #else
      double d = SvNV(original);
      if(d != d) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
@@ -542,7 +558,7 @@ long Rmpz_get_si(mpz_t * n) {
 }
 
 /* also handles UV values */
-SV * Rmpz_get_IV(pTHX_ mpz_t * n) {
+SV * _Rmpz_get_IV(pTHX_ mpz_t * n) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
 
@@ -5215,6 +5231,10 @@ void _dump_mbi_gmp(pTHX_ SV * b) {
      else printf("Unable to obtain information. (Perhaps NA ?)\n");
 }
 
+int _SvIOK(pTHX_ SV * sv) {
+  if(SvIOK(sv)) return 1;
+  return 0;
+}
 
 
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
@@ -5626,10 +5646,10 @@ Rmpz_get_si (n)
 	mpz_t *	n
 
 SV *
-Rmpz_get_IV (n)
+_Rmpz_get_IV (n)
 	mpz_t *	n
 CODE:
-  RETVAL = Rmpz_get_IV (aTHX_ n);
+  RETVAL = _Rmpz_get_IV (aTHX_ n);
 OUTPUT:  RETVAL
 
 int
@@ -8103,4 +8123,11 @@ _dump_mbi_gmp (b)
         }
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
+
+int
+_SvIOK (sv)
+	SV *	sv
+CODE:
+  RETVAL = _SvIOK (aTHX_ sv);
+OUTPUT:  RETVAL
 
