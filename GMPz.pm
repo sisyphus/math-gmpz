@@ -736,6 +736,8 @@ __END__
 
    Rmpz_set_d($rop, $double);
     Assign $double to $rop. (Truncate to an integer if necessary.)
+    Program dies with an appropriate error message if $double is
+    Inf or NaN.
 
    Rmpz_set_q($rop, $q); # $q is a Math::GMPq or GMP::Mpq object
     Assign $q to $rop. (Truncate to an integer if necessary.)
@@ -756,6 +758,8 @@ __END__
 
    Rmpz_set_NV($rop, $NV) # $NV is a perl floating point value
     Set $rop to the value of $NV.
+    The program dies with an appropriate error message if $NV is
+    Inf or NaN.
 
    Rmpz_swap($rop1, $rop2); # swap the values
 
