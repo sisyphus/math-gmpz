@@ -3,13 +3,20 @@ use warnings;
 use Math::GMPz qw(:mpz);
 use Config;
 
-print "1..30\n";
+print "1..44\n";
 
 #####################################
 
 my $big_uv = ~0;
 my $big_uv_mpz = Math::GMPz->new($big_uv);
 my $mpz1 = Math::GMPz->new();
+
+my $t1 = Rmpz_init_set_IV(MATH_GMPz_UV_MAX());
+my $t2 = Rmpz_init_set_ui(MATH_GMPz_UV_MAX());
+my $t3 = Rmpz_init_set_IV(MATH_GMPz_IV_MAX());
+my $t4 = Rmpz_init_set_si(MATH_GMPz_IV_MAX());
+my $t5 = Rmpz_init_set_IV(MATH_GMPz_IV_MIN());
+my $t6 = Rmpz_init_set_si(MATH_GMPz_IV_MIN());
 
 if(Rmpz_fits_UV_p($big_uv_mpz)) { print "ok 1\n"}
 else {
@@ -164,12 +171,6 @@ else {
 my $ok = '';
 
 if(!Math::GMPz::_has_longlong()) { # _IV/_UV matches _si/_ui
-  my $t1 = Rmpz_init_set_IV(MATH_GMPz_UV_MAX());
-  my $t2 = Rmpz_init_set_ui(MATH_GMPz_UV_MAX());
-  my $t3 = Rmpz_init_set_IV(MATH_GMPz_IV_MAX());
-  my $t4 = Rmpz_init_set_si(MATH_GMPz_IV_MAX());
-  my $t5 = Rmpz_init_set_IV(MATH_GMPz_IV_MIN());
-  my $t6 = Rmpz_init_set_si(MATH_GMPz_IV_MIN());
 
   if($t1 == $t2) {$ok .= 'a'}
   else {warn "\n22a: $t1 != $t2\n"}
@@ -181,6 +182,8 @@ if(!Math::GMPz::_has_longlong()) { # _IV/_UV matches _si/_ui
 
   my $overflow1_uv = Rmpz_get_IV($t1);
   my $overflow2_uv = Rmpz_get_ui($t1);
+
+  $t1 -= 1234567; # restore to original value
 
   if($overflow1_uv == $overflow2_uv) {$ok .= 'c'}
   else {warn "\n22c: $overflow1_uv != $overflow2_uv\n"}
@@ -199,6 +202,8 @@ if(!Math::GMPz::_has_longlong()) { # _IV/_UV matches _si/_ui
   my $overflow1_iv = Rmpz_get_IV($t3);
   my $overflow2_iv = Rmpz_get_ui($t3);
   my $overflow3_iv = Rmpz_get_si($t3);
+
+  $t3 -= 1234567; # restore to original value
 
   if($overflow1_iv += $overflow2_iv) {$ok .= 'g'}
   else {warn "\n22g: $overflow1_iv != $overflow2_iv\n"}
@@ -225,6 +230,8 @@ if(!Math::GMPz::_has_longlong()) { # _IV/_UV matches _si/_ui
                                           # Rmpz_get_ui() simply ignores the sign and returns
                                           # abs($t5) coerced to an unsigned long.
   else {warn "\n22l: ", $t5 * -1, " != $underflow2_iv\n"}
+
+  $t5 += 1234567; # restore to original value
 
   if($underflow1_iv != $underflow2_iv) {$ok .= 'm'}
   else {warn "\n22m: $underflow1_iv == $underflow2_iv\n"}
@@ -308,5 +315,137 @@ if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 30\n"}
 else {
   warn "\n\$\@: $@";
   print "not ok 30\n";
+}
+
+################################
+
+# UV_MAX
+
+if($t1 == Math::GMPz->new(Rmpz_get_IV($t1))) {print "ok 31\n"}
+else {
+  warn "\n31: $t1 != ", Math::GMPz->new(Rmpz_get_IV($t1)), "\n";
+  print "not ok 31\n";
+}
+
+Rmpz_set_IV($mpz1, Rmpz_get_IV($t1));
+
+if($t1 == $mpz1) {print "ok 32\n"}
+else {
+  warn "\n32: $t1 != $mpz1\n";
+  print "not ok 32\n";
+}
+
+################################
+
+# IV_MAX
+
+if($t3 == Math::GMPz->new(Rmpz_get_IV($t3))) {print "ok 33\n"}
+else {
+  warn "\n33: $t3 != ", Math::GMPz->new(Rmpz_get_IV($t3)), "\n";
+  print "not ok 33\n";
+}
+
+Rmpz_set_IV($mpz1, Rmpz_get_IV($t3));
+
+if($t3 == $mpz1) {print "ok 34\n"}
+else {
+  warn "\n34: $t3 != $mpz1\n";
+  print "not ok 34\n";
+}
+
+################################
+
+# IV_MIN
+
+if($t5 == Math::GMPz->new(Rmpz_get_IV($t5))) {print "ok 35\n"}
+else {
+  warn "\n35: $t5 != ", Math::GMPz->new(Rmpz_get_IV($t5)), "\n";
+  print "not ok 35\n";
+}
+
+Rmpz_set_IV($mpz1, Rmpz_get_IV($t5));
+
+if($t5 == $mpz1) {print "ok 36\n"}
+else {
+  warn "\n36: $t5 != $mpz1\n";
+  print "not ok 36\n";
+}
+
+################################
+################################
+
+# UV_MAX
+
+if($t1 - 123456 == Math::GMPz->new(Rmpz_get_IV($t1 - 123456))) {print "ok 37\n"}
+else {
+  warn "\n37: ", $t1 - 123456, " != ", Math::GMPz->new(Rmpz_get_IV($t1 - 123456)), "\n";
+  print "not ok 37\n";
+}
+
+Rmpz_set_IV($mpz1, Rmpz_get_IV($t1 - 123456));
+
+if($t1 - 123456 == $mpz1) {print "ok 38\n"}
+else {
+  warn "\n38: ", $t1 - 123456, " != $mpz1\n";
+  print "not ok 38\n";
+}
+
+################################
+
+# IV_MAX (Tests pass because IV_MAX + 123456 is less than UV_MAX)
+
+if($t3 + 123456 == Math::GMPz->new(Rmpz_get_IV($t3 + 123456))) {print "ok 39\n"}
+else {
+  warn "\n39: ", $t3 + 123456, " != ", Math::GMPz->new(Rmpz_get_IV($t3 + 123456)), "\n";
+  print "not ok 39\n";
+}
+
+Rmpz_set_IV($mpz1, Rmpz_get_IV($t3 + 123456));
+
+if($t3 + 123456 == $mpz1) {print "ok 40\n"}
+else {
+  warn "\n40: ", $t3 + 123456, " != $mpz1\n";
+  print "not ok 40\n";
+}
+
+################################
+
+# IV_MIN
+
+if($t5 + 123456 == Math::GMPz->new(Rmpz_get_IV($t5 + 123456))) {print "ok 41\n"}
+else {
+  warn "\n41: ", $t5 + 123456," != ", Math::GMPz->new(Rmpz_get_IV($t5 + 123456)), "\n";
+  print "not ok 41\n";
+}
+
+Rmpz_set_IV($mpz1, Rmpz_get_IV($t5 + 123456));
+
+if($t5 + 123456 == $mpz1) {print "ok 42\n"}
+else {
+  warn "\n42: ", $t5 + 123456," != $mpz1\n";
+  print "not ok 42\n";
+}
+
+################################
+
+my $big_z = Math::GMPz->new(1);
+$big_z <<= 1000;
+
+my $check = Rmpz_init_set_NV(2 ** 1000);
+
+if($check == $big_z) {print "ok 43\n"}
+else {
+  warn "\n43: $big_z != $check\n";
+  print "not ok 43\n";
+}
+
+$big_z >>= 4;
+
+Rmpz_set_NV($check, 2 ** 996);
+
+if($check == $big_z) {print "ok 44\n"}
+else {
+  warn "\n44: $big_z != $check\n";
+  print "not ok 44\n";
 }
 
