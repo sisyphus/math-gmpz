@@ -363,27 +363,30 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      char buffer[50];
-     double d;
-     long double ld;
+
+#ifdef USE_LONG_DOUBLE
+     long double ld = (long double)SvNV(p) >= 0 ? floorl((long double)SvNV(p)) : ceill((long double)SvNV(p));
+     if(ld != ld) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
 
-#ifdef USE_LONG_DOUBLE
-     ld = (long double)SvNV(p) >= 0 ? floorl((long double)SvNV(p)) : ceill((long double)SvNV(p));
-     if(ld != ld) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
-     if(ld != 0 && (ld / ld != 1))
-       croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
-
      sprintf(buffer, "%.0Lf", ld);
      mpz_init_set_str(*mpz_t_obj, buffer, 10);
 #else
-     d = SvNV(p);
+     double d = SvNV(p);
      if(d != d) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
      if(d != 0 && (d / d != 1))
        croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
+
+     New(1, mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
 
      mpz_init_set_d(*mpz_t_obj, d);
 #endif
