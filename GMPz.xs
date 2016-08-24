@@ -222,7 +222,7 @@ SV * Rmpz_init_set_d_nobless(pTHX_ SV * p) {
      SV * obj_ref, * obj;
      double d = SvNV(p);
 
-     if(d != d) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
+     if(d != d) croak("In Rmpz_set_d, cannot coerce a NaN to a Math::GMPz value");
      if(d != 0 && (d / d != 1))
        croak("In Rmpz_init_set_d_nobless, cannot coerce an Inf to a Math::GMPz value");
 
@@ -362,8 +362,33 @@ SV * Rmpz_init_set_d(pTHX_ SV * p) {
 SV * Rmpz_init_set_NV(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+#if defined(NV_IS_FLOAT128)
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld = (__float128)SvNV(p) >= 0 ? floorq((__float128)SvNV(p)) : ceilq((__float128)SvNV(p));
+     if(ld != ld) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
-#ifdef USE_LONG_DOUBLE
+     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+     if(buffer_size == 0) buffer_size = 1;
+     else buffer_size = ceilq(logq(buffer_size) / logq(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     Newx(mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     if(returned < 0) croak("In Rmpz_init_set_NV, encoding error in quadmath_snprintf function");
+     if(returned >= buffer_size + 5) croak("In Rmpz_init_set_NV, buffer given to quadmath_snprintf function was too small");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
      char * buffer;
      long double buffer_size;
      long double ld = (long double)SvNV(p) >= 0 ? floorl((long double)SvNV(p)) : ceill((long double)SvNV(p));
@@ -375,14 +400,14 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
      if(buffer_size == 0) buffer_size = 1;
      else buffer_size = ceill(logl(buffer_size) / logl(2.0L));
 
-     Newxz(buffer, buffer_size + 5, char);
+     Newxz(buffer, (int)buffer_size + 5, char);
 
      Newx(mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
 
-     sprintf(buffer, "%.0Lf", ld);
+     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Rmpz_init_set_NV, buffer overflow in sprintf function");
      mpz_init_set_str(*mpz_t_obj, buffer, 10);
      Safefree(buffer);
 #else
@@ -406,7 +431,28 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
 
 void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
 
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld = (__float128)SvNV(original) >= 0 ? floorq((__float128)SvNV(original)) : ceilq((__float128)SvNV(original));
+     if(ld != ld) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+     if(buffer_size == 0) buffer_size = 1;
+     else buffer_size = ceilq(logq(buffer_size) / logq(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     if(returned < 0) croak("In Rmpz_set_NV, encoding error in quadmath_snprintf function");
+     if(returned >= buffer_size + 5) croak("In Rmpz_set_NV, buffer given to quadmath_snprintf function was too small");
+     mpz_set_str(*copy, buffer, 10);
+     Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
      char * buffer;
      long double buffer_size;
      long double ld = (long double)SvNV(original) >= 0 ? floorl((long double)SvNV(original)) : ceill((long double)SvNV(original));
@@ -420,7 +466,7 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
 
      Newxz(buffer, buffer_size + 5, char);
 
-     sprintf(buffer, "%.0Lf", ld);
+     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Rmpz_set_NV, buffer overflow in sprintf function");
      mpz_set_str(*copy, buffer, 10);
      Safefree(buffer);
 #else
@@ -1622,7 +1668,9 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -1657,7 +1705,9 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -1738,7 +1788,9 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -1776,7 +1828,9 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -1862,7 +1916,9 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -1911,7 +1967,9 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -1998,7 +2056,9 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2055,7 +2115,9 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -2135,7 +2197,9 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2181,7 +2245,9 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -2418,7 +2484,9 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2453,7 +2521,9 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
 
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -2509,7 +2579,9 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2543,7 +2615,9 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -2599,7 +2673,9 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2633,7 +2709,9 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_set_str(*mpz_t_obj, buffer, 10);
@@ -2705,7 +2783,9 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2735,7 +2815,9 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -2814,7 +2896,9 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2845,7 +2929,9 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -2924,7 +3010,9 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -2955,7 +3043,9 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3034,7 +3124,9 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3065,7 +3157,9 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3144,7 +3238,9 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3172,7 +3268,9 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3244,7 +3342,9 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3272,7 +3372,9 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3348,7 +3450,9 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3379,7 +3483,9 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3463,7 +3569,9 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3496,7 +3604,9 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3561,7 +3671,9 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3594,7 +3706,9 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3658,7 +3772,9 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3691,7 +3807,9 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3823,7 +3941,9 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3858,7 +3978,9 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -3920,7 +4042,9 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -3954,7 +4078,9 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -4013,7 +4139,9 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -4046,7 +4174,9 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -4109,7 +4239,9 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -4142,7 +4274,9 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -4205,7 +4339,9 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
      char buffer[50];
 #endif
 
@@ -4234,7 +4370,9 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 #endif
 
      if(SvNOK(b)) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
        long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
        sprintf(buffer, "%.0Lf", ld);
        mpz_init_set_str(t, buffer, 10);
@@ -4664,7 +4802,9 @@ int _has_longlong(void) {
 }
 
 int _has_longdouble(void) {
-#ifdef USE_LONG_DOUBLE
+#if defined(NV_IS_FLOAT128)
+
+#elif defined(USE_LONG_DOUBLE)
     return 1;
 #else
     return 0;
