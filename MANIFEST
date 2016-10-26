@@ -36,6 +36,7 @@ t/fdiv.t
 t/io_raw.t
 t/IV_UV_NV.t
 t/longdouble.t
+t/NOK_and_POK.t
 t/out_str.t
 t/overload.t
 t/overload_cross_class.t
