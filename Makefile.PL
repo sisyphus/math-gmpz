@@ -39,7 +39,8 @@ if($use_long_double == -1) {}
 elsif($use_long_double == 1) {$defines .= " -DUSE_LONG_DOUBLE"}
 else {
   if($Config::Config{nvsize} > 8 ) {
-    $defines .= " -DUSE_LONG_DOUBLE";
+    $Config{nvtype} eq '__float128' ? $defines .= " -DNV_IS_FLOAT128"
+                                    : $defines .= " -DUSE_LONG_DOUBLE";
   }
 }
 
@@ -50,6 +51,9 @@ print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
 $defines =~ /-DUSE_LONG_DOUBLE/ ? print "Building with 'long double' support\n" :
                                  print "Building without 'long double' support\n";
+
+$defines =~ /-DNV_IS_FLOAT128/ ? print "Building with '__float128' support\n" :
+                                 print "Building without '__float128' support\n";
 
 print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
