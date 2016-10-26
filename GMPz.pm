@@ -185,8 +185,10 @@ sub new {
     # if the first arg is a Math::GMPz object (which is a possibility),
     # then we'll get a fatal error when we check it for equivalence to
     # the string "Math::GMPz". So we first need to check that it's not
-    # an object - which we'll do by using the ref() function:
-    if(!ref($_[0]) && $_[0] eq "Math::GMPz") {
+    # an object - which we'll do by using the ref() function.
+    # Also first check that the POK flag is set - to avoid setting the
+    # POK flag on perl-5.18 and earlier.
+    if(!ref($_[0]) && Math::GMPz::_SvPOK($_[0]) && $_[0] eq "Math::GMPz") {
       shift;
       if(!@_) {return Rmpz_init()}
       }
