@@ -9,6 +9,8 @@
    an Inf. (As do Rmpz_init_set_NV and Rmpz_set_NV when the supplied NV is Inf/NaN.)
    The gmp library does not accept Inf/Nan arguments - and it's better to have Math::GMPz
    present a meaningful error message than to have the gmp library dump core.
+ - Accommodate __float128 nvtype.
+ - Replace the condition "if(SvNOK(x))" with "if(SvNOK(x) && !SvPOK(x))". (Thanks trizen.)
 
 0.43
  - Overload operations with Math::BigInt objects, and allow new() to accept a
