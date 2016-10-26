@@ -15,6 +15,10 @@
 #include <stdlib.h>
 #include <gmp.h>
 
+#if defined(NV_IS_FLOAT128)
+#include <quadmath.h>
+#endif
+
 #if !defined(__GNU_MP_VERSION) || __GNU_MP_VERSION < 5
 #define mp_bitcnt_t unsigned long int
 #endif
@@ -362,6 +366,7 @@ SV * Rmpz_init_set_d(pTHX_ SV * p) {
 SV * Rmpz_init_set_NV(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+
 #if defined(NV_IS_FLOAT128)
      char * buffer;
      int returned;
@@ -372,13 +377,12 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
        croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     if(buffer_size == 0) buffer_size = 1;
-     else buffer_size = ceilq(logq(buffer_size) / logq(2.0L));
+     buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
      Newx(mpz_t_obj, 1, mpz_t);
-     if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in Rmpz_init_set_NV function");
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
 
@@ -397,8 +401,7 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
        croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     if(buffer_size == 0) buffer_size = 1;
-     else buffer_size = ceill(logl(buffer_size) / logl(2.0L));
+     buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -436,13 +439,12 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
      int returned;
      __float128 buffer_size;
      __float128 ld = (__float128)SvNV(original) >= 0 ? floorq((__float128)SvNV(original)) : ceilq((__float128)SvNV(original));
-     if(ld != ld) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != ld) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
      if(ld != 0 && (ld / ld != 1))
-       croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
+       croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     if(buffer_size == 0) buffer_size = 1;
-     else buffer_size = ceilq(logq(buffer_size) / logq(2.0L));
+     buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -461,8 +463,7 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     if(buffer_size == 0) buffer_size = 1;
-     else buffer_size = ceill(logl(buffer_size) / logl(2.0L));
+     buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
 
      Newxz(buffer, buffer_size + 5, char);
 
@@ -1666,13 +1667,22 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
-
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
+
+     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
      if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
        New(1, mpz_t_obj, 1, mpz_t);
@@ -1704,13 +1714,42 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
+     ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_mul, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_mul, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+     buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     if(returned < 0) croak("In Math::GMPz::overload_mul, encoding error in quadmath_snprintf function");
+     if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_mul, buffer given to quadmath_snprintf function was too small");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
+
 #elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
+
+     ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_mul, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_mul, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+     buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_mul, buffer overflow in sprintf function");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
+
 #else
        mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
@@ -1786,13 +1825,22 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
-
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
+
+     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
      if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
        New(1, mpz_t_obj, 1, mpz_t);
@@ -1827,13 +1875,41 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
+     ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_add, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_add, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+     buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     if(returned < 0) croak("In Math::GMPz::overload_add, encoding error in quadmath_snprintf function");
+     if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_add, buffer given to quadmath_snprintf function was too small");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
+
 #elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
+
+     ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_add, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_add, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+     buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_add, buffer overflow in sprintf function");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
 #else
        mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
@@ -1914,13 +1990,22 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
-
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
+
+     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
      if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
        New(1, mpz_t_obj, 1, mpz_t);
@@ -1966,13 +2051,41 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
+     ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_sub, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_sub, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+     buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     if(returned < 0) croak("In Math::GMPz::overload_sub, encoding error in quadmath_snprintf function");
+     if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_sub, buffer given to quadmath_snprintf function was too small");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
+
 #elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
+
+     ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_sub, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_sub, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+     buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_sub, buffer overflow in sprintf function");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
 #else
        mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
@@ -2054,13 +2167,22 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
-
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
+
+     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
      if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
        New(1, mpz_t_obj, 1, mpz_t);
@@ -2114,13 +2236,41 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
+     ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_div, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_div, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+     buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     if(returned < 0) croak("In Math::GMPz::overload_div, encoding error in quadmath_snprintf function");
+     if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_div, buffer given to quadmath_snprintf function was too small");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
+
 #elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
+
+     ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_div, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_div, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+     buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_div, buffer overflow in sprintf function");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
 #else
        mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
@@ -2197,10 +2347,20 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      New(1, mpz_t_obj, 1, mpz_t);
@@ -2244,15 +2404,43 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
+     ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_mod, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_mod, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+     buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     if(returned < 0) croak("In Math::GMPz::overload_mod, encoding error in quadmath_snprintf function");
+     if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_mod, buffer given to quadmath_snprintf function was too small");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
+
 #elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
+
+     ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+     if(ld != ld) croak("In Math::GMPz::overload_mod, cannot coerce a NaN to a Math::GMPz value");
+     if(ld != 0 && (ld / ld != 1))
+       croak("In Math::GMPz::overload_mod, cannot coerce an Inf to a Math::GMPz value");
+
+     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+     buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+     Newxz(buffer, (int)buffer_size + 5, char);
+
+     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_mod, buffer overflow in sprintf function");
+     mpz_init_set_str(*mpz_t_obj, buffer, 10);
+     Safefree(buffer);
 #else
-       mpz_set_d(*mpz_t_obj, SvNV(b));
+       mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
        if(third == &PL_sv_yes) {
          mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
@@ -2484,10 +2672,20 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      New(1, mpz_t_obj, 1, mpz_t);
@@ -2520,16 +2718,44 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
 #endif
 
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
-#endif
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_and, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_and, cannot coerce an Inf to a Math::GMPz value");
 
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_and, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_and, buffer given to quadmath_snprintf function was too small");
+       mpz_init_set_str(*mpz_t_obj, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_and, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_and, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_and, buffer overflow in sprintf function");
+       mpz_init_set_str(*mpz_t_obj, buffer, 10);
+       Safefree(buffer);
+#else
        mpz_set_d(*mpz_t_obj, SvNVX(b));
+#endif
        mpz_and(*mpz_t_obj, *a, *mpz_t_obj);
        return obj_ref;
      }
@@ -2579,10 +2805,20 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      New(1, mpz_t_obj, 1, mpz_t);
@@ -2614,13 +2850,41 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_ior, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_ior, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_ior, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_ior, buffer given to quadmath_snprintf function was too small");
+       mpz_init_set_str(*mpz_t_obj, buffer, 10);
+       Safefree(buffer);
+
 #elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_ior, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_ior, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_ior, buffer overflow in sprintf function");
+       mpz_init_set_str(*mpz_t_obj, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
@@ -2673,10 +2937,20 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      New(1, mpz_t_obj, 1, mpz_t);
@@ -2708,13 +2982,41 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_xor, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_xor, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_xor, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_xor, buffer given to quadmath_snprintf function was too small");
+       mpz_init_set_str(*mpz_t_obj, buffer, 10);
+       Safefree(buffer);
+
 #elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
-       mpz_set_str(*mpz_t_obj, buffer, 10);
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_xor, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_xor, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_xor, buffer overflow in sprintf function");
+       mpz_init_set_str(*mpz_t_obj, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
@@ -2783,10 +3085,20 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
@@ -2814,13 +3126,43 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_gt, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_gt, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_gt, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_gt, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+       ret = mpz_cmp(*a, t);
+       mpz_clear(t);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_gt, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_gt, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_gt, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
 #else
@@ -2896,10 +3238,20 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
@@ -2928,13 +3280,43 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_gte, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_gte, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_gte, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_gte, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+       ret = mpz_cmp(*a, t);
+       mpz_clear(t);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_gte, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_gte, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_gte, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
 #else
@@ -3010,10 +3392,20 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
@@ -3042,13 +3434,43 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_lt, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_lt, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_lt, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_lt, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+       ret = mpz_cmp(*a, t);
+       mpz_clear(t);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_lt, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_lt, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_lt, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
 #else
@@ -3124,10 +3546,20 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
@@ -3156,13 +3588,43 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_lte, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_lte, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_lte, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_lte, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+       ret = mpz_cmp(*a, t);
+       mpz_clear(t);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_lte, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_lte, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_lte, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
 #else
@@ -3238,10 +3700,20 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
@@ -3267,17 +3739,47 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_spaceship, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_spaceship, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_spaceship, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_spaceship, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+       ret = mpz_cmp(*a, t);
+       mpz_clear(t);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_spaceship, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_spaceship, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_spaceship, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
 #else
-       ret = mpz_cmp_d(*a, SvNV(b));
+       ret = mpz_cmp_d(*a, SvNVX(b));
 #endif
        if(third == &PL_sv_yes) ret *= -1;
        return newSViv(ret);
@@ -3342,10 +3844,20 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
@@ -3371,13 +3883,43 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_equiv, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_equiv, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_equiv, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_equiv, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+       ret = mpz_cmp(*a, t);
+       mpz_clear(t);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_equiv, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_equiv, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_equiv, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
 #else
@@ -3450,10 +3992,20 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
@@ -3482,13 +4034,43 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_not_equiv, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_not_equiv, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_not_equiv, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_not_equiv, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+       ret = mpz_cmp(*a, t);
+       mpz_clear(t);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_not_equiv, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_not_equiv, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_not_equiv, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
 #else
@@ -3569,10 +4151,20 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -3603,13 +4195,41 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
        }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_xor_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_xor_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_xor_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_xor_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_xor_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_xor_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_xor_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -3671,10 +4291,20 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -3705,13 +4335,41 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_ior_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_ior_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_ior_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_ior_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_ior_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -3772,10 +4430,20 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -3806,13 +4474,41 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_and_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_and_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_and_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_and_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_and_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_and_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_and_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -3941,10 +4637,20 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -3970,20 +4676,48 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
          mpz_mod_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
          return a;
        }
-       mpz_init_set_si(t, SvNV(b));
+       mpz_init_set_si(t, SvIVX(b)); /* was SvNV(b) ?? */
        mpz_mod(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t);
        mpz_clear(t);
        return a;
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_mod_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_mod_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_mod_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_mod_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_mod_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_mod_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_mod_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -4042,10 +4776,20 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -4077,13 +4821,41 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_div_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_div_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_div_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_div_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_div_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_div_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_div_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -4139,10 +4911,20 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -4173,13 +4955,41 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_sub_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_sub_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_sub_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_sub_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_sub_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_sub_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_sub_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -4239,10 +5049,20 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -4273,13 +5093,41 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_add_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_add_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_add_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_add_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_add_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_add_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_add_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -4339,10 +5187,20 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
+
 #if defined(NV_IS_FLOAT128)
 
+     char * buffer;
+     int returned;
+     __float128 buffer_size;
+     __float128 ld;
+
 #elif defined(USE_LONG_DOUBLE)
-     char buffer[50];
+
+     char * buffer;
+     long double buffer_size;
+     long double ld;
+
 #endif
 
      SvREFCNT_inc(a);
@@ -4369,13 +5227,41 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      }
 #endif
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
+
 #if defined(NV_IS_FLOAT128)
 
-#elif defined(USE_LONG_DOUBLE)
-       long double ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
-       sprintf(buffer, "%.0Lf", ld);
+       ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_mul_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_mul_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+       buffer_size = ceilq(logq(buffer_size + 1) / logq(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+       if(returned < 0) croak("In Math::GMPz::overload_mul_eq, encoding error in quadmath_snprintf function");
+       if(returned >= buffer_size + 5) croak("In Math::GMPz::overload_mul_eq, buffer given to quadmath_snprintf function was too small");
        mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
+
+#elif defined(USE_LONG_DOUBLE)
+
+       ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+       if(ld != ld) croak("In Math::GMPz::overload_mul_eq, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Math::GMPz::overload_mul_eq, cannot coerce an Inf to a Math::GMPz value");
+
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / logl(2.0L));
+
+       Newxz(buffer, (int)buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Math::GMPz::overload_mul_eq, buffer overflow in sprintf function");
+       mpz_init_set_str(t, buffer, 10);
+       Safefree(buffer);
 #else
        mpz_init_set_d(t, SvNVX(b));
 #endif
@@ -4512,7 +5398,7 @@ SV * wrap_gmp_printf(pTHX_ SV * a, SV * b) {
        fflush(stdout);
        return newSViv(ret);
      }
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
        ret = gmp_printf(SvPV_nolen(a), SvNVX(b));
        fflush(stdout);
        return newSViv(ret);
@@ -4563,7 +5449,7 @@ SV * wrap_gmp_fprintf(pTHX_ FILE * stream, SV * a, SV * b) {
        fflush(stream);
        return newSViv(ret);
      }
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
        ret = gmp_fprintf(stream, SvPV_nolen(a), SvNVX(b));
        fflush(stream);
        return newSViv(ret);
@@ -4627,7 +5513,7 @@ SV * wrap_gmp_sprintf(pTHX_ SV * s, SV * a, SV * b, int buflen) {
        return newSViv(ret);
      }
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
        ret = gmp_sprintf(stream, SvPV_nolen(a), SvNVX(b));
        sv_setpv(s, stream);
        Safefree(stream);
@@ -4694,7 +5580,7 @@ SV * wrap_gmp_snprintf(pTHX_ SV * s, SV * bytes, SV * a, SV * b, int buflen) {
        return newSViv(ret);
      }
 
-     if(SvNOK(b)) {
+     if(SvNOK(b) && !SvPOK(b)) { /* do not use the NV if POK is set */
        ret = gmp_snprintf(stream, (size_t)SvUV(bytes), SvPV_nolen(a), SvNVX(b));
        sv_setpv(s, stream);
        Safefree(stream);
@@ -4714,7 +5600,7 @@ SV * wrap_gmp_snprintf(pTHX_ SV * s, SV * bytes, SV * a, SV * b, int buflen) {
 SV * _itsa(pTHX_ SV * a) {
      if(SvUOK(a)) return newSViv(1);
      if(SvIOK(a)) return newSViv(2);
-     if(SvNOK(a)) return newSViv(3);
+     if(SvNOK(a) && !SvPOK(a)) return newSViv(3);
      if(SvPOK(a)) return newSViv(4);
      if(sv_isobject(a)) {
        const char *h = HvNAME(SvSTASH(SvRV(a)));
@@ -4803,7 +5689,7 @@ int _has_longlong(void) {
 
 int _has_longdouble(void) {
 #if defined(NV_IS_FLOAT128)
-
+    return 0;
 #elif defined(USE_LONG_DOUBLE)
     return 1;
 #else
@@ -5373,6 +6259,11 @@ void _dump_mbi_gmp(pTHX_ SV * b) {
 
 int _SvIOK(pTHX_ SV * sv) {
   if(SvIOK(sv)) return 1;
+  return 0;
+}
+
+int _SvPOK(SV * sv) {
+  if(SvPOK(sv)) return 1;
   return 0;
 }
 
@@ -8270,4 +9161,8 @@ _SvIOK (sv)
 CODE:
   RETVAL = _SvIOK (aTHX_ sv);
 OUTPUT:  RETVAL
+
+int
+_SvPOK (sv)
+	SV *	sv
 
