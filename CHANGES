@@ -10,6 +10,7 @@
    The gmp library does not accept Inf/Nan arguments - and it's better to have Math::GMPz
    present a meaningful error message than to have the gmp library dump core.
  - Accommodate __float128 nvtype.
+ - Add Rmpz_cmp_NV.
  - Replace the condition "if(SvNOK(x))" with "if(SvNOK(x) && !SvPOK(x))". (Thanks trizen.)
 
 0.43
