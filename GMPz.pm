@@ -81,7 +81,7 @@ Rmpz_gcd Rmpz_gcd_ui Rmpz_gcdext Rmpz_get_d_2exp Rmpz_get_si Rmpz_get_str
 Rmpz_get_ui Rmpz_getlimbn Rmpz_hamdist Rmpz_import Rmpz_init Rmpz_init2
 Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
 Rmpz_init_set_IV Rmpz_init_set_NV
-Rmpz_set_IV Rmpz_set_NV
+Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV
 Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
@@ -139,7 +139,7 @@ Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
 Rmpz_init_set_IV Rmpz_init_set_NV
-Rmpz_set_IV Rmpz_set_NV
+Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV
 Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
 Rmpz_invert Rmpz_ior new_from_MBI
 Rmpz_jacobi Rmpz_kronecker Rmpz_kronecker_si Rmpz_kronecker_ui Rmpz_lcm
@@ -1180,6 +1180,7 @@ __END__
 
    $si = Rmpz_cmp($op1, $op2);
    $si = Rmpz_cmp_d($op, $double);
+   $si = Rmpz_cmp_NV($op, $nv); # $nv is an NV
    $si = Rmpz_cmp_si($op, $si);
    $si = Rmpz_cmp_ui($op, $ui);
     Compare 1st and 2nd args.  Return a positive value if
