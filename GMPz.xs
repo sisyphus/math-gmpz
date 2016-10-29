@@ -1167,6 +1167,7 @@ int Rmpz_cmp(mpz_t * n, mpz_t * d) {
 }
 
 int Rmpz_cmp_d(mpz_t * n, double d) {
+    if(d != d) croak("In Rmpz_cmp_d, cannot compare a NaN to a Math::GMPz value");
     return mpz_cmp_d(*n, d);
 }
 
@@ -1243,6 +1244,9 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      return ret;
 
 #else
+    if((double)SvNVX(b) != (double)SvNVX(b))
+      croak("In Rmpz_cmp_NV, cannot compare a NaN to a Math::GMPz value");
+
     return mpz_cmp_d(*a, (double)SvNVX(b));
 #endif
 
@@ -4186,7 +4190,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_ior_eq, cannot coerce a NaN to a Math::GMPz value");
        if(ld != 0 && (ld / ld != 1))
-         croak("In Math::GMPz::Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value");
+         croak("In Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
        buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
