@@ -39,8 +39,8 @@ if($use_long_double == -1) {}
 elsif($use_long_double == 1) {$defines .= " -DUSE_LONG_DOUBLE"}
 else {
   if($Config::Config{nvsize} > 8 ) {
-    $Config{nvtype} eq '__float128' ? $defines .= " -DNV_IS_FLOAT128"
-                                    : $defines .= " -DUSE_LONG_DOUBLE";
+    if($Config{nvtype} eq '__float128') {$defines .= " -DNV_IS_FLOAT128"}
+    else {$defines .= " -DUSE_LONG_DOUBLE"}
   }
 }
 
