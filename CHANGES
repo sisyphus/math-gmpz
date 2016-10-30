@@ -1,3 +1,5 @@
+0.45
+
 0.44
  - Remove gmp_version (library) function from Math::GMPz::V. (Math::GMPz::V is
    supposed to *not* include any library functions.)
