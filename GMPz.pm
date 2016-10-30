@@ -747,7 +747,8 @@ __END__
     Assign the 'unsigned int', $ui, to $rop.
 
    Rmpz_set_d($rop, $double);
-    Assign $double to $rop. (Truncate to an integer if necessary.)
+    Assign $double to $rop. (First truncate to an integer if $double
+    does not contain an integer value.)
     Program dies with an appropriate error message if $double is
     Inf or NaN.
 
@@ -769,7 +770,8 @@ __END__
     value then that unsigned value is assigned.)
 
    Rmpz_set_NV($rop, $NV) # $NV is a perl floating point value
-    Set $rop to the value of $NV.
+    Set $rop to the value of $NV. (First truncate to an integer if
+    $NV does not contain an integer value.)
     The program dies with an appropriate error message if $NV is
     Inf or NaN.
 
@@ -813,6 +815,10 @@ __END__
 
    $rop = Rmpz_init_set_IV($IV); # $IV is a perl integer value
    $rop - Rmpz_init_set_NV($NV); # $NV is a perl floating point value
+    Note that Rmpz_init_set_d and Rmpz_init_set_NV will truncate the
+    double/NV to an integer value prior to assigning if the double/NV
+    does not hold an integer value.
+    Assigning an Inf or NaN is a fatal error.
 
    $rop = new_from_MBI($mbi); # $mbi is a Math::BigInt object.
 
@@ -1186,6 +1192,10 @@ __END__
     Compare 1st and 2nd args.  Return a positive value if
     1st arg > 2nd arg, zero if 1st arg = 2nd arg, or a
     negative value if 1st arg < 2nd arg.
+    Note that Rmpz_cmp_d and Rmpz_cmp_NV compare $op to the
+    actual value held in the double/NV - not to the truncated
+    integer value. Comparison to an Inf is allowed, but
+    comparison to a NaN is a fatal error.
 
    $si = Rmpz_cmpabs($op1, $op2);
    $si = Rmpz_cmpabs_d($op, $double);
