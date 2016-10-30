@@ -250,7 +250,7 @@ else {
   print "ok 22\n";
 }
 
-my $inf = 99 ** (99 ** 99);
+my $inf = 999 ** (999 ** 999);
 my $nan = $inf / $inf;
 
 eval{my $x = Rmpz_init_set_NV($inf)};
