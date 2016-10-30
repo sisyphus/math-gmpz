@@ -3,7 +3,7 @@ use warnings;
 use Math::GMPz qw(:mpz);
 use Config;
 
-print "1..44\n";
+print "1..45\n";
 
 #####################################
 
@@ -447,5 +447,30 @@ if($check == $big_z) {print "ok 44\n"}
 else {
   warn "\n44: $big_z != $check\n";
   print "not ok 44\n";
+}
+
+if($Config::Config{nvtype} eq '__float128') {
+  if(!Math::GMPz::_has_longdouble() && Math::GMPz::_has_float128()) {print "ok 45\n"}
+  else {
+    warn "\n __float128:\n Math::GMPz::_has_longdouble(): ", Math::GMPz::_has_longdouble(),
+         "\n Math::GMPz::_has_float128(): ", Math::GMPz::_has_float128(), "\n";
+    print "not ok 45\n";
+  }
+}
+elsif($Config::Config{nvtype} eq 'long double') {
+  if(Math::GMPz::_has_longdouble() && !Math::GMPz::_has_float128()) {print "ok 45\n"}
+  else {
+    warn "\n long double:\n Math::GMPz::_has_longdouble(): ", Math::GMPz::_has_longdouble(),
+         "\n Math::GMPz::_has_float128(): ", Math::GMPz::_has_float128(), "\n";
+    print "not ok 45\n";
+  }
+}
+else {
+  if(!Math::GMPz::_has_longdouble() && !Math::GMPz::_has_float128()) {print "ok 45\n"}
+  else {
+    warn "\n double:\n Math::GMPz::_has_longdouble(): ", Math::GMPz::_has_longdouble(),
+         "\n Math::GMPzV_has_float128(): ", Math::GMPzV_has_float128(), "\n";
+    print "not ok 45\n";
+  }
 }
 
