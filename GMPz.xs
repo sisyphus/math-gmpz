@@ -5564,9 +5564,15 @@ int _has_longlong(void) {
 }
 
 int _has_longdouble(void) {
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_LONG_DOUBLE)
+    return 1;
+#else
     return 0;
-#elif defined(USE_LONG_DOUBLE)
+#endif
+}
+
+int _has_float128(void) {
+#if defined(NV_IS_FLOAT128)
     return 1;
 #else
     return 0;
@@ -8798,6 +8804,10 @@ _has_longlong ()
 
 int
 _has_longdouble ()
+
+
+int
+_has_float128 ()
 
 
 int
