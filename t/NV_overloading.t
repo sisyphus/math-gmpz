@@ -366,7 +366,7 @@ if(Math::GMPz->new(10) ==  $ninf ) {
 }
 else {print "ok 50\n"}
 
-if("$strinf" =~ /^inf/i) {
+if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
   if(Math::GMPz->new(10) == "$strinf") {
     warn "\n 10 == infinity\n";
     print "not ok 51\n";
@@ -421,7 +421,7 @@ else {
   print "not ok 57\n";
 }
 
-if("$strinf" =~ /^inf/i) {
+if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
   if(Math::GMPz->new(10) != "$strinf") {print "ok 58\n"}
   else {
     warn "\n 10 == infinity\n";
@@ -477,7 +477,7 @@ if(Math::GMPz->new(10) <  $ninf ) {
 }
 else {print "ok 64\n"}
 
-if("$strinf" =~ /^inf/i) {
+if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
   if(Math::GMPz->new(10) < "$strinf") {print "ok 65\n"}
   else {
     warn "\n 10 >= infinity\n";
@@ -534,7 +534,7 @@ if(Math::GMPz->new(10) <=  $ninf ) {
 }
 else {print "ok 71\n"}
 
-if("$strinf" =~ /^inf/i) {
+if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
   if(Math::GMPz->new(10) <= "$strinf") {print "ok 72\n"}
   else {
     warn "\n 10 > infinity\n";
@@ -590,7 +590,7 @@ else {
   print "not ok 78\n";
 }
 
-if("$strinf" =~ /^inf/i) {
+if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
   if(Math::GMPz->new(10) >= "$strinf") {
     warn "\n 10 >= infinity\n";
     print "not ok 79\n";
@@ -646,7 +646,7 @@ else {
   print "not ok 85\n";
 }
 
-if("$strinf" =~ /^inf/i) {
+if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
   if(Math::GMPz->new(10) > "$strinf") {
     warn "\n 10 > infinity\n";
     print "not ok 86\n";
@@ -753,7 +753,7 @@ else {
 #########################
 #########################
 
-if("$strinf" =~ /^inf/i) {
+if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
   if((Math::GMPz->new(10) <=> "$strinf") < 0) {print "ok 101\n"}
   else {
     warn "\n 10 !< inf\n";
@@ -1106,7 +1106,7 @@ else {
   print "not ok 148\n";
 }
 
-if("$strninf" =~ /^\-inf/i) {
+if("$strninf" =~ /^\-inf/i || $^O =~ /MSWin/) {
   my $z = Math::GMPz->new(-3);
 
   if($z == "$strninf") {
@@ -1153,6 +1153,6 @@ if("$strninf" =~ /^\-inf/i) {
 
 }
 else {
-  warn "\n Skipping tests 149..155 (-iNf !~ /^\\-inf/i)\n";
+  warn "\n Skipping tests 149..155 (not MSWin, and -iNf !~ /^\\-inf/i)\n";
   for(149 .. 155 ) {print "ok $_\n"}
 }
