@@ -124,6 +124,22 @@ SV * MATH_GMPz_UV_MAX(pTHX) {
      return newSVuv((UV)UV_MAX);
 }
 
+int _is_infstring(char * s) {
+  int sign = 1;
+
+  if(s[0] == '-') {
+    sign = -1;
+    s++;
+  }
+  else {
+    if(s[0] == '+') s++;
+  }
+
+  if((s[0] == 'i' || s[0] == 'I') && (s[1] == 'n' || s[1] == 'N') && (s[2] == 'f' || s[2] == 'F'))
+    return sign;
+  return 0;
+}
+
 SV * Rmpz_init_set_str_nobless(pTHX_ SV * num, SV * base) {
      mpz_t * mpz_t_obj;
      unsigned long b = SvUV(base);
@@ -3235,6 +3251,12 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
+       ret = _is_infstring(SvPV_nolen(b));
+       if(ret) {
+         if(ret > 0) return newSViv(0);
+         return newSViv(1);
+       }
+
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_gt");
        ret = mpz_cmp(*a, t);
@@ -3334,6 +3356,12 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
+       ret = _is_infstring(SvPV_nolen(b));
+       if(ret) {
+         if(ret > 0) return newSViv(0);
+         return newSViv(1);
+       }
+
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_gte");
        ret = mpz_cmp(*a, t);
@@ -3433,6 +3461,12 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
+       ret = _is_infstring(SvPV_nolen(b));
+       if(ret) {
+         if(ret > 0) return newSViv(1);
+         return newSViv(0);
+       }
+
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_lt");
        ret = mpz_cmp(*a, t);
@@ -3532,6 +3566,12 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
+       ret = _is_infstring(SvPV_nolen(b));
+       if(ret) {
+         if(ret > 0) return newSViv(1);
+         return newSViv(0);
+       }
+
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_lte");
        ret = mpz_cmp(*a, t);
@@ -3627,6 +3667,9 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
+       ret = _is_infstring(SvPV_nolen(b));
+       if(ret) return newSViv(ret * -1);
+
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_spaceship");
        ret = mpz_cmp(*a, t);
@@ -3775,6 +3818,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
+       if(_is_infstring(SvPV_nolen(b))) return newSViv(0);
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_equiv");
        ret = mpz_cmp(*a, t);
@@ -3927,6 +3971,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      }
 
      if(SvPOK(b)) {
+       if(_is_infstring(SvPV_nolen(b))) return newSViv(1);
        if(mpz_init_set_str(t, SvPV_nolen(b), 0))
          croak("Invalid string supplied to Math::GMPz::overload_not_equiv");
        ret = mpz_cmp(*a, t);
@@ -6175,6 +6220,10 @@ CODE:
   RETVAL = MATH_GMPz_UV_MAX (aTHX);
 OUTPUT:  RETVAL
 
+
+int
+_is_infstring (s)
+	char *	s
 
 SV *
 Rmpz_init_set_str_nobless (num, base)
