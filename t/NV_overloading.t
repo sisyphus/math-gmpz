@@ -7,12 +7,13 @@ use strict;
 use warnings;
 use Math::GMPz;
 
-print "1..148\n";
+print "1..155\n";
 
 my $inf  = 999 ** (999 ** 999);
 my $ninf = $inf * -1;
 my $nan  = $inf / $inf;
 my $strinf = 999 ** (999 ** 999);
+my $strninf = $strinf * -1;
 my $strnan = $strinf / $strinf;
 my ($ret, $x);
 
@@ -365,11 +366,20 @@ if(Math::GMPz->new(10) ==  $ninf ) {
 }
 else {print "ok 50\n"}
 
-eval{$x = (Math::GMPz->new(10) == "$strinf")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_equiv/) {print "ok 51\n"}
+if("$strinf" =~ /^inf/i) {
+  if(Math::GMPz->new(10) == "$strinf") {
+    warn "\n 10 == infinity\n";
+    print "not ok 51\n";
+  }
+  else {print "ok 51\n"}
+}
 else {
-  warn "\n\$\@: $@\n";
-  print "not ok 51\n";
+  eval {$x = (Math::GMPz->new(10) == "$strinf")};
+  if($@ =~ /Invalid string supplied to Math::GMPz::overload_equiv/) {print "ok 51\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 51\n";
+  }
 }
 
 eval{$x = (Math::GMPz->new(10) ==  $nan )};
@@ -411,11 +421,20 @@ else {
   print "not ok 57\n";
 }
 
-eval{$x = (Math::GMPz->new(10) != "$strinf")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_not_equiv/) {print "ok 58\n"}
+if("$strinf" =~ /^inf/i) {
+  if(Math::GMPz->new(10) != "$strinf") {print "ok 58\n"}
+  else {
+    warn "\n 10 == infinity\n";
+    print "not ok 58\n";
+  }
+}
 else {
-  warn "\n\$\@: $@\n";
-  print "not ok 58\n";
+  eval{$x = (Math::GMPz->new(10) != "$strinf")};
+  if($@ =~ /Invalid string supplied to Math::GMPz::overload_not_equiv/) {print "ok 58\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 58\n";
+  }
 }
 
 eval{$x = (Math::GMPz->new(10) !=  $nan )};
@@ -458,11 +477,20 @@ if(Math::GMPz->new(10) <  $ninf ) {
 }
 else {print "ok 64\n"}
 
-eval{$x = (Math::GMPz->new(10) < "$strinf")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_lt/) {print "ok 65\n"}
+if("$strinf" =~ /^inf/i) {
+  if(Math::GMPz->new(10) < "$strinf") {print "ok 65\n"}
+  else {
+    warn "\n 10 >= infinity\n";
+    print "not ok 65\n";
+  }
+}
 else {
-  warn "\n\$\@: $@\n";
-  print "not ok 65\n";
+  eval{$x = (Math::GMPz->new(10) < "$strinf")};
+  if($@ =~ /Invalid string supplied to Math::GMPz::overload_lt/) {print "ok 65\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 65\n";
+  }
 }
 
 eval{$x = (Math::GMPz->new(10) <  $nan )};
@@ -506,11 +534,20 @@ if(Math::GMPz->new(10) <=  $ninf ) {
 }
 else {print "ok 71\n"}
 
-eval{$x = (Math::GMPz->new(10) <= "$strinf")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_lte/) {print "ok 72\n"}
+if("$strinf" =~ /^inf/i) {
+  if(Math::GMPz->new(10) <= "$strinf") {print "ok 72\n"}
+  else {
+    warn "\n 10 > infinity\n";
+    print "not ok 72\n";
+  }
+}
 else {
-  warn "\n\$\@: $@\n";
-  print "not ok 72\n";
+  eval{$x = (Math::GMPz->new(10) <= "$strinf")};
+  if($@ =~ /Invalid string supplied to Math::GMPz::overload_lte/) {print "ok 72\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 72\n";
+  }
 }
 
 eval{$x = (Math::GMPz->new(10) <=  $nan )};
@@ -553,11 +590,20 @@ else {
   print "not ok 78\n";
 }
 
-eval{$x = (Math::GMPz->new(10) >= "$strinf")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_gte/) {print "ok 79\n"}
+if("$strinf" =~ /^inf/i) {
+  if(Math::GMPz->new(10) >= "$strinf") {
+    warn "\n 10 >= infinity\n";
+    print "not ok 79\n";
+  }
+  else {print "ok 79\n"}
+}
 else {
-  warn "\n\$\@: $@\n";
-  print "not ok 79\n";
+  eval{$x = (Math::GMPz->new(10) >= "$strinf")};
+  if($@ =~ /Invalid string supplied to Math::GMPz::overload_gte/) {print "ok 79\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 79\n";
+  }
 }
 
 eval{$x = (Math::GMPz->new(10) >=  $nan )};
@@ -600,11 +646,20 @@ else {
   print "not ok 85\n";
 }
 
-eval{$x = (Math::GMPz->new(10) > "$strinf")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_gt/) {print "ok 86\n"}
+if("$strinf" =~ /^inf/i) {
+  if(Math::GMPz->new(10) > "$strinf") {
+    warn "\n 10 > infinity\n";
+    print "not ok 86\n";
+  }
+  else {print "ok 86\n"}
+}
 else {
-  warn "\n\$\@: $@\n";
-  print "not ok 86\n";
+  eval{$x = (Math::GMPz->new(10) > "$strinf")};
+  if($@ =~ /Invalid string supplied to Math::GMPz::overload_gt/) {print "ok 86\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 86\n";
+  }
 }
 
 eval{$x = (Math::GMPz->new(10) >  $nan )};
@@ -698,11 +753,20 @@ else {
 #########################
 #########################
 
-eval{$x = (Math::GMPz->new(10) <=> "$strinf")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_spaceship/) {print "ok 101\n"}
+if("$strinf" =~ /^inf/i) {
+  if((Math::GMPz->new(10) <=> "$strinf") < 0) {print "ok 101\n"}
+  else {
+    warn "\n 10 !< inf\n";
+    print "not ok 101\n";
+  }
+}
 else {
-  warn "\n\$\@: $@\n";
-  print "not ok 101\n";
+  eval{$x = (Math::GMPz->new(10) <=> "$strinf")};
+  if($@ =~ /Invalid string supplied to Math::GMPz::overload_spaceship/) {print "ok 101\n"}
+  else {
+    warn "\n\$\@: $@\n";
+    print "not ok 101\n";
+  }
 }
 
 eval{$x = (Math::GMPz->new(10) <=>  $nan )};
@@ -1040,4 +1104,55 @@ if($z == $i) {print "ok 148\n"}
 else {
   warn "\n Expected $i\n Got $z\n";
   print "not ok 148\n";
+}
+
+if("$strninf" =~ /^\-inf/i) {
+  my $z = Math::GMPz->new(-3);
+
+  if($z == "$strninf") {
+    warn "\n $z == infinity\n";
+    print "not ok 149\n";
+  }
+  else {print "ok 149\n"}
+
+  if($z != "$strninf") {print "ok 150\n"}
+  else {
+    warn "\n $z == infinity\n";
+    print "not ok 150\n";
+  }
+
+  if($z > "$strninf") {print "ok 151\n"}
+  else {
+    warn "\n $z <= infinity\n";
+    print "not ok 151\n";
+  }
+
+  if($z >= "$strninf") {print "ok 152\n"}
+  else {
+    warn "\n $z < infinity\n";
+    print "not ok 152\n";
+  }
+
+  if($z < "$strninf") {
+    warn "\n $z < infinity\n";
+    print "not ok 153\n";
+  }
+  else {print "ok 153\n"}
+
+  if($z <= "$strninf") {
+    warn "\n $z <= infinity\n";
+    print "not ok 154\n";
+  }
+  else {print "ok 154\n"}
+
+  if(($z <=> "$strninf") > 0) {print "ok 155\n"}
+  else {
+    warn "\n $z !> infinity\n";
+    print "not ok 155\n";
+  }
+
+}
+else {
+  warn "\n Skipping tests 149..155 (-iNf !~ /^\\-inf/i)\n";
+  for(149 .. 155 ) {print "ok $_\n"}
 }
