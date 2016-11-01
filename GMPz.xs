@@ -137,6 +137,13 @@ int _is_infstring(char * s) {
 
   if((s[0] == 'i' || s[0] == 'I') && (s[1] == 'n' || s[1] == 'N') && (s[2] == 'f' || s[2] == 'F'))
     return sign;
+
+#ifdef _WIN32 /* older Win32 perls stringify infinities as(-)1.#INF */
+
+   if(!strcmp(s, "1.#INF")) return sign;
+
+#endif
+
   return 0;
 }
 
