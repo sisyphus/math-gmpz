@@ -1,4 +1,5 @@
 0.45
+ - Add _is_infstring() for use with overloaded comparison operators (==, !=, >, >=, <, <=, <=>)
 
 0.44
  - Remove gmp_version (library) function from Math::GMPz::V. (Math::GMPz::V is
@@ -13,7 +14,8 @@
    present a meaningful error message than to have the gmp library dump core.
  - Accommodate __float128 nvtype.
  - Add Rmpz_cmp_NV.
- - Replace the condition "if(SvNOK(x))" with "if(SvNOK(x) && !SvPOK(x))". (Thanks trizen.)
+ - Replace the condition "if(SvNOK(x))" with "if(SvNOK(x) && !SvPOK(x))".
+   See https://github.com/sisyphus/math-gmpz/issues/1 (Thanks trizen.)
 
 0.43
  - Overload operations with Math::BigInt objects, and allow new() to accept a
