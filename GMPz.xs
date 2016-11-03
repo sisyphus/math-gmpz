@@ -400,7 +400,7 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
        croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -424,7 +424,7 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
        croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -467,7 +467,7 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -486,7 +486,7 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
      Newxz(buffer, buffer_size + 5, char);
 
@@ -1212,7 +1212,7 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
        return 1;
      }
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
      Newxz(buffer, (int)buffer_size + 5, char);
 
      returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
@@ -1247,7 +1247,7 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
        return 1;
      }
      buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
      Newxz(buffer, (int)buffer_size + 5, char);
 
      if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Rmpz_cmp_NV, buffer overflow in sprintf function");
@@ -1829,7 +1829,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mul, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -1847,7 +1847,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mul, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -1994,7 +1994,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_add, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2012,7 +2012,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_add, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2174,7 +2174,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        croak("In Math::GMPz::overload_sub, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2192,7 +2192,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        croak("In Math::GMPz::overload_sub, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2363,7 +2363,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        croak("In Math::GMPz::overload_div, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-     buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2381,7 +2381,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        croak("In Math::GMPz::overload_div, cannot coerce an Inf to a Math::GMPz value");
 
      buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2535,7 +2535,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mod, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2553,7 +2553,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mod, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2853,7 +2853,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_and, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2871,7 +2871,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_and, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -2989,7 +2989,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_ior, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -3007,7 +3007,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_ior, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -3125,7 +3125,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_xor, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -3143,7 +3143,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_xor, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -3782,7 +3782,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(!ret) {
          buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-         buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+         buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
          Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -3803,7 +3803,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(!ret) {
          buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-         buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+         buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
          Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -3935,7 +3935,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(!ret) {
          buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-         buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+         buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
          Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -3956,7 +3956,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(!ret) {
          buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-         buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+         buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
          Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4099,7 +4099,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_xor_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4117,7 +4117,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_xor_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4243,7 +4243,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4261,7 +4261,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4386,7 +4386,7 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_and_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4404,7 +4404,7 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_and_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4599,7 +4599,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mod_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4617,7 +4617,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mod_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4741,7 +4741,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_div_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4759,7 +4759,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_div_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4879,7 +4879,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_sub_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -4897,7 +4897,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_sub_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -5021,7 +5021,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_add_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -5039,7 +5039,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_add_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -5159,7 +5159,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mul_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
-       buffer_size = ceilq(logq(buffer_size + 1) / 0.693147180559945309417232121458176575Q);
+       buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
@@ -5177,7 +5177,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mul_eq, cannot coerce an Inf to a Math::GMPz value");
 
        buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 0.693147180559945309417232121458176575L);
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
        Newxz(buffer, (int)buffer_size + 5, char);
 
