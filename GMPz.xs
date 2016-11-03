@@ -1224,11 +1224,10 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      mpz_clear(t);
 
      if(ld == (__float128)SvNVX(b)) return ret;
-     else { /* cannot be equal - ie must be less than or greater than */
-       if(!ret) {
-         if(ld >= 0) ret = -1;
-         else ret = 1;
-       }
+     /* else cannot be equal - ie must be less than or greater than */
+     if(!ret) {
+       if(ld >= 0) ret = -1;
+       else ret = 1;
      }
 
      return ret;
@@ -1257,11 +1256,10 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      ret = mpz_cmp(*a, t);
      mpz_clear(t);
      if(ld == (long double)SvNVX(b)) return ret;
-     else { /* cannot be equal - ie must be less than or greater than */
-       if(!ret) {
-         if(ld >= 0) ret = -1;
-         else ret = 1;
-       }
+     /* else cannot be equal - ie must be less than or greater than */
+     if(!ret) {
+       if(ld >= 0) ret = -1;
+       else ret = 1;
      }
 
      return ret;
