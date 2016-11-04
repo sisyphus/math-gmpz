@@ -29,18 +29,21 @@ perl Makefile.PL INC="-I/path/to/gmp_include" LIBS="-L/path/to/gmp_lib -lgmp"
 ==============
 
 If your perl's Config reports that 'ivsize' is greater than or
-equal to 8, then Math::GMPz will, by default, be built to enable
-you to use the 64-bit long long int values with the new() function
-and the overloaded operators. Else attempts to use long long int
-values with Math::GMPz will probably fail. If necessary, you can
-override the default by opening up the Makefile.PL and uncommenting
-the appropriate line (just a few lines down from the top of the file
- ... the comments in that file should make it clear).
+equal to 8 && 'ivtype' is not 'long', then Math::GMPz will, by
+default, be built to enable you to use the 64-bit long long int
+values with the new() function and the overloaded operators.
+Else attempts to use long long int values with Math::GMPz will
+probably fail.
+If necessary, you can override the default by opening up the
+Makefile.PL and uncommenting the appropriate line (just a few
+lines down from the top of the file ... the comments in that file
+should make it clear).
 
 Similarly, if your perl's Config reports that 'nvsize' > 8,
 then Math::GMPz will, by default, be built to enable you to use the
-long double values with the new() function and the overloaded
-operators. Else, attempts to use long doubles will probably fail.
+larger precision values (be they either 'long double' or '__float128'
+with the new() function and the overloaded operators.
+Else, attempts to use long doubles will probably fail.
 If you need, you can override the default by opening up the
 Makefile.PL and uncommenting the appropriate line (just a few lines
 down from the top of the file ... the comments in that file should
