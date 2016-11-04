@@ -1,5 +1,8 @@
 0.45
  - Add _is_infstring() for use with overloaded comparison operators (==, !=, >, >=, <, <=, <=>)
+ - Corrections made to memory allocation for string buffers in GMPz.xs. (Version 0.44 been
+   over-allocating by a factor of more than 3.)
+
 
 0.44
  - Remove gmp_version (library) function from Math::GMPz::V. (Math::GMPz::V is
