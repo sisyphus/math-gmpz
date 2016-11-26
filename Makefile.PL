@@ -57,6 +57,8 @@ $defines =~ /-DNV_IS_FLOAT128/ ? print "Building with '__float128' support\n" :
 
 print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
+if($^O =~ /MSWin32/i && $] < 5.022) {$defines .= " -D_WIN32_BIZARRE_INFNAN"}
+
 my %options = (
   NAME => 'Math::GMPz',
   AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
