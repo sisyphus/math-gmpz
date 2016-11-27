@@ -2716,9 +2716,10 @@ SV * overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
+     unsigned long int ui = 0;
 
-     if(third == &PL_sv_yes)
-       croak("Invalid third argument (&PL_sv_yes) supplied to Math::GMPz::overload_pow function");
+     if(mpz_fits_uint_p(*(INT2PTR(mpz_t *, SvIVX(SvRV(a))))))
+       ui = mpz_get_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
 
      if(!sv_isobject(b)) {
        New(1, mpz_t_obj, 1, mpz_t);
@@ -2731,18 +2732,46 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
      }
 
      if(SvUOK(b)) {
+       if(third == &PL_sv_yes) {
+         if(ui) {
+           mpz_ui_pow_ui(*mpz_t_obj, SvUVX(b), ui);
+           return obj_ref;
+         }
+         croak("Exponent does not fit into unsigned long int in Math::GMPz::overload_pow");
+       }
        mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))) , SvUVX(b));
        return obj_ref;
-       }
+     }
 
      if(SvIOK(b)) {
        if(SvIVX(b) < 0) croak("Negative argument supplied to Math::GMPz::overload_pow");
+       if(third == &PL_sv_yes) {
+         if(ui) {
+           mpz_ui_pow_ui(*mpz_t_obj, SvUVX(b), ui);
+           return obj_ref;
+         }
+         croak("Exponent does not fit into unsigned long int in Math::GMPz::overload_pow");
+       }
        mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
        return obj_ref;
-       }
+     }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
+       if(strEQ(h, "Math::GMPz")) {
+         if(mpz_fits_uint_p(*(INT2PTR(mpz_t *, SvIVX(SvRV(b)))))) {
+           New(1, mpz_t_obj, 1, mpz_t);
+           if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_pow function");
+           obj_ref = newSV(0);
+           obj = newSVrv(obj_ref, "Math::GMPz");
+           mpz_init(*mpz_t_obj);
+           sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+           SvREADONLY_on(obj);
+           ui = mpz_get_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+           mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), ui);
+           return obj_ref;
+         }
+       }
        if(strEQ(h, "Math::MPFR")) {
          dSP;
          SV * ret;
@@ -2761,7 +2790,7 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
          SPAGAIN;
 
          if (count != 1)
-           croak("Error in Math::GMPq:overload_pow callback to Math::MPFR::overload_pow\n");
+           croak("Error in Math::GMPz:overload_pow callback to Math::MPFR::overload_pow\n");
 
          ret = POPs;
 
@@ -2772,7 +2801,7 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
        }
      }
 
-     croak("Invalid argument supplied to Math::GMPz::overload_pow. It takes only signed/unsigned long or Math::MPFR object as exponent");
+     croak("Invalid argument supplied to Math::GMPz::overload_pow. Exponent must fit into unsigned long (or be a Math::MPFR object)");
 }
 
 SV * overload_sqrt(pTHX_ mpz_t * p, SV * second, SV * third) {
@@ -4485,8 +4514,20 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
        return a;
        }
 
+     if(sv_isobject(b)) {
+       const char *h = HvNAME(SvSTASH(SvRV(b)));
+       if(strEQ(h, "Math::GMPz")) {
+         if(mpz_fits_uint_p(*(INT2PTR(mpz_t *, SvIVX(SvRV(b)))))) {
+           mpz_pow_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))),
+                      *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))),
+                      mpz_get_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(b))))));
+           return a;
+         }
+       }
+     }
+
      SvREFCNT_dec(a);
-     croak("Invalid argument supplied to Math::GMPz::overload_pow_eq");
+     croak("Invalid argument supplied to Math::GMPz::overload_pow_eq. Exponent must fit into an unsigned long");
 }
 
 SV * overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
