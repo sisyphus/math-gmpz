@@ -4,6 +4,7 @@
    over-allocating by a factor of more than 3.)
  - Broaden overload_pow and overload_pow_eq to accommodate Math::GMPz objects whose value fit into
    unsigned long int.
+ - Add documentation of Rmpz_rootrem. (Thanks trizen.)
 
 
 0.44
