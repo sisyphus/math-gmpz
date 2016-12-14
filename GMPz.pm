@@ -765,11 +765,11 @@ __END__
     hexadecimal is assumed, otherwise if the first character is "0",
     octal is assumed, otherwise decimal is assumed.
 
-   Rmpz_set_IV($rop, $IV) # $IV is a perl integer value
+   Rmpz_set_IV($rop, $IV); # $IV is a perl integer value
     Set $rop to the value of $IV. (If $IV is an unsigned integer
     value then that unsigned value is assigned.)
 
-   Rmpz_set_NV($rop, $NV) # $NV is a perl floating point value
+   Rmpz_set_NV($rop, $NV); # $NV is a perl floating point value
     Set $rop to the value of $NV. (First truncate to an integer if
     $NV does not contain an integer value.)
     The program dies with an appropriate error message if $NV is
@@ -1034,6 +1034,10 @@ __END__
 
    Rmpz_root($rop, $op, $ui);
     $rop = $op ** (1 / $ui).
+
+   Rmpz_rootrem($rop1, $rop2, $op, $ui);
+    $rop1 = $op **(1 / $ui).
+    $op = $rop2 + ($rop1 ** $ui).
 
    Rmpz_sqrt($rop, $op);
     $rop = $op ** 0.5.
@@ -1550,8 +1554,9 @@ __END__
        the variable is treated as a signed long long int if the IOK flag
        is set.)
 
-    3. If the variable is a double, then that value is used. The
-       variable is considered to be a double if the NOK flag is set.
+    3. If the variable is an NV, then that value is used. The variable
+       is considered to be an NV if the NOK flag is set && the POK flag
+       is unset.
 
     4. If the variable is a string (ie the POK flag is set) then the
        value of that string is used. Octal strings must begin with
