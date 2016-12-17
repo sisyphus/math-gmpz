@@ -719,6 +719,7 @@ int Rmpz_fits_IV_p(pTHX_ mpz_t * n) {
 #else
      mpz_t _iv_max;
      mpz_t _iv_min;
+     if(mpz_fits_slong_p(*n)) return 1;
      mpz_init_set_str(_iv_min, SvPV_nolen(MATH_GMPz_IV_MIN(aTHX)), 10);
      if(mpz_cmp(*n, _iv_min) < 0) {
        mpz_clear(_iv_min);
@@ -726,10 +727,13 @@ int Rmpz_fits_IV_p(pTHX_ mpz_t * n) {
      }
      mpz_init_set_str(_iv_max, SvPV_nolen(MATH_GMPz_IV_MAX(aTHX)), 10);
      if(mpz_cmp(*n, _iv_max) > 0) {
+       mpz_clear(_iv_min);
        mpz_clear(_iv_max);
        return 0;
      }
 
+     mpz_clear(_iv_min);
+     mpz_clear(_iv_max);
      return 1;
 
 #endif
@@ -742,12 +746,14 @@ int Rmpz_fits_UV_p(pTHX_ mpz_t * n) {
      return 0;
 #else
      mpz_t _uv_max;
+     if(mpz_fits_ulong_p(*n)) return 1;
      if(mpz_sgn(*n) < 0) return 0;
      mpz_init_set_str(_uv_max, SvPV_nolen(MATH_GMPz_UV_MAX(aTHX)), 10);
      if(mpz_cmp(*n, _uv_max) > 0) {
        mpz_clear(_uv_max);
        return 0;
      }
+     mpz_clear(_uv_max);
      return 1;
 
 #endif
