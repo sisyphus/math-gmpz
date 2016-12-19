@@ -657,7 +657,7 @@ SV * _Rmpz_get_IV(pTHX_ mpz_t * n) {
 
 #else
 
-   if(mpz_sgn(*n)) negative = 1;
+   if(mpz_sgn(*n) < 0) negative = 1;
 
    Newxz(out, 24, char);
    if(out == NULL)
