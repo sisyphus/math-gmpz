@@ -1,709 +1,544 @@
 use strict;
 use warnings;
-use Math::GMPz qw(:mpz);
-use Math::BigFloat; # for some error checking
-#use Devel::Peek;
+use Math::GMPf qw(:mpf);
+use Math::BigInt; # for some error checking
 
-print "1..40\n";
+print "1..101\n";
 
-print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
+print "# Using gmp version ", Math::GMPf::gmp_v(), "\n";
 
-my $have_mpf = 0;
-my $have_mpq = 0;
-my($float, $rat);
-my ($p1, $p2);
+Rmpf_set_default_prec(200);
 
-eval{require Math::GMPf};
-if(!$@) {
-  $have_mpf = 1;
-  $float = Math::GMPf::Rmpf_init_set_d(2.5);
-  }
+my $p = Rmpf_init();
+my $q = Rmpf_init();
 
-eval{require Math::GMPq};
-if(!$@) {
-  $have_mpq = 1;
-  $rat = Math::GMPq::Rmpq_init();
-  Math::GMPq::Rmpq_set_d($rat, 2.5);
-  }
+my $ui = (2 ** 31) + 17;
+my $negi = -1236;
+my $posi = 1238;
+my $posd = (2 ** 41) + 11234;
+my $negd = -((2 ** 43) - 111);
+my $frac = 23.124901;
 
-my $str = '12345';
-my $x = Rmpz_init_set_str($str, 10);
-my $y = Rmpz_init_set_str('7', 10);
-
-my $z = 2 * $x * $y * (2 ** 35);
-$z = -9 + $z + $y + -107 + ((2 ** 34) * -1);
-$z = $z + 109 + (2 ** 34);
-
-if("$z" eq '5938393582141440'
-   && Math::GMPz::get_refcnt($z) == 1) { print "ok 1\n"}
-else {print "not ok 1\n"}
-
-$z *= 11;
-$z *= -3;
-$z *= $y;
-$z *= 2 ** 33;
-$z *= $z;
-
-if("$z" eq '138848639908977408444709674076474850607440061702497894400'
-   && Math::GMPz::get_refcnt($z) == 1) { print "ok 2\n"}
-else {print "not ok 2\n"}
-
-$z = sqrt($z);
-$z /= 2 ** 33;
-$z /= $y;
-$z /= -3;
-$z /= 11;
-
-if("$z" eq '-5938393582141440'
-   && Math::GMPz::get_refcnt($z) == 1) { print "ok 3\n"}
-else {print "not ok 3\n"}
-
-my $m = 4294967295; #~0;
-
-$z += 11234;
-$z += -11234;
-$z += $m;
-$z += -$m;
-
-$z += $y;
-$z += ($y * -1);
-$z += 2 ** 37;
-$z += (2 ** 37) * -1;
-
-if("$z" eq '-5938393582141440'
-   && Math::GMPz::get_refcnt($z) == 1) { print "ok 4\n"}
-else {print "not ok 4 $z\n"}
-
-$z -= 11234;
-$z -= -11234;
-$z -= $m;
-$z -= -$m;
-$z -= $y;
-$z -= ($y * -1);
-$z -= 2 ** 37;
-$z -= (2 ** 37) * -1;
-
-if("$z" eq '-5938393582141440'
-   && Math::GMPz::get_refcnt($z) == 1) { print "ok 5\n"}
-else {print "not ok 5\n"}
-
-my $z2 = -13 - $z;
-$z2 = $z2 - (2 ** 39);
-$z2 += (2 ** 39) - -13;
-$z2 *= -1;
-
-if("$z" eq '-5938393582141440'
-   && Math::GMPz::get_refcnt($z2) == 1) { print "ok 6\n"}
-else {print "not ok 6\n"}
-
-$z2 = $z - 1118;
-$z2 = $z2 - -1118;
-$z2 = $z2 - $m;
-$z2 = $z2 - -$m;
-$z2 = $z2 - $y;
-$z2 = $z2 - ($y * -1);
-$z2 = $z2 - (2 ** 44);
-$z2 = $z2 - ((2 ** 44) * -1);
-
-if("$z2" eq '-5938393582141440'
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z) == 1) { print "ok 7\n"}
-else {print "not ok 7\n"}
-
-$z2 = 11176 - $z;
-my $z3 = -11176 - $z;
-$z3 -= $z2;
-$z3 = $m - $z3;
-$z3 = -$m - $z3;
-$z3 = (2 ** 46) - $z3;
-$z3 = ((2 ** 46) * -1) - $z3;
-
-if("$z3" eq '-140746078312270'
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) { print "ok 8\n"}
-else {print "not ok 8\n"}
+Rmpf_set_ui($p, 1234);
+Rmpf_set_si($q, -5678);
 
 my $ok = '';
 
-$z = 112 / $x;
-$z2 = -112 / $x;
-if(Rmpz_get_str($z + $z2, 10) eq '0') {$ok = 'a'}
+my $z = $p * $q;
+if(Rmpf_get_str($z, 10,0) eq '-0.7006652e7'
+   && $z == -7006652
+   && "$z" eq '-0.7006652e7') {$ok = 'a'}
 
-$z = 24689 / $x;
-$z2 = -24689 / $x;
-if(Rmpz_get_str($z - $z2, 10) eq '2') {$ok .= 'b'}
+$z = $p * $ui;
+if(Rmpf_get_str($z, 10, 0) eq '0.264999484261e13'
+   && $z == 2649994842610
+   && "$z" eq '0.264999484261e13') {$ok .= 'b'}
 
-$z = $m / $x;
-$z2 = -$m / $x;
+$z = $p * $negi;
+if(Rmpf_get_str($z, 10, 0) eq '-0.1525224e7'
+   && $z == -1525224
+   && "$z" eq '-0.1525224e7') {$ok .= 'c'}
 
-if(Rmpz_get_str($z - $z2, 10) eq '695822') {$ok .= 'c'}
+$z = $p * $posd;
+if(Rmpf_get_str($z, 10, 0) eq '0.2713594711213924e16'
+   && $z == 2713594711213924
+   && "$z" eq '0.2713594711213924e16') {$ok .= 'd'}
 
-$z = (2 ** 47) / $x;
-$z2 = ((2 ** 47) * -1) / $x;
-if(Rmpz_get_str($z - $z2, 10) eq '22800727152') {$ok .= 'd'}
+$z = $p * $negd;
+if(Rmpf_get_str($z, 10, 0) eq '-0.10854378789267698e17'
+   && $z == -10854378789267698
+   && "$z" eq '-0.10854378789267698e17') {$ok .= 'e'}
 
-$z = $x / $y;
-$z2 = -$x / $y;
-if(Rmpz_get_str($z - $z2, 10) eq '3526') {$ok .= 'e'}
+$z = $p * $frac;
+if($z > 28536.12783 && $z < 28536.12784) {$ok .= 'f'}
+else { warn "\n 1f: \$z: $z\n"}
 
-if($ok eq 'abcde'
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) { print "ok 9\n"}
-else {print "not ok 9 $ok\n"}
+$z = $p * $posi;
+if($z == 1527692) {$ok .= 'g'}
 
-$ok = '';
-
-$z = $x / 10;
-$z2 = ($x * -1) / 10;
-if(Rmpz_get_str($z - $z2, 10) eq '2468') {$ok = 'a'}
-
-$z =  $x / $m;
-$z2 = ($x * -1) / $m;
-
-if(Rmpz_get_str($z - $z2, 10) eq '0') {$ok .= 'b'}
-
-$z =  $x / (2 ** 47);
-$z2 = ($x * -1) / (2 ** 47);
-if(Rmpz_get_str($z - $z2, 10) eq '0') {$ok .= 'c'}
-
-if($ok eq 'abc'
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) { print "ok 10\n"}
-else {print "not ok 10 $ok\n"}
-
-my $z4 = Rmpz_init_set_str("9999999999999999999999999999999999999999999999999999", 10);
-$z += $z4;
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($z) == 1
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($q) == 1) {print "ok 1\n"}
+else {print "not ok 1 $ok\n"}
 
 $ok = '';
 
-$z2 = 23 % $z4;
-$z3 = -23 % $z4;
-if(Rmpz_get_str($z2 + $z3, 16) eq Rmpz_get_str($z, 16)
-   && $z2 + $z3 == $z
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok = 'a'}
+$p *= $q;
+if(Rmpf_get_str($p, 10, 0) eq '-0.7006652e7'
+   && $p == -7006652
+   && "$p" eq '-0.7006652e7') {$ok = 'a'}
+Rmpf_set_ui($p, 1234);
 
-$z4*= -1;
-$z2 = 23 % $z4;
-$z3 = -23 % $z4;
-if(Rmpz_get_str($z2 + $z3, 16) eq Rmpz_get_str($z, 16)
-   && $z2 + $z3 == $z
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'b'}
+$p *= $ui;
+if(Rmpf_get_str($p, 10, 0) eq '0.264999484261e13'
+   && $p == 2649994842610
+   && "$p" eq '0.264999484261e13') {$ok .= 'b'}
+Rmpf_set_ui($p, 1234);
 
-$z2 = $m % $z4;
-$z3 = -$m % $z4;
+$p *= $negi;
+if(Rmpf_get_str($p, 10, 0) eq '-0.1525224e7'
+   && $p == -1525224
+   && "$p" eq '-0.1525224e7') {$ok .= 'c'}
+Rmpf_set_ui($p, 1234);
 
-if(Rmpz_get_str($z2 + $z3, 16) eq Rmpz_get_str($z, 16)
-   && $z2 + $z3 == $z
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'c'}
+$p *= $posd;
+if(Rmpf_get_str($p, 10, 0) eq '0.2713594711213924e16'
+   && $p == 2713594711213924
+   && "$p" eq '0.2713594711213924e16') {$ok .= 'd'}
+Rmpf_set_ui($p, 1234);
 
-$z4 *= -1;
-$z2 = $m % $z4;
-$z3 = -$m % $z4;
-if(Rmpz_get_str($z2 + $z3, 16) eq Rmpz_get_str($z, 16)
-   && $z2 + $z3 == $z
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'd'}
+$p *= $negd;
+if(Rmpf_get_str($p, 10, 0) eq '-0.10854378789267698e17'
+   && $p == -10854378789267698
+   && "$p" eq '-0.10854378789267698e17') {$ok .= 'e'}
+Rmpf_set_ui($p, 1234);
 
-$z2 = ((2 ** 41) + 12345) % $z4;
-$z3 = -((2 ** 41) + 12345) % $z4;
-if(Rmpz_get_str($z2 + $z3, 16) eq Rmpz_get_str($z, 16)
-   && $z2 + $z3 == $z
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'e'}
+$p *= $frac;
+if($p > 28536.12783 && $p < 28536.12784) {$ok .= 'f'}
+Rmpf_set_ui($p, 1234);
 
-$z4 = -$z4;
-$z2 = ((2 ** 41) + 12345) % $z4;
-$z3 = -((2 ** 41) + 12345) % $z4;
-if(Rmpz_get_str($z2 + $z3, 16) eq Rmpz_get_str($z, 16)
-   && $z2 + $z3 == $z
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'f'}
+$p *= $posi;
+if($p == 1527692) {$ok .= 'g'}
+Rmpf_set_ui($p, 1234);
 
-$z2 = $z4 % 23;
-$z4 = -$z4;
-$z3 = $z4 % 23;
-if(Rmpz_get_str($z2 + $z3, 10) eq '23'
-   && $z2 + $z3 == 23
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'g'}
-
-$z2 = $z4 % -23;
-$z4*= -1;
-$z3 = $z4 % -23;
-if(Rmpz_get_str($z2 + $z3, 10) eq '23'
-   && $z2 + $z3 == 23
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'h'}
-
-$z2 = $z4 % $m;
-$z4 = -$z4;
-$z3 = $z4 % $m;
-if(Rmpz_get_str($z2 + $z3, 10) eq "$m"
-   && $z2 + $z3 == $m
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z3) == 1) {$ok .= 'i'}
-
-$z2 = $z4 % -$m;
-$z4 = -$z4;
-$z3 = $z4 % -$m;
-if(Rmpz_get_str($z2 + $z3, 10) eq "$m"
-   && $z2 + $z3 == $m
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {$ok .= 'j'}
-
-my $w = (2 ** 41) + 12345;
-
-$z2 = $z4 % ((2 ** 41) + 12345);
-$z4*= -1;
-$z3 = $z4 % ((2 ** 41) + 12345);
-if(Rmpz_get_str($z2 + $z3, 10) eq "$w"
-   && $z2 + $z3 == $w
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {$ok .= 'k'}
-
-
-$z2 = $z4 % -((2 ** 41) + 12345);
-$z4 *= -1;
-$z3 = $z4 % -((2 ** 41) + 12345);
-if(Rmpz_get_str($z2 + $z3, 10) eq "$w"
-   && $z2 + $z3 == $w
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {$ok .= 'l'}
-
-if($ok eq 'abcdefghijkl') {print "ok 11\n"}
-else {print "not ok 11 $ok\n"}
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 2\n"}
+else {print "not ok 2 $ok\n"}
 
 $ok = '';
 
-Rmpz_set($z2, $z4);
-Rmpz_set($z3, $z4);
-$z2 %= 23;
-$z3 = -$z3;
-$z3 %= 23;
-if(Rmpz_get_str($z2 + $z3, 10) eq '23'
-   && $z2 + $z3 == 23) {$ok = 'g'}
+$z = $p + $p;
+if(Rmpf_get_str($z, 10, 0) eq '0.2468e4'
+   && $z == 2468
+   && "$z" eq '0.2468e4') {$ok = 'a'}
 
-Rmpz_set($z2, $z4);
-Rmpz_set($z3, $z4);
-$z2 %= -23;
-$z3 = -$z3;
-$z3 %= -23;
-if(Rmpz_get_str($z2 + $z3, 10) eq '23'
-   && $z2 + $z3 == 23) {$ok .= 'h'}
+$z = $p + $ui;
+if(Rmpf_get_str($z, 10, 0) eq '0.2147484899e10'
+   && $z == 2147484899
+   && "$z" eq '0.2147484899e10') {$ok .= 'b'}
 
-Rmpz_set($z2, $z4);
-Rmpz_set($z3, $z4);
-$z2 %= $m;
-$z3 = -$z3;
-$z3 %= $m;
-if(Rmpz_get_str($z2 + $z3, 10) eq "$m"
-   && $z2 + $z3 == $m) {$ok .= 'i'}
+$z = $p + $negi;
+if(Rmpf_get_str($z, 10, 0) eq '-0.2e1'
+   && $z == -2
+   && "$z" eq '-0.2e1') {$ok .= 'c'}
 
-Rmpz_set($z2, $z4);
-Rmpz_set($z3, $z4);
-$z2 %= -$m;
-$z3 *= -1;
-$z3 %= -$m;
-if(Rmpz_get_str($z2 + $z3, 10) eq "$m"
-   && $z2 + $z3 == $m) {$ok .= 'j'}
+$z = $p + $posd;
+if(Rmpf_get_str($z, 10, 0) eq '0.219902326802e13'
+   && $z == 2199023268020
+   && "$z" eq '0.219902326802e13') {$ok .= 'd'}
 
-Rmpz_set($z2, $z4);
-Rmpz_set($z3, $z4);
-$z2 %= ((2 ** 41) + 12345);
-$z3*= -1;
-$z3 %= ((2 ** 41) + 12345);
-if(Rmpz_get_str($z2 + $z3, 10) eq "$w"
-   && $z2 + $z3 == $w) {$ok .= 'k'}
+$z = $p + $negd;
+if(Rmpf_get_str($z, 10, 0) eq '-0.8796093020863e13'
+   && $z == -8796093020863
+   && "$z" eq '-0.8796093020863e13') {$ok .= 'e'}
 
-Rmpz_set($z2, $z4);
-Rmpz_set($z3, $z4);
-$z2 %= -((2 ** 41) + 12345);
-$z3 = -$z3;
-$z3 %= -((2 ** 41) + 12345);
-if(Rmpz_get_str($z2 + $z3, 10) eq "$w"
-   && $z2 + $z3 == $w) {$ok .= 'l'}
+$z = $p + $frac;
+if($z > 1257.1249 && $z < 1257.124902) {$ok .= 'f'}
 
-if($ok eq 'ghijkl'
-   && Math::GMPz::get_refcnt($z2) == 1
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z3) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {print "ok 12\n"}
+$z = $p + $posi;
+if($z == 2472) {$ok .= 'g'}
+
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($z) == 1) {print "ok 3\n"}
+else {print "not ok 3 $ok\n"}
+
+$ok = '';
+
+$p += $p;
+if(Rmpf_get_str($p, 10, 0) eq '0.2468e4'
+   && $p == 2468
+   && "$p" eq '0.2468e4') {$ok = 'a'}
+Rmpf_set_ui($p, 1234);
+
+$p += $ui;
+if(Rmpf_get_str($p, 10, 0) eq '0.2147484899e10'
+   && $p == 2147484899
+   && "$p" eq '0.2147484899e10') {$ok .= 'b'}
+Rmpf_set_ui($p, 1234);
+
+$p += $negi;
+if(Rmpf_get_str($p, 10, 0) eq '-0.2e1'
+   && $p == -2
+   && "$p" eq '-0.2e1') {$ok .= 'c'}
+Rmpf_set_ui($p, 1234);
+
+$p += $posd;
+if(Rmpf_get_str($p, 10, 0) eq '0.219902326802e13'
+   && $p == 2199023268020
+   && "$p" eq '0.219902326802e13') {$ok .= 'd'}
+Rmpf_set_ui($p, 1234);
+
+$p += $negd;
+if(Rmpf_get_str($p, 10, 0) eq '-0.8796093020863e13'
+   && $p == -8796093020863
+   && "$p" eq '-0.8796093020863e13') {$ok .= 'e'}
+Rmpf_set_ui($p, 1234);
+
+$p += $frac;
+if($p > 1257.1249 && $p < 1257.124902) {$ok .= 'f'}
+Rmpf_set_ui($p, 1234);
+
+$p += $posi;
+if($p == 2472) {$ok .= 'g'}
+Rmpf_set_ui($p, 1234);
+
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 4\n"}
+else {print "not ok 4 $ok\n"}
+
+$ok = '';
+
+$z = $p / $q;
+if($z > -0.2174 && $z < -0.2173) {$ok = 'a'}
+
+$z *= $q / $p;
+if($z > 0.999 && $z < 1.001) {$ok .= '1'}
+
+$z = $p / $ui;
+if($z > 5.7462e-7 && $z < 5.7463e-7) {$ok .= 'b'}
+
+$z *= $ui / $p;
+if($z > 0.999 && $z < 1.001) {$ok .= '2'}
+
+$z = $p / $negi;
+if($z > -0.998382 && $z < -0.998381) {$ok .= 'c'}
+
+$z *= $negi / $p;
+if($z > 0.999 && $z < 1.001) {$ok .= '3'}
+
+$z = $p / $posd;
+if($z > 5.6115822e-10  && $z < 5.6115823e-10  ) {$ok .= 'd'}
+
+$z *= $posd / $p;
+if($z > 0.999 && $z < 1.001) {$ok .= '4'}
+
+$z = $p / $negd;
+if($z > -1.402896e-10  && $z < -1.402895e-10  ) {$ok .= 'e'}
+
+$z *= $negd / $p;
+if($z > 0.999 && $z < 1.001) {$ok .= '5'}
+
+$z = $p / $frac;
+if($z > 53.36239  && $z < 53.362391  ) {$ok .= 'f'}
+
+$z *= $frac / $p;
+if($z > 0.999 && $z < 1.001) {$ok .= '6'}
+
+$z = $p / $posi;
+if($z > 0.9967  && $z < 0.9968  ) {$ok .= 'g'}
+
+$z *= $posi / $p;
+if($z > 0.999 && $z < 1.001) {$ok .= '7'}
+
+if($ok eq 'a1b2c3d4e5f6g7'
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($z) == 1) {print "ok 5\n"}
+else {print "not ok 5 $ok\n"}
+
+$ok = '';
+
+$p *= $ui;
+$p /= $ui;
+if($p < 1234.0001 && $p > 1233.9999) {$ok = 'a'}
+
+$p *= $negi;
+$p /= $negi;
+if($p < 1234.0001 && $p > 1233.9999) {$ok .= 'b'}
+
+$p *= $posd;
+$p /= $posd;
+if($p < 1234.0001 && $p > 1233.9999) {$ok .= 'c'}
+
+$p *= $negd;
+$p /= $negd;
+if($p < 1234.0001 && $p > 1233.9999) {$ok .= 'd'}
+
+$p *= $frac;
+$p /= $frac;
+if($p < 1234.0001 && $p > 1233.9999) {$ok .= 'e'}
+
+$p *= $q;
+$p /= $q;
+if($p < 1234.0001 && $p > 1233.9999) {$ok .= 'f'}
+
+$p *= $posi;
+$p /= $posi;
+if($p < 1234.0001 && $p > 1233.9999) {$ok .= 'g'}
+
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 6\n"}
+else {print "not ok 6 $ok\n"}
+
+my $c = $p;
+if("$c" eq '0.1234e4'
+   && "$c" eq "$p"
+   && $c == $p
+   && $c != $q
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($c) == 1
+   && Math::GMPf::get_refcnt($q) == 1) {print "ok 7\n"}
+else {print "not ok 7\n"}
+
+$c *= -1;
+if(Rmpf_get_str(abs($c), 10, 0) eq '0.1234e4'
+   && Math::GMPf::get_refcnt($c) == 1) {print "ok 8\n"}
+else {print "not ok 8\n"}
+
+$ok = ($p!=$ui).($p==$ui).($p>$ui).($p>=$ui).($p<$ui).($p<=$ui).($p<=>$ui);
+if($ok eq '100011-1') {print "ok 9\n"}
+else {print "not ok 9\n"}
+
+$ok = ($p!=$negi).($p==$negi).($p>$negi).($p>=$negi).($p<$negi).($p<=$negi).($p<=>$negi);
+if($ok eq '1011001') {print "ok 10\n"}
+else {print "not ok 10\n"}
+
+$ok = ($p!=$posd).($p==$posd).($p>$posd).($p>=$posd).($p<$posd).($p<=$posd).($p<=>$posd);
+if($ok eq '100011-1') {print "ok 11\n"}
+else {print "not ok 11\n"}
+
+$ok = ($p!=$negd).($p==$negd).($p>$negd).($p>=$negd).($p<$negd).($p<=$negd).($p<=>$negd);
+if($ok eq '1011001') {print "ok 12\n"}
 else {print "not ok 12\n"}
 
-$z++;
-if("$z" eq '10000000000000000000000000000000000000000000000000000'
-   && Math::GMPz::get_refcnt($z) == 1) {print "ok 13\n"}
+$ok = ($p!=$frac).($p==$frac).($p>$frac).($p>=$frac).($p<$frac).($p<=$frac).($p<=>$frac);
+if($ok eq '1011001') {print "ok 13\n"}
 else {print "not ok 13\n"}
 
-$z--;
-
-if("$z" eq '9999999999999999999999999999999999999999999999999999'
-   && Math::GMPz::get_refcnt($z) == 1) {print "ok 14\n"}
+$ok = ($ui!=$p).($ui==$p).($ui>$p).($ui>=$p).($ui<$p).($ui<=$p).($ui<=>$p);
+if($ok eq '1011001') {print "ok 14\n"}
 else {print "not ok 14\n"}
 
-$z = -$z;
-
-$z4 = abs($z);
-
-if(Rmpz_get_str($z4 + $z, 16) eq '0'
-   && $z4 + $z == 0
-   && !($z4 + $z)
-   && not($z4 + $z)
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {print "ok 15\n"}
+$ok = ($negi!=$p).($negi==$p).($negi>$p).($negi>=$p).($negi<$p).($negi<=$p).($negi<=>$p);
+if($ok eq '100011-1') {print "ok 15\n"}
 else {print "not ok 15\n"}
 
-$z = $z4 << 10;
-$z >>= 10;
-
-if("$z" eq "$z4"
-   && $z == $z4
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {print "ok 16\n"}
+$ok = ($posd!=$p).($posd==$p).($posd>$p).($posd>=$p).($posd<$p).($posd<=$p).($posd<=>$p);
+if($ok eq '1011001') {print "ok 16\n"}
 else {print "not ok 16\n"}
 
-$z4 <<= 10;
-$z = $z4 >> 10;
-$z <<= 10;
-
-if("$z" eq "$z4"
-   && $z == $z4
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {print "ok 17\n"}
+$ok = ($negd!=$p).($negd==$p).($negd>$p).($negd>=$p).($negd<$p).($negd<=$p).($negd<=>$p);
+if($ok eq '100011-1') {print "ok 17\n"}
 else {print "not ok 17\n"}
 
-$z = $z4 ** 2;
-$z3 = sqrt($z);
-$z3 **= 2;
-
-if("$z3" eq "$z"
-   && $z3 == $z
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z3) == 1
-   && Math::GMPz::get_refcnt($z4) == 1) {print "ok 18\n"}
+$ok = ($frac!=$p).($frac==$p).($frac>$p).($frac>=$p).($frac<$p).($frac<=$p).($frac<=>$p);
+if($ok eq '100011-1'
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 18\n"}
 else {print "not ok 18\n"}
 
-my $mers = Rmpz_init_set_str('1' x 2000, 2);
+Rmpf_set_ui($q, 0);
+
+if($p && Math::GMPf::get_refcnt($p) == 1) {print "ok 19\n"}
+else {print "not ok 19\n"}
+
+if(!$q && Math::GMPf::get_refcnt($q) == 1) {print "ok 20\n"}
+else {print "not ok 20\n"}
+
+if(not($q) && Math::GMPf::get_refcnt($q) == 1) {print "ok 21\n"}
+else {print "not ok 21\n"}
+
+unless($q || Math::GMPf::get_refcnt($q) != 1) {print "ok 22\n"}
+else {print "not ok 22\n"}
+
+$z = $c;
+$z *= -1;
+if($z == -$c
+   && Math::GMPf::get_refcnt($z) == 1
+   && Math::GMPf::get_refcnt($c) == 1) {print "ok 23\n"}
+else {print "not ok 23\n"}
 
 $ok = '';
 
-my $and = $mers & 1234;
-if("$and" eq '1234'
-   && $and == 1234
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok = 'a'}
+$z = $p - $p;
+$z += $p;
+if($z == $p) {$ok = 'a'}
 
-$and = $mers & $m;
-if("$and" eq "$m"
-   && $and == $m
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'b'}
+$z = $p - $ui;
+$z += $ui;
+if($z == $p) {$ok .= 'b'}
 
-$and = $mers & $w;
-if("$and" eq "$w"
-   && $and == $w
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'c'}
+$z = $p - $negi;
+$z += $negi;
+if($z == $p) {$ok .= 'c'}
 
-$and = $mers & $z;
-if("$and" eq "$z"
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'd'}
+$z = $p - $negd;
+$z += $negd;
+if($z == $p) {$ok .= 'd'}
 
-if($ok eq 'abcd') {print "ok 19\n"}
-else {print "not ok 19 $ok\n"}
+$z = $p - $posd;
+$z += $posd;
+if($z == $p) {$ok .= 'e'}
 
-$ok = '';
+$z = $p - $frac;
+$z += $frac;
+if($z == $p) {$ok .= 'f'}
 
-my $ior = $mers | 1234;
-if("$ior" eq "$mers"
-   && $ior == $mers
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok = 'a'}
+$z = $p - $posi;
+$z += $posi;
+if($z == $p) {$ok .= 'g'}
 
-$ior = $mers | $m;
-if("$ior" eq "$mers"
-   && $ior == $mers
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'b'}
-
-$ior = $mers | $w;
-if("$ior" eq "$mers"
-   && $ior == $mers
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'c'}
-
-$ior = $mers | $z;
-if("$ior" eq "$mers"
-   && $ior == $mers
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'd'}
-
-if($ok eq 'abcd') {print "ok 20\n"}
-else {print "not ok 20 $ok\n"}
-
-$ok = '';
-
-my $xor = $mers ^ 1234;
-if("$xor" eq Rmpz_get_str($mers - 1234, 10)
-   && $xor == $mers - 1234
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok = 'a'}
-
-$xor = $mers ^ $m;
-if("$xor" eq Rmpz_get_str($mers - $m, 10)
-   && $xor == $mers - $m
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'b'}
-
-$xor = $mers ^ $w;
-if("$xor" eq Rmpz_get_str($mers - $w, 10)
-   && $xor == $mers - $w
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'c'}
-
-$xor = $mers ^ $z;
-if("$xor" eq Rmpz_get_str($mers - $z, 10)
-   && $xor == $mers - $z
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'd'}
-
-if($ok eq 'abcd') {print "ok 21\n"}
-else {print "not ok 21 $ok\n"}
-
-$ok = '';
-
-$and = $mers;
-$and &= 1234;
-if("$and" eq '1234'
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok = 'a'}
-
-$and = $mers * 1;
-$and &= $m;
-if("$and" eq "$m"
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'b'}
-
-$and = $mers;
-$and &= $w;
-if("$and" eq "$w"
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'c'}
-
-$and = $mers + 0;
-$and &= $z;
-if("$and" eq "$z"
-   && Math::GMPz::get_refcnt($and) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'd'}
-
-if($ok eq 'abcd') {print "ok 22\n"}
-else {print "not ok 22 $ok\n"}
-
-$ok = '';
-
-$ior = $mers * 1;
-$ior |= 1234;
-if("$ior" eq "$mers"
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok = 'a'}
-
-$ior = $mers - 0;
-$ior |= $m;
-if("$ior" eq "$mers"
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'b'}
-
-$ior = $mers;
-$ior |= $w;
-if("$ior" eq "$mers"
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'c'}
-
-$ior = $mers;
-$ior |= $z;
-if("$ior" eq "$mers"
-   && Math::GMPz::get_refcnt($ior) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'd'}
-
-if($ok eq 'abcd') {print "ok 23\n"}
-else {print "not ok 23 $ok\n"}
-
-$ok = '';
-
-$xor = $mers;
-$xor ^= 1234;
-if("$xor" eq Rmpz_get_str($mers - 1234, 10)
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok = 'a'}
-
-$xor = $mers;
-$xor ^= $m;
-if("$xor" eq Rmpz_get_str($mers - $m, 10)
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'b'}
-
-$xor = $mers;
-$xor ^= $w;
-if("$xor" eq Rmpz_get_str($mers - $w, 10)
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'c'}
-
-$xor = $mers;
-$xor ^= $z;
-if("$xor" eq Rmpz_get_str($mers - $z, 10)
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($mers) == 1) {$ok .= 'd'}
-
-if($ok eq 'abcd') {print "ok 24\n"}
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($z) == 1
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 24\n"}
 else {print "not ok 24 $ok\n"}
 
-$xor = ~$x;
+$ok = '';
 
-if("$xor" eq "-12346"
-   && Math::GMPz::get_refcnt($xor) == 1
-   && Math::GMPz::get_refcnt($x) == 1) {print "ok 25\n"}
-else {print "not ok 25\n"}
+$z = $p + $p;
+$z -= $p;
+if($z == $p) {$ok = 'a'}
 
-my $bul = Rmpz_init_set_str("$m", 10);
-my $bsi1 = Rmpz_init_set_str("1234", 10);
-my $bsi2 = Rmpz_init_set_str("-1234", 10);
-my $bd = Rmpz_init_set_str("$w", 10);
-my $mers_copy = $mers;
+$z = $p + $ui;
+$z -= $ui;
+if($z == $p) {$ok .= 'b'}
 
-$ok = ($mers > 1234) . ($mers > -1234) . ($mers > $m) . ($mers > -$m) . ($mers > $w) . ($mers > -$w) . ($mers > $z) . ($mers > -$z)
-    . ($mers >= 1234) . ($mers >= -1234) . ($mers >= $m) . ($mers >= -$m) . ($mers >= $w) . ($mers >= -$w) . ($mers >= $z) . ($mers >= -$z)
-    . ($mers < 1234) . ($mers < -1234) . ($mers < $m) . ($mers < -$m) . ($mers < $w) . ($mers < -$w) . ($mers < $z) . ($mers < $z * -1)
-    . ($mers <= 1234) . ($mers <= -1234) . ($mers <= $m) . ($mers <= -$m) . ($mers <= $w) . ($mers <= -$w) . ($mers <= $z) . ($mers <= $z * -1)
-    . ($bsi1 > 1234) . ($bsi2 > -1234) . ($bul > $m) . ($bul > -$m) . ($bd > $w) . ($bd > -$w) . ($mers_copy > $mers) . ($mers_copy > $mers * -1)
-    . ($bsi1 >= 1234) . ($bsi2 >= -1234) . ($bul >= $m) . ($bul >= -$m) . ($bd >= $w) . ($bd >= -$w) . ($mers_copy >= $mers) . ($mers_copy >= $mers * -1)
-    . ($bsi1 < 1234) . ($bsi2 < -1234) . ($bul < $m) . ($bul < -$m) . ($bd < $w) . ($bd < -$w) . ($mers_copy < $mers) . ($mers_copy < $mers * -1)
-    . ($bsi1 <= 1234) . ($bsi2 <= -1234) . ($bul <= $m) . ($bul <= -$m) . ($bd <= $w) . ($bd <= -$w) . ($mers_copy <= $mers) . ($mers_copy <= $mers * -1);
-if($ok eq '1111111111111111000000000000000000010101111111110000000011101010'
-   && Math::GMPz::get_refcnt($mers) == 1) {print "ok 26\n"}
-else {print "not ok 26\n"}
+$z = $p + $negi;
+$z -= $negi;
+if($z == $p) {$ok .= 'c'}
 
-$ok =
- (1234>$mers).(-1234>$mers).($m>$mers).(-$m>$mers).($w>$mers).(-$w>$mers).($z>$mers).($z*-1>$mers)
-.(1234>=$mers).(-1234>=$mers).($m>=$mers).(-$m>=$mers).($w>=$mers).(-$w>=$mers).($z>=$mers).(-$z>=$mers)
-.(1234<$mers).(-1234<$mers).($m<$mers).(-$m<$mers).($w<$mers).(-$w<$mers).($z<$mers).($z*-1<$mers)
-.(1234<=$mers).(-1234<=$mers).($m<=$mers).(-$m<=$mers).($w<=$mers).(-$w<=$mers).($z<=$mers).(-$z<=$mers)
-.(1234>$bsi1).(-1234>$bsi2).($m>$bul).(-$m>$bul).($w>$bd).(-$w>$bd)
-.(1234>=$bsi1).(-1234>=$bsi2).($m>=$bul).(-$m>=$bul).($w>=$bd).(-$w>=$bd)
-.(1234<$bsi1).(-1234<$bsi2).($m<$bul).(-$m<$bul).($w<$bd).(-$w<$bd)
-.(1234<=$bsi1).(-1234<=$bsi2).($m<=$bul).(-$m<=$bul).($w<=$bd).(-$w<=$bd);
+$z = $p + $negd;
+$z -= $negd;
+if($z == $p) {$ok .= 'd'}
 
-if($ok eq '00000000000000001111111111111111000000111010000101111111'
-   && Math::GMPz::get_refcnt($mers) == 1) {print "ok 27\n"}
-else {print "not ok 27\n"}
+$z = $p + $posd;
+$z -= $posd;
+if($z == $p) {$ok .= 'e'}
 
+$z = $p + $frac;
+$z -= $frac;
+if($z == $p) {$ok .= 'f'}
 
-$ok =
- ($mers==1234).($mers==-1234).($mers==$m).($mers==-$m).($mers==$w).($mers==-$w).($mers==$z).($mers==-$z)
-.($bsi1==1234).($bsi2==-1234).($bul==$m).($bul==-$m).($bd==$w).($bd==-$w)
-.($mers!=1234).($mers!=-1234).($mers!=$m).($mers!=-$m).($mers!=$w).($mers!=-$w).($mers!=$z).($mers!=-$z)
-.($bsi1!=1234).($bsi2!=-1234).($bul!=$m).($bul!=-$m).($bd!=$w).($bd!=-$w);
+$z = $p + $posi;
+$z -= $posi;
+if($z == $p) {$ok .= 'g'}
 
-if($ok eq '0000000011101011111111000101'
-   && Math::GMPz::get_refcnt($mers) == 1) {print "ok 28\n"}
-else {print "not ok 28\n"}
-
-$ok =
- (1234==$mers).(-1234==$mers).($m==$mers).(-$m==$mers).($w==$mers).(-$w==$mers).($z==$mers).(-$z==$mers)
-.(1234==$bsi1).(-1234==$bsi2).($m==$bul).(-$m==$bul).($w==$bd).(-$w==$bd)
-.(1234!=$mers).(-1234!=$mers).($m!=$mers).(-$m!=$mers).($w!=$mers).(-$w!=$mers).($z!=$mers).(-$z!=$mers)
-.(1234!=$bsi1).(-1234!=$bsi2).($m!=$bul).(-$m!=$bul).($w!=$bd).(-$w!=$bd);
-
-if($ok eq '0000000011101011111111000101'
-   && Math::GMPz::get_refcnt($mers) == 1) {print "ok 29\n"}
-else {print "not ok 29\n"}
-
-my @k1 = ((1234<=>$mers),(-1234<=>$mers),($m<=>$mers),(-$m<=>$mers),($w<=>$mers),(-$w<=>$mers),
-($z<=>$mers),(-$z<=>$mers),(1234<=>$bsi1),(-1234<=>$bsi2),($m<=>$bul),(-$m<=>$bul),($w<=>$bd),
-(-$w<=>$bd));
-
-my @k2 = (($mers<=>1234),($mers<=>-1234),($mers<=>$m),($mers<=>-$m),($mers<=>$w),($mers<=>-$w),
-($mers<=>$z),($mers<=>-$z),($bsi1<=>1234),($bsi2<=>-1234),($bul<=>$m),($bul<=>-$m),($bd<=>$w),
-($bd<=>-$w));
-
-$ok = 1;
-for(0..7) {
-   if($k1[$_] >= 0 || $k2[$_] <= 0) {$ok = 0}
-   }
-
-for(8..10) {
-   if($k1[$_] != 0 || $k2[$_] != 0) {$ok = 0}
-   }
-
-if($k1[11] >= 0 || $k2[11] <= 0) {$ok = 0}
-if($k1[12] != 0 || $k2[12] != 0) {$ok = 0}
-if($k1[13] >= 0 || $k2[13] <= 0) {$ok = 0}
-
-if($ok) {print "ok 30\n"}
-else {print "not pk 30\n"}
-
-$ok = 1;
-my $zero1 = Rmpz_init_set_str("0", 2);
-my $zero2 = Rmpz_init();
-my $one = Rmpz_init_set_str('1', 2);
-
-if(!$mers) {$ok = 0}
-if(not $mers) {$ok = 0}
-if($zero1) {$ok = 0}
-if($zero2) {$ok = 0}
-unless($one) {$ok = 0}
-unless(!$zero1) {$ok = 0}
-unless(not $zero1) {$ok = 0}
-unless(!$zero2) {$ok = 0}
-unless(not $zero2) {$ok = 0}
-
-if($ok) {print "ok 31\n"}
-else {print "not pk 31\n"}
-
-my $b_copy = $z;
-
-if($b_copy == $z
-   && "$b_copy" eq "$z"
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($b_copy) == 1) {print "ok 32\n"}
-else {print "not ok 32\n"}
-
-$z2 = $z;
-
-if($z2 == $z
-   && "$z2" eq "$z"
-   && Math::GMPz::get_refcnt($z) == 1
-   && Math::GMPz::get_refcnt($z2) == 1) {print "ok 33\n"}
-else {print "not ok 33\n"}
-
-my $mbi = Math::BigFloat->new(112345);
-my $p = Rmpz_init_set_ui(10);
-my $q = Rmpz_init();
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($z) == 1
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 25\n"}
+else {print "not ok 25 $ok\n"}
 
 $ok = '';
 
-eval{$q = $p % $mbi;};
-if($@ =~ /Invalid argument/) {$ok = 'A'}
+$z = $p - $p;
+$z += $p;
+if($z == $p) {$ok = 'a'}
+
+$z = $ui - $p;
+$z -= $ui;
+if($z == -$p) {$ok .= 'b'}
+
+$z = $negi - $p;
+$z -= $negi;
+if($z == -$p) {$ok .= 'c'}
+
+$z = $negd - $p;
+$z -= $negd;
+if($z == -$p) {$ok .= 'd'}
+
+$z = $posd - $p;
+$z -= $posd;
+if($z == -$p) {$ok .= 'e'}
+
+$z = $frac - $p;
+$z -= $frac;
+if($z == -$p) {$ok .= 'f'}
+
+$z = $posi - $p;
+$z -= $posi;
+if($z == -$p) {$ok .= 'g'}
+
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($z) == 1
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 26\n"}
+else {print "not ok 26 $ok\n"}
+
+$ok = '';
+
+$z = $p + $p;
+$z -= $p;
+if($z == $p) {$ok = 'a'}
+
+$z = $ui + $p;
+$z -= $ui;
+if($z == $p) {$ok .= 'b'}
+
+$z = $negi + $p;
+$z -= $negi;
+if($z == $p) {$ok .= 'c'}
+
+$z = $negd + $p;
+$z -= $negd;
+if($z == $p) {$ok .= 'd'}
+
+$z = $posd + $p;
+$z -= $posd;
+if($z == $p) {$ok .= 'e'}
+
+$z = $frac + $p;
+$z -= $frac;
+if($z == $p) {$ok .= 'f'}
+
+$z = $posi + $p;
+$z -= $posi;
+if($z == $p) {$ok .= 'g'}
+
+if($ok eq 'abcdefg'
+   && Math::GMPf::get_refcnt($z) == 1
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 27\n"}
+else {print "not ok 27 $ok\n"}
+
+$ok = ($posi!=$p).($posi==$p).($posi>$p).($posi>=$p).($posi<$p).($posi<=$p).($posi<=>$p);
+if($ok eq '1011001'
+   && Math::GMPf::get_refcnt($p) == 1) {print "ok 28\n"}
+else {print "not ok 28\n"}
+
+$ok = ($p!=$posi).($p==$posi).($p>$posi).($p>=$posi).($p<$posi).($p<=$posi).($p<=>$posi);
+if($ok eq '100011-1') {print "ok 29\n"}
+else {print "not ok 29\n"}
+
+Rmpf_set_ui($z, 2);
+
+my $root = sqrt($z);
+if($root > 1.414 && $root < 1.415
+   && Math::GMPf::get_refcnt($z) == 1
+   && Math::GMPf::get_refcnt($root) == 1) {print "ok 30\n"}
+else {print "not ok 30\n"}
+
+my $root_copy = $root;
+
+$root = $root ** 2;
+$root_copy **= 2;
+
+if($root_copy > 1.99999 && $root_copy < 2.00000001
+   && $root > 1.99999 && $root < 2.00000001
+   && Math::GMPf::get_refcnt($root) == 1
+   && Math::GMPf::get_refcnt($root_copy) == 1) {print "ok 31\n"}
+else {print "not ok 31\n"}
+
+
+if($] >= 5.008) {
+  Rmpf_set_d($z, 2.11115);
+
+  $root = int($z);
+  if($z > 2.1111 && $z < 2.1112
+     && $root == 2
+     && int($z) == 2
+     && Math::GMPf::get_refcnt($z) == 1
+     && Math::GMPf::get_refcnt($root) == 1) {print "ok 32\n"}
+  else {print "not ok 32\n"}
+  }
+
+else {
+  warn "Skipping test 32 - no overloading of 'int' on perl $] \n";
+  print "ok 32\n";
+}
+
+my $mbi = Math::BigInt->new(112345);
+$ok = '';
+
 eval{$q = $p + $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'a'}
+if($@ =~ /Invalid argument/) {$ok = 'a'}
 eval{$q = $p * $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'b'}
 eval{$q = $p - $mbi;};
@@ -712,8 +547,6 @@ eval{$q = $p / $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'd'}
 eval{$q = $p ** $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'e'}
-eval{$p %= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'F'}
 eval{$p += $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'f'}
 eval{$p *= $mbi;};
@@ -724,37 +557,23 @@ eval{$p /= $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'i'}
 eval{$p **= $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'j'}
-eval{$q = $p & $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'k'}
-eval{$q = $p | $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'l'}
-eval{$q = $p ^ $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'm'}
-eval{$p &= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'n'}
-eval{$p |= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'o'}
-eval{$p ^= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'p'}
 
-if($ok eq 'AabcdeFfghijklmnop') {print "ok 34\n"}
-else {print "not ok 34 $ok\n"}
+if($ok eq 'abcdefghij') {print "ok 33\n"}
+else {print "not ok 33 $ok\n"}
 
+$mbi = "this is a string";
 $ok = '';
-$mbi = "an invalid string";
 
-eval{$q = $p % $mbi;};
-if($@ =~ /Invalid string/) {$ok = 'A'}
 eval{$q = $p + $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'a'}
+if($@ =~ /Invalid string/) {$ok = 'a'}
 eval{$q = $p * $mbi;};
 if($@ =~ /Invalid string/) {$ok .= 'b'}
 eval{$q = $p - $mbi;};
 if($@ =~ /Invalid string/) {$ok .= 'c'}
 eval{$q = $p / $mbi;};
 if($@ =~ /Invalid string/) {$ok .= 'd'}
-eval{$p %= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'F'}
+eval{$q = $p ** $mbi;};
+if($@ =~ /Invalid argument/) {$ok .= 'e'}
 eval{$p += $mbi;};
 if($@ =~ /Invalid string/) {$ok .= 'f'}
 eval{$p *= $mbi;};
@@ -763,68 +582,94 @@ eval{$p -= $mbi;};
 if($@ =~ /Invalid string/) {$ok .= 'h'}
 eval{$p /= $mbi;};
 if($@ =~ /Invalid string/) {$ok .= 'i'}
-eval{$q = $p & $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'j'}
-eval{$q = $p | $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'k'}
-eval{$q = $p ^ $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'l'}
-eval{$p &= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'm'}
-eval{$p |= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'n'}
-eval{$p ^= $mbi;};
-if($@ =~ /Invalid string/) {$ok .= 'o'}
-eval{if($p != $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'p'}
+eval{$p **= $mbi;};
+if($@ =~ /Invalid argument/) {$ok .= 'j'}
 eval{if($p > $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'q'}
-eval{if($p >= $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'r'}
+if($@ =~ /Invalid string/) {$ok .= 'k'}
 eval{if($p < $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 's'}
+if($@ =~ /Invalid string/) {$ok .= 'l'}
+eval{if($p >= $mbi){};};
+if($@ =~ /Invalid string/) {$ok .= 'm'}
 eval{if($p <= $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 't'}
+if($@ =~ /Invalid string/) {$ok .= 'n'}
 eval{if($p <=> $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'u'}
+if($@ =~ /Invalid string/) {$ok .= 'o'}
 eval{if($p == $mbi){};};
-if($@ =~ /Invalid string/) {$ok .= 'v'}
+if($@ =~ /Invalid string/) {$ok .= 'p'}
+eval{if($p != $mbi){};};
+if($@ =~ /Invalid string/) {$ok .= 'q'}
 
+if($ok eq 'abcdefghijklmnopq') {print "ok 34\n"}
+else {print "not ok 34 $ok\n"}
 
-if($ok eq 'AabcdFfghijklmnopqrstuv') {print "ok 35\n"}
-else {print "not ok 35 $ok\n"}
+my $dp;
 
-my $string = '0X11111111111111111111Ff';
+# Allow "." or "," as the decimal point (according to whichever is valid for the locale).
+eval{Rmpf_init_set_str("-111111111111112.34567879", 10);};
+$dp = '.' unless $@;
+eval{Rmpf_init_set_str("-111111111111112,34567879", 10);};
+$dp = ',' unless $@;
 
-$p += $string;
-$p -= $string;
-$p *= $string;
-$p /= $string;
+#warn "Decimal point: $dp\n";
 
-if($p == 10 && Math::GMPz::get_refcnt($p) == 1) {print "ok 36\n"}
+$mbi = $dp ? "-111111111111112${dp}34567879"
+           : "-11111111111111234567879@-8";
+
+$q = $p + $mbi;
+$p = $q - $mbi;
+$q = $p * $mbi;
+$p = $q / $mbi;
+
+if($p > 1233.999 && $p < 1234.001
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($q) == 1) {print "ok 35\n"}
+else {print "not ok 35\n"}
+
+$p *= $mbi;
+$p /= $mbi;
+$p += $mbi;
+$p -= $mbi;
+
+if($p > 1233.999 && $p < 1234.001
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($q) == 1) {print "ok 36\n"}
 else {print "not ok 36\n"}
 
-if($p < $string && $p <= $string && $string > $p
-   && $string >= $p && ($p <=> $string) < 0
-   && ($string <=> $p) > 0 && Math::GMPz::get_refcnt($p) == 1
-   && $p != $string) {print "ok 37\n"}
+$q = $mbi + $p;
+$p = $mbi - $q;
+
+if($p > -1234.001 && $p < -1233.999
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($q) == 1) {print "ok 37\n"}
 else {print "not ok 37\n"}
 
-$p += $string;
-$q = $p - 10;
 
-if($q == $string && Math::GMPz::get_refcnt($p) == 1
-   && Math::GMPz::get_refcnt($q) == 1) {print "ok 38\n"}
+$q = $mbi * $p;
+$p = $mbi / $q;
+
+if($p < -0.00081 && $p > -0.000811
+   && Math::GMPf::get_refcnt($p) == 1
+   && Math::GMPf::get_refcnt($q) == 1) {print "ok 38\n"}
 else {print "not ok 38\n"}
 
-$mbi = \$p;
+Rmpf_set_str($p, "1234567${dp}123", 10);
 
+if($p > $mbi &&
+   $p >= $mbi &&
+   $mbi < $p &&
+   $mbi <= $p &&
+   ($p <=> $mbi) > 0 &&
+   ($mbi <=> $p) < 0 &&
+   $p != $mbi &&
+   !($p == $mbi) &&
+   Math::GMPf::get_refcnt($p) == 1) {print "ok 39\n"}
+else {print "not ok 39\n"}
+
+$mbi = \$p;
 $ok = '';
 
-eval{$q = $p % $mbi;};
-if($@ =~ /Invalid argument/) {$ok = 'A'}
 eval{$q = $p + $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'a'}
+if($@ =~ /Invalid argument/) {$ok = 'a'}
 eval{$q = $p * $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'b'}
 eval{$q = $p - $mbi;};
@@ -833,8 +678,6 @@ eval{$q = $p / $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'd'}
 eval{$q = $p ** $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'e'}
-eval{$p %= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'F'}
 eval{$p += $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'f'}
 eval{$p *= $mbi;};
@@ -845,34 +688,468 @@ eval{$p /= $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'i'}
 eval{$p **= $mbi;};
 if($@ =~ /Invalid argument/) {$ok .= 'j'}
-eval{$q = $p & $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'k'}
-eval{$q = $p | $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'l'}
-eval{$q = $p ^ $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'm'}
-eval{$p &= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'n'}
-eval{$p |= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'o'}
-eval{$p ^= $mbi;};
-if($@ =~ /Invalid argument/) {$ok .= 'p'}
 
-if($ok eq 'AabcdeFfghijklmnop') {print "ok 39\n"}
+if($ok eq 'abcdefghij') {print "ok 40\n"}
+else {print "not ok 40 $ok\n"}
+
+$ok = '';
+my $zero = Math::GMPf->new();
+
+$ok .= 'a' if Math::GMPf::overload_string($zero) eq '0';
+$ok .= 'A' if $zero;
+
+$zero *= -1;
+
+$ok .= 'b' if Math::GMPf::overload_string($zero) eq '0';
+$ok .= 'B' if $zero;
+
+Rmpf_set_si($zero, -0.0);
+
+$ok .= 'c' if Math::GMPf::overload_string($zero) eq '0';
+$ok .= 'C' if $zero;
+
+# check overload_copy precision
+
+my $mpf1 = Rmpf_init2(101);
+Rmpf_set_d($mpf1, 0.7);
+
+my $mpf2 = $mpf1;
+$ok .= 'd' if Rmpf_get_prec($mpf2) == Rmpf_get_prec($mpf1) && $mpf2 == $mpf1;
+
+$mpf2 += 1;
+$ok .= 'e' if Rmpf_get_prec($mpf2) == Rmpf_get_prec($mpf1) && $mpf2 == $mpf1 + 1;
+
+my $mpf3 = $mpf1;
+$mpf1 += 1;
+$ok .= 'f' if Rmpf_get_prec($mpf3) == Rmpf_get_prec($mpf1) && $mpf3 == $mpf1 - 1;
+
+if($ok eq 'abcdef') {print "ok 41\n"}
 else {
-  warn "\n\$ok: $ok\n";
-  print "not ok 39 $ok\n";
+  warn "\$ok: $ok\n";
+  print "not ok 41\n";
 }
 
-my $negative = "1702" - Math::GMPz->new("11702");
+$ok = '';
 
-if($negative == -10000) {print "ok 40\n"}
+$mpf3++;
+$ok .= 'a' if $mpf3 == $mpf1;
+
+++$mpf3;
+$ok .= 'b' if $mpf3 == $mpf1 + 1;
+
+$mpf3--;
+$ok .= 'c' if $mpf3 == $mpf1;
+
+--$mpf3;
+$ok .= 'd' if $mpf3 == $mpf1 - 1;
+
+if($ok eq 'abcd') {print "ok 42\n"}
 else {
-  warn "\nexpected -10000, got $negative\n";
-  print "not ok 40\n";
+  warn "\$ok: $ok\n";
+  print "not ok 42\n";
 }
 
+my $inf = 999**(999**999);
+my $infstring = "$inf";
+my $ninf = $inf * -1;
+my $ninfstring = "$ninf";
+my $nan = $inf / $inf;
+my $nanstring = "$nan";
+my $nan_skip = 0;
+Rmpf_set_d($mpf1, 0.0);
 
+$nan_skip = 1 if $nan == $nan;
 
-## *,+,/,-,*=,+=,-=,/=,&,&=,|,|=,^,^=,
-## >,>=,<,<=,<=>,==, !=
+if($mpf1 == $inf) {
+  warn "\n $mpf1 == $inf\n";
+  print "not ok 43\n";
+}
+else {print "ok 43\n"}
+
+if($mpf1 == $ninf) {
+  warn "\n $mpf1 == $ninf\n";
+  print "not ok 44\n";
+}
+else {print "ok 44\n"}
+
+if($mpf1 == $infstring) {
+  warn "\n $mpf1 == $infstring\n";
+  print "not ok 45\n";
+}
+else {print "ok 45\n"}
+
+if($mpf1 == $ninfstring) {
+  warn "\n $mpf1 == $ninfstring\n";
+  print "not ok 46\n";
+}
+else {print "ok 46\n"}
+
+#######################
+
+if($mpf1 != $inf) {print "ok 47\n"}
+else {
+  warn "\n $mpf1 == $inf\n";
+  print "not ok 47\n";
+}
+
+if($mpf1 != $ninf) {print "ok 48\n"}
+else {
+  warn "\n $mpf1 == $ninf\n";
+  print "not ok 48\n";
+}
+
+if($mpf1 != $infstring) {print "ok 49\n"}
+else {
+  warn "\n $mpf1 == $infstring\n";
+  print "not ok 49\n";
+}
+
+if($mpf1 != $ninfstring) {print "ok 50\n"}
+else {
+  warn "\n $mpf1 == $ninfstring\n";
+  print "not ok 50\n";
+}
+
+########################
+
+if($mpf1 > $inf) {
+  warn "\n $mpf1 > $inf\n";
+  print "not ok 51\n";
+}
+else {print "ok 51\n"}
+
+if($mpf1 < $ninf) {
+  warn "\n $mpf1 < $ninf\n";
+  print "not ok 52\n";
+}
+else {print "ok 52\n"}
+
+if($mpf1 > $infstring) {
+  warn "\n $mpf1 > $infstring\n";
+  print "not ok 53\n";
+}
+else {print "ok 53\n"}
+
+if($mpf1 < $ninfstring) {
+  warn "\n $mpf1 < $ninfstring\n";
+  print "not ok 54\n";
+}
+else {print "ok 54\n"}
+
+#########################
+
+if($mpf1 < $inf) {print "ok 55\n"}
+else {
+  warn "\n $mpf1 >= $inf\n";
+  print "not ok 55\n";
+}
+
+if($mpf1 > $ninf) {print "ok 56\n"}
+else {
+  warn "\n $mpf1 <= $ninf\n";
+  print "not ok 56\n";
+}
+
+if($mpf1 < $infstring) {print "ok 57\n"}
+else {
+  warn "\n $mpf1 >= $infstring\n";
+  print "not ok 57\n";
+}
+
+if($mpf1 > $ninfstring) {print "ok 58\n"}
+else {
+  warn "\n $mpf1 <= $ninfstring\n";
+  print "not ok 58\n";
+}
+
+########################
+
+if($mpf1 >= $inf) {
+  warn "\n $mpf1 >= $inf\n";
+  print "not ok 59\n";
+}
+else {print "ok 59\n"}
+
+if($mpf1 <= $ninf) {
+  warn "\n $mpf1 <= $ninf\n";
+  print "not ok 60\n";
+}
+else {print "ok 60\n"}
+
+if($mpf1 >= $infstring) {
+  warn "\n $mpf1 >= $infstring\n";
+  print "not ok 61\n";
+}
+else {print "ok 61\n"}
+
+if($mpf1 <= $ninfstring) {
+  warn "\n $mpf1 <= $ninfstring\n";
+  print "not ok 62\n";
+}
+else {print "ok 62\n"}
+
+#########################
+
+if($mpf1 <= $inf) {print "ok 63\n"}
+else {
+  warn "\n $mpf1 > $inf\n";
+  print "not ok 63\n";
+}
+
+if($mpf1 >= $ninf) {print "ok 64\n"}
+else {
+  warn "\n $mpf1 < $ninf\n";
+  print "not ok 64\n";
+}
+
+if($mpf1 <= $infstring) {print "ok 65\n"}
+else {
+  warn "\n $mpf1 > $infstring\n";
+  print "not ok 65\n";
+}
+
+if($mpf1 >= $ninfstring) {print "ok 66\n"}
+else {
+  warn "\n $mpf1 < $ninfstring\n";
+  print "not ok 66\n";
+}
+
+###########################
+###########################
+
+if($inf == $mpf1) {
+  warn "\n $inf == $mpf1\n";
+  print "not ok 67\n";
+}
+else {print "ok 67\n"}
+
+if($ninf == $mpf1) {
+  warn "\n $ninf == $mpf1\n";
+  print "not ok 68\n";
+}
+else {print "ok 68\n"}
+
+if($infstring == $mpf1) {
+  warn "\n $infstring == $mpf1\n";
+  print "not ok 69\n";
+}
+else {print "ok 69\n"}
+
+if($ninfstring == $mpf1) {
+  warn "\n $ninfstring == $mpf1\n";
+  print "not ok 70\n";
+}
+else {print "ok 70\n"}
+
+#######################
+
+if($inf != $mpf1) {print "ok 71\n"}
+else {
+  warn "\n $inf == $mpf1\n";
+  print "not ok 71\n";
+}
+
+if($ninf != $mpf1) {print "ok 72\n"}
+else {
+  warn "\n $ninf == $mpf1\n";
+  print "not ok 72\n";
+}
+
+if($infstring != $mpf1) {print "ok 73\n"}
+else {
+  warn "\n $infstring == $mpf1\n";
+  print "not ok 73\n";
+}
+
+if($ninfstring != $mpf1) {print "ok 74\n"}
+else {
+  warn "\n $ninfstring == $mpf1\n";
+  print "not ok 74\n";
+}
+
+########################
+
+if($inf < $mpf1) {
+  warn "\n $inf < $mpf1\n";
+  print "not ok 75\n";
+}
+else {print "ok 75\n"}
+
+if($ninf > $mpf1) {
+  warn "\n $mpf1 > $ninf\n";
+  print "not ok 76\n";
+}
+else {print "ok 76\n"}
+
+if($infstring < $mpf1) {
+  warn "\n $infstring < $mpf1\n";
+  print "not ok 77\n";
+}
+else {print "ok 77\n"}
+
+if($ninfstring > $mpf1) {
+  warn "\n $ninfstring > $mpf1\n";
+  print "not ok 78\n";
+}
+else {print "ok 78\n"}
+
+#########################
+
+if($inf > $mpf1) {print "ok 79\n"}
+else {
+  warn "\n $inf <= $mpf1\n";
+  print "not ok 79\n";
+}
+
+if($ninf < $mpf1) {print "ok 80\n"}
+else {
+  warn "\n $ninf >= $mpf1\n";
+  print "not ok 80\n";
+}
+
+if($infstring > $mpf1) {print "ok 81\n"}
+else {
+  warn "\n $infstring <= $mpf1\n";
+  print "not ok 81\n";
+}
+
+if($ninfstring < $mpf1) {print "ok 82\n"}
+else {
+  warn "\n $ninfstring >= $mpf1\n";
+  print "not ok 82\n";
+}
+
+########################
+
+if($inf <= $mpf1) {
+  warn "\n $inf <= $mpf1\n";
+  print "not ok 83\n";
+}
+else {print "ok 83\n"}
+
+if($ninf >= $mpf1) {
+  warn "\n $ninf >= $mpf1\n";
+  print "not ok 84\n";
+}
+else {print "ok 84\n"}
+
+if($infstring <= $mpf1) {
+  warn "\n $infstring <= $mpf1\n";
+  print "not ok 85\n";
+}
+else {print "ok 85\n"}
+
+if($ninfstring >= $mpf1) {
+  warn "\n $ninfstring >= $mpf1\n";
+  print "not ok 86\n";
+}
+else {print "ok 86\n"}
+
+#########################
+
+if($inf >= $mpf1) {print "ok 87\n"}
+else {
+  warn "\n $inf < $mpf1\n";
+  print "not ok 87\n";
+}
+
+if($ninf <= $mpf1) {print "ok 88\n"}
+else {
+  warn "\n $ninf > $mpf1\n";
+  print "not ok 88\n";
+}
+
+if($infstring >= $mpf1) {print "ok 89\n"}
+else {
+  warn "\n $infstring < $mpf1\n";
+  print "not ok 89\n";
+}
+
+if($ninfstring <= $mpf1) {print "ok 90\n"}
+else {
+  warn "\n $ninfstring > $mpf1\n";
+  print "not ok 90\n";
+}
+
+###########################
+###########################
+
+if(($mpf1 <=> $inf) < 0) {print "ok 91\n"}
+else {
+  warn "\n ", ($mpf1 <=> $inf), "\n";
+  print "not ok 91\n";
+}
+
+if(($mpf1 <=> $ninf) > 0) {print "ok 92\n"}
+else {
+  warn "\n ", ($mpf1 <=> $ninf), "\n";
+  print "not ok 92\n";
+}
+
+if(($mpf1 <=> $infstring) < 0) {print "ok 93\n"}
+else {
+  warn "\n ",  ($mpf1 <=> $infstring), "\n";
+  print "not ok 93\n";
+}
+
+if(($mpf1 <=> $ninfstring) > 0) {print "ok 94\n"}
+else {
+  warn "\n ",  ($mpf1 <=> $ninfstring), "\n";
+  print "not ok 94\n";
+}
+
+###########################
+
+if(($inf <=> $mpf1) > 0) {print "ok 95\n"}
+else {
+  warn "\n ", ($inf <=> $mpf1), "\n";
+  print "not ok 95\n";
+}
+
+if(($ninf <=> $mpf1) < 0) {print "ok 96\n"}
+else {
+  warn "\n ", ($ninf <=> $mpf1), "\n";
+  print "not ok 96\n";
+}
+
+if(($infstring <=> $mpf1) > 0) {print "ok 97\n"}
+else {
+  warn "\n ", ($infstring <=> $mpf1), "\n";
+  print "not ok 97\n";
+}
+
+if(($ninfstring <=> $mpf1) < 0) {print "ok 98\n"}
+else {
+  warn "\n ", ($ninfstring <=> $mpf1), "\n";
+  print "not ok 98\n";
+}
+
+###########################
+###########################
+
+if(!$nan_skip) {
+  eval {my $r = $mpf1 * $nanstring;};
+  if($@ =~ /supplied to Math::GMPf::overload_mul/) {print "ok 99\n"}
+  else {
+    warn "\n \$\@: $@\n";
+    print "not ok 99\n";
+  }
+
+  my $r = ($mpf1 <=> $nanstring);
+  if(!defined($r)) {print "ok 100\n"}
+  else {
+    warn "\n expected 'undef', got '$r'\n";
+    print "not ok 100\n";
+  }
+}
+else {
+  warn "\n Skipping NaN handling tests\n";
+  print "ok 99\nok 100\n";
+}
+
+eval{my $r = $mpf1 * $infstring;};
+if($@ =~ /supplied to Math::GMPf::overload_mul/) {print "ok 101\n"}
+else {
+  warn "\n \$\@: $@\n";
+  print "not ok 101\n";
+}
