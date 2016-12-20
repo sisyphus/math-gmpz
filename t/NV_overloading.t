@@ -25,7 +25,7 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) * "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_mul/) {print "ok 2\n"}
+if($@ =~ /supplied to Math::GMPz::overload_mul/) {print "ok 2\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 2\n";
@@ -39,14 +39,14 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) * "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_mul/) {print "ok 4\n"}
+if($@ =~ /supplied to Math::GMPz::overload_mul/) {print "ok 4\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 4\n";
 }
 
 eval{$ret = Math::GMPz->new(10) * "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_mul/) {print "ok 5\n"}
+if($@ =~ /supplied to Math::GMPz::overload_mul/) {print "ok 5\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 5\n";
@@ -66,7 +66,7 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) + "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_add/) {print "ok 8\n"}
+if($@ =~ /supplied to Math::GMPz::overload_add/) {print "ok 8\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 8\n";
@@ -80,13 +80,13 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) + "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_add/) {print "ok 10\n"}
+if($@ =~ /supplied to Math::GMPz::overload_add/) {print "ok 10\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 10\n";
 }
 eval{$ret = Math::GMPz->new(10) + "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_add/) {print "ok 11\n"}
+if($@ =~ /supplied to Math::GMPz::overload_add/) {print "ok 11\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 11\n";
@@ -106,7 +106,7 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) / "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_div/) {print "ok 14\n"}
+if($@ =~ /supplied to Math::GMPz::overload_div/) {print "ok 14\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 14\n";
@@ -120,14 +120,14 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) / "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_div/) {print "ok 16\n"}
+if($@ =~ /supplied to Math::GMPz::overload_div/) {print "ok 16\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 16\n";
 }
 
 eval{$ret = Math::GMPz->new(10) / "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_div/) {print "ok 17\n"}
+if($@ =~ /supplied to Math::GMPz::overload_div/) {print "ok 17\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 17\n";
@@ -147,7 +147,7 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) - "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_sub/) {print "ok 20\n"}
+if($@ =~ /supplied to Math::GMPz::overload_sub/) {print "ok 20\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 20\n";
@@ -161,14 +161,14 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) - "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_sub/) {print "ok 22\n"}
+if($@ =~ /supplied to Math::GMPz::overload_sub/) {print "ok 22\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 22\n";
 }
 
 eval{$ret = Math::GMPz->new(10) - "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_sub/) {print "ok 23\n"}
+if($@ =~ /supplied to Math::GMPz::overload_sub/) {print "ok 23\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 23\n";
@@ -190,7 +190,7 @@ else {
 }
 
 eval{$ret *= "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_mul_eq/) {print "ok 26\n"}
+if($@ =~ /supplied to Math::GMPz::overload_mul_eq/) {print "ok 26\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 26\n";
@@ -204,14 +204,14 @@ else {
 }
 
 eval{$ret *= "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_mul_eq/) {print "ok 28\n"}
+if($@ =~ /supplied to Math::GMPz::overload_mul_eq/) {print "ok 28\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 28\n";
 }
 
 eval{$ret *= "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_mul_eq/) {print "ok 29\n"}
+if($@ =~ /supplied to Math::GMPz::overload_mul_eq/) {print "ok 29\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 29\n";
@@ -233,7 +233,7 @@ else {
 }
 
 eval{$ret += "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_add_eq/) {print "ok 32\n"}
+if($@ =~ /supplied to Math::GMPz::overload_add_eq/) {print "ok 32\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 32\n";
@@ -247,14 +247,14 @@ else {
 }
 
 eval{$ret += "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_add_eq/) {print "ok 34\n"}
+if($@ =~ /supplied to Math::GMPz::overload_add_eq/) {print "ok 34\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 34\n";
 }
 
 eval{$ret += "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_add_eq/) {print "ok 35\n"}
+if($@ =~ /supplied to Math::GMPz::overload_add_eq/) {print "ok 35\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 35\n";
@@ -276,7 +276,7 @@ else {
 }
 
 eval{$ret -= "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_sub_eq/) {print "ok 38\n"}
+if($@ =~ /supplied to Math::GMPz::overload_sub_eq/) {print "ok 38\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 38\n";
@@ -290,14 +290,14 @@ else {
 }
 
 eval{$ret -= "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_sub_eq/) {print "ok 40\n"}
+if($@ =~ /supplied to Math::GMPz::overload_sub_eq/) {print "ok 40\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 40\n";
 }
 
 eval{$ret -= "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_sub_eq/) {print "ok 41\n"}
+if($@ =~ /supplied to Math::GMPz::overload_sub_eq/) {print "ok 41\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 41\n";
@@ -319,7 +319,7 @@ else {
 }
 
 eval{$ret /= "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_div_eq/) {print "ok 44\n"}
+if($@ =~ /supplied to Math::GMPz::overload_div_eq/) {print "ok 44\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 44\n";
@@ -333,14 +333,14 @@ else {
 }
 
 eval{$ret /= "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_div_eq/) {print "ok 46\n"}
+if($@ =~ /supplied to Math::GMPz::overload_div_eq/) {print "ok 46\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 46\n";
 }
 
 eval{$ret /= "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_div_eq/) {print "ok 47\n"}
+if($@ =~ /supplied to Math::GMPz::overload_div_eq/) {print "ok 47\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 47\n";
@@ -375,7 +375,7 @@ if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
 }
 else {
   eval {$x = (Math::GMPz->new(10) == "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::GMPz::overload_equiv/) {print "ok 51\n"}
+  if($@ =~ /supplied to Math::GMPz::overload_equiv/) {print "ok 51\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 51\n";
@@ -389,14 +389,14 @@ else {
   print "not ok 52\n";
 }
 eval{$x = (Math::GMPz->new(10) == "$strnan")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_equiv/) {print "ok 53\n"}
+if($@ =~ /supplied to Math::GMPz::overload_equiv/) {print "ok 53\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 53\n";
 }
 
 eval{$x = (Math::GMPz->new(10) == "61.2")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_equiv/) {print "ok 54\n"}
+if($@ =~ /supplied to Math::GMPz::overload_equiv/) {print "ok 54\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 54\n";
@@ -430,7 +430,7 @@ if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
 }
 else {
   eval{$x = (Math::GMPz->new(10) != "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::GMPz::overload_not_equiv/) {print "ok 58\n"}
+  if($@ =~ /supplied to Math::GMPz::overload_not_equiv/) {print "ok 58\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 58\n";
@@ -445,14 +445,14 @@ else {
 }
 
 eval{$x = (Math::GMPz->new(10) != "$strnan")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_not_equiv/) {print "ok 60\n"}
+if($@ =~ /supplied to Math::GMPz::overload_not_equiv/) {print "ok 60\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 60\n";
 }
 
 eval{$x = (Math::GMPz->new(10) != "61.2")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_not_equiv/) {print "ok 61\n"}
+if($@ =~ /supplied to Math::GMPz::overload_not_equiv/) {print "ok 61\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 61\n";
@@ -486,7 +486,7 @@ if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
 }
 else {
   eval{$x = (Math::GMPz->new(10) < "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::GMPz::overload_lt/) {print "ok 65\n"}
+  if($@ =~ /supplied to Math::GMPz::overload_lt/) {print "ok 65\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 65\n";
@@ -501,14 +501,14 @@ else {
 }
 
 eval{$x = (Math::GMPz->new(10) < "$strnan")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_lt/) {print "ok 67\n"}
+if($@ =~ /supplied to Math::GMPz::overload_lt/) {print "ok 67\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 67\n";
 }
 
 eval{$x = (Math::GMPz->new(10) < "61.2")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_lt/) {print "ok 68\n"}
+if($@ =~ /supplied to Math::GMPz::overload_lt/) {print "ok 68\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 68\n";
@@ -543,7 +543,7 @@ if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
 }
 else {
   eval{$x = (Math::GMPz->new(10) <= "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::GMPz::overload_lte/) {print "ok 72\n"}
+  if($@ =~ /supplied to Math::GMPz::overload_lte/) {print "ok 72\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 72\n";
@@ -558,14 +558,14 @@ else {
 }
 
 eval{$x = (Math::GMPz->new(10) <= "$strnan")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_lte/) {print "ok 74\n"}
+if($@ =~ /supplied to Math::GMPz::overload_lte/) {print "ok 74\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 74\n";
 }
 
 eval{$x = (Math::GMPz->new(10) <= "61.2")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_lte/) {print "ok 75\n"}
+if($@ =~ /supplied to Math::GMPz::overload_lte/) {print "ok 75\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 75\n";
@@ -599,7 +599,7 @@ if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
 }
 else {
   eval{$x = (Math::GMPz->new(10) >= "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::GMPz::overload_gte/) {print "ok 79\n"}
+  if($@ =~ /supplied to Math::GMPz::overload_gte/) {print "ok 79\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 79\n";
@@ -614,14 +614,14 @@ else {
 }
 
 eval{$x = (Math::GMPz->new(10) >= "$strnan")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_gte/) {print "ok 81\n"}
+if($@ =~ /supplied to Math::GMPz::overload_gte/) {print "ok 81\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 81\n";
 }
 
 eval{$x = (Math::GMPz->new(10) >= "61.2")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_gte/) {print "ok 82\n"}
+if($@ =~ /supplied to Math::GMPz::overload_gte/) {print "ok 82\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 82\n";
@@ -655,7 +655,7 @@ if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
 }
 else {
   eval{$x = (Math::GMPz->new(10) > "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::GMPz::overload_gt/) {print "ok 86\n"}
+  if($@ =~ /supplied to Math::GMPz::overload_gt/) {print "ok 86\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 86\n";
@@ -670,14 +670,14 @@ else {
 }
 
 eval{$x = (Math::GMPz->new(10) > "$strnan")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_gt/) {print "ok 88\n"}
+if($@ =~ /supplied to Math::GMPz::overload_gt/) {print "ok 88\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 88\n";
 }
 
 eval{$x = (Math::GMPz->new(10) > "61.2")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_gt/) {print "ok 89\n"}
+if($@ =~ /supplied to Math::GMPz::overload_gt/) {print "ok 89\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 89\n";
@@ -762,7 +762,7 @@ if("$strinf" =~ /^inf/i || $^O =~ /MSWin/) {
 }
 else {
   eval{$x = (Math::GMPz->new(10) <=> "$strinf")};
-  if($@ =~ /Invalid string supplied to Math::GMPz::overload_spaceship/) {print "ok 101\n"}
+  if($@ =~ /supplied to Math::GMPz::overload_spaceship/) {print "ok 101\n"}
   else {
     warn "\n\$\@: $@\n";
     print "not ok 101\n";
@@ -777,14 +777,14 @@ else {
 }
 
 eval{$x = (Math::GMPz->new(10) <=> "$strnan")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_spaceship/) {print "ok 103\n"}
+if($@ =~ /supplied to Math::GMPz::overload_spaceship/) {print "ok 103\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 103\n";
 }
 
 eval{$x = (Math::GMPz->new(10) <=> "61.2")};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_spaceship/) {print "ok 104\n"}
+if($@ =~ /supplied to Math::GMPz::overload_spaceship/) {print "ok 104\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 104\n";
@@ -820,7 +820,7 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) & "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_and/) {print "ok 109\n"}
+if($@ =~ /supplied to Math::GMPz::overload_and/) {print "ok 109\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 109\n";
@@ -834,14 +834,14 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) & "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_and/) {print "ok 111\n"}
+if($@ =~ /supplied to Math::GMPz::overload_and/) {print "ok 111\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 111\n";
 }
 
 eval{$ret = Math::GMPz->new(10) & "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_and/) {print "ok 112\n"}
+if($@ =~ /supplied to Math::GMPz::overload_and/) {print "ok 112\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 112\n";
@@ -862,7 +862,7 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) | "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_ior/) {print "ok 115\n"}
+if($@ =~ /supplied to Math::GMPz::overload_ior/) {print "ok 115\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 115\n";
@@ -876,14 +876,14 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) | "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_ior/) {print "ok 117\n"}
+if($@ =~ /supplied to Math::GMPz::overload_ior/) {print "ok 117\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 117\n";
 }
 
 eval{$ret = Math::GMPz->new(10) | "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_ior/) {print "ok 118\n"}
+if($@ =~ /supplied to Math::GMPz::overload_ior/) {print "ok 118\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 118\n";
@@ -904,7 +904,7 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) ^ "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_xor/) {print "ok 121\n"}
+if($@ =~ /supplied to Math::GMPz::overload_xor/) {print "ok 121\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 121\n";
@@ -918,14 +918,14 @@ else {
 }
 
 eval{$ret = Math::GMPz->new(10) ^ "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_xor/) {print "ok 123\n"}
+if($@ =~ /supplied to Math::GMPz::overload_xor/) {print "ok 123\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 123\n";
 }
 
 eval{$ret = Math::GMPz->new(10) ^ "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_xor/) {print "ok 124\n"}
+if($@ =~ /supplied to Math::GMPz::overload_xor/) {print "ok 124\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 124\n";
@@ -946,7 +946,7 @@ else {
 }
 
 eval{$ret &= "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_and_eq/) {print "ok 127\n"}
+if($@ =~ /supplied to Math::GMPz::overload_and_eq/) {print "ok 127\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 127\n";
@@ -960,14 +960,14 @@ else {
 }
 
 eval{$ret &= "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_and_eq/) {print "ok 129\n"}
+if($@ =~ /supplied to Math::GMPz::overload_and_eq/) {print "ok 129\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 129\n";
 }
 
 eval{$ret &= "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_and_eq/) {print "ok 130\n"}
+if($@ =~ /supplied to Math::GMPz::overload_and_eq/) {print "ok 130\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 130\n";
@@ -988,7 +988,7 @@ else {
 }
 
 eval{$ret |= "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_ior_eq/) {print "ok 133\n"}
+if($@ =~ /supplied to Math::GMPz::overload_ior_eq/) {print "ok 133\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 133\n";
@@ -1002,14 +1002,14 @@ else {
 }
 
 eval{$ret |= "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_ior_eq/) {print "ok 135\n"}
+if($@ =~ /supplied to Math::GMPz::overload_ior_eq/) {print "ok 135\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 135\n";
 }
 
 eval{$ret |= "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_ior_eq/) {print "ok 136\n"}
+if($@ =~ /supplied to Math::GMPz::overload_ior_eq/) {print "ok 136\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 136\n";
@@ -1030,7 +1030,7 @@ else {
 }
 
 eval{$ret ^= "$strinf"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_xor_eq/) {print "ok 139\n"}
+if($@ =~ /supplied to Math::GMPz::overload_xor_eq/) {print "ok 139\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 139\n";
@@ -1044,14 +1044,14 @@ else {
 }
 
 eval{$ret ^= "$strnan"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_xor_eq/) {print "ok 141\n"}
+if($@ =~ /supplied to Math::GMPz::overload_xor_eq/) {print "ok 141\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 141\n";
 }
 
 eval{$ret ^= "61.2"};
-if($@ =~ /Invalid string supplied to Math::GMPz::overload_xor_eq/) {print "ok 142\n"}
+if($@ =~ /supplied to Math::GMPz::overload_xor_eq/) {print "ok 142\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 142\n";
