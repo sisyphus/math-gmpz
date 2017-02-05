@@ -22,6 +22,7 @@ t/cmp.t
 t/cmp_q.t
 t/fac.t
 t/imp_exp.t
+t/index_bug.t
 t/math_bigint.t
 t/math_bigint_gmp.t
 t/math_bigint_gmp_only.t
