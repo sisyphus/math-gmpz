@@ -5,6 +5,8 @@
  - Broaden overload_pow and overload_pow_eq to accommodate Math::GMPz objects whose value fit into
    unsigned long int.
  - Add documentation of Rmpz_rootrem. (Thanks trizen.)
+ - Catch the case (gmp-6 and earlier only) where the index passed to mpz_clrbit, mpz_setbit
+   mpz_combit, mpz_tstbit, mpz_scan0 or mpz_scan1 is greater than ULONG_MAX.
 
 
 0.44
