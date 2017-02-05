@@ -59,6 +59,8 @@ print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
 if($^O =~ /MSWin32/i && $] < 5.022) {$defines .= " -D_WIN32_BIZARRE_INFNAN"}
 
+if($Config{longsize} < $Config{ivsize}) {$defines .= " -D_GMP_INDEX_BUG"}
+
 my %options = (
   NAME => 'Math::GMPz',
   AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
