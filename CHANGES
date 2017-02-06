@@ -7,6 +7,7 @@
  - Add documentation of Rmpz_rootrem. (Thanks trizen.)
  - Catch the case (gmp-6 and earlier only) where the index passed to mpz_clrbit, mpz_setbit
    mpz_combit, mpz_tstbit, mpz_scan0 or mpz_scan1 is greater than ULONG_MAX.
+ - Create separate GMPz.pod
 
 
 0.44
