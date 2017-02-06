@@ -2,6 +2,7 @@ MANIFEST
 CHANGES
 Makefile.PL
 GMPz.pm
+GMPz.pod
 GMPz.xs
 V/V.xs
 V/V.pm
