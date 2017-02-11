@@ -92,7 +92,7 @@ if($Config{longsize} < 8) {
     print "not ok 6\n";
   }
 }
-elsif(Rmpz_tstbit($z, 0) == $zero_bit) {print "not ok 6\n"}
+elsif(Rmpz_tstbit($z, 0) != $zero_bit) {print "not ok 6\n"}
 else {print "ok 6\n"}
 
 eval{Rmpz_scan0($z, 4294967296);};
