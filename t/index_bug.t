@@ -71,10 +71,16 @@ if($@) {
 elsif(Rmpz_tstbit($z, 0) != $zero_bit) {print "not ok 4\n"}
 else {print "ok 4\n"}
 
-if(Rmpz_sizeinbase($z, 2) == 4300000001) {print "ok 5\n"}
+if($Config{sizesize} < 8) {
+  warn "\n Skipping test 5 - sizeof(size_t) == 4\n";
+  print "ok 5\n";
+}
 else {
-  warn "\nsizeinbase 2: ", Rmpz_sizeinbase($z, 2), "\n";
-  print "not ok 5\n";
+  if(Rmpz_sizeinbase($z, 2) == 4300000001) {print "ok 5\n"}
+  else {
+    warn "\nsizeinbase 2: ", Rmpz_sizeinbase($z, 2), "\n";
+    print "not ok 5\n";
+  }
 }
 
 eval{Rmpz_combit($z, 4294967296);};
