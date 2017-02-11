@@ -1331,7 +1331,7 @@ SV * Rmpz_hamdist(pTHX_ mpz_t * dest, mpz_t * src) {
 
 SV * Rmpz_scan0(pTHX_ mpz_t * n, SV * start_bit) {
 #if defined(_GMP_INDEX_OVERFLOW) && __GNU_MP_VERSION < 7
-     if(SvUV(start_bit) > 4294967295 && sizeof(mp_bitcnt_t) == 4)
+     if(SvUV(start_bit) > 4294967295UL && sizeof(mp_bitcnt_t) == 4)
        croak("Bit index (%llu) passed to Rmpz_scan0 is greater than maximum allowed value (4294967295)", SvUV(start_bit));
 #endif
     return newSVuv(mpz_scan0(*n, (mp_bitcnt_t)SvUV(start_bit)));
@@ -1339,7 +1339,7 @@ SV * Rmpz_scan0(pTHX_ mpz_t * n, SV * start_bit) {
 
 SV * Rmpz_scan1(pTHX_ mpz_t * n, SV * start_bit) {
 #if defined(_GMP_INDEX_OVERFLOW) && __GNU_MP_VERSION < 7
-     if(SvUV(start_bit) > 4294967295 && sizeof(mp_bitcnt_t) == 4)
+     if(SvUV(start_bit) > 4294967295UL && sizeof(mp_bitcnt_t) == 4)
        croak("Bit index (%llu) passed to Rmpz_scan1 is greater than maximum allowed value (4294967295)", SvUV(start_bit));
 #endif
     return newSVuv(mpz_scan1(*n, (mp_bitcnt_t)SvUV(start_bit)));
@@ -1347,7 +1347,7 @@ SV * Rmpz_scan1(pTHX_ mpz_t * n, SV * start_bit) {
 
 void Rmpz_setbit(pTHX_ mpz_t * num, SV * bit_index) {
 #if defined(_GMP_INDEX_OVERFLOW) && __GNU_MP_VERSION < 7
-     if(SvUV(bit_index) > 4294967295 && sizeof(mp_bitcnt_t) == 4)
+     if(SvUV(bit_index) > 4294967295UL && sizeof(mp_bitcnt_t) == 4)
        croak("Bit index (%llu) passed to Rmpz_setbit is greater than maximum allowed value (4294967295)", SvUV(bit_index));
 #endif
      mpz_setbit(*num, (mp_bitcnt_t)SvUV(bit_index));
@@ -1355,7 +1355,7 @@ void Rmpz_setbit(pTHX_ mpz_t * num, SV * bit_index) {
 
 void Rmpz_clrbit(pTHX_ mpz_t * num, SV * bit_index) {
 #if defined(_GMP_INDEX_OVERFLOW) && __GNU_MP_VERSION < 7
-     if(SvUV(bit_index) > 4294967295 && sizeof(mp_bitcnt_t) == 4)
+     if(SvUV(bit_index) > 4294967295UL && sizeof(mp_bitcnt_t) == 4)
        croak("Bit index (%llu) passed to Rmpz_clrbit is greater than maximum allowed value (4294967295)", SvUV(bit_index));
 #endif
      mpz_clrbit(*num, (mp_bitcnt_t)SvUV(bit_index));
@@ -1363,7 +1363,7 @@ void Rmpz_clrbit(pTHX_ mpz_t * num, SV * bit_index) {
 
 SV * Rmpz_tstbit(pTHX_ mpz_t * num, SV * bit_index) {
 #if defined(_GMP_INDEX_OVERFLOW) && __GNU_MP_VERSION < 7
-     if(SvUV(bit_index) > 4294967295 && sizeof(mp_bitcnt_t) == 4)
+     if(SvUV(bit_index) > 4294967295UL && sizeof(mp_bitcnt_t) == 4)
        croak("Bit index (%llu) passed to Rmpz_tstbit is greater than maximum allowed value (4294967295)", SvUV(bit_index));
 #endif
      return newSViv(mpz_tstbit(*num, (mp_bitcnt_t)SvUV(bit_index)));
@@ -1787,7 +1787,7 @@ void Rmpz_rootrem(mpz_t * root, mpz_t * rem, mpz_t * u, unsigned long d) {
 
 void Rmpz_combit(pTHX_ mpz_t * num, SV * bitpos) {
 #if defined(_GMP_INDEX_OVERFLOW) && __GNU_MP_VERSION < 7
-     if(SvUV(bitpos) > 4294967295 && sizeof(mp_bitcnt_t) == 4)
+     if(SvUV(bitpos) > 4294967295UL && sizeof(mp_bitcnt_t) == 4)
        croak("Bit index (%llu) passed to Rmpz_combit is greater than maximum allowed value (4294967295)", SvUV(bitpos));
 #endif
      mpz_combit(*num, (mp_bitcnt_t)SvUV(bitpos));
