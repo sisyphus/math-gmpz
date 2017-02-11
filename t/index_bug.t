@@ -19,6 +19,8 @@ if($Config{ivsize} < 8) {
 
 print "1..8\n";
 
+warn "\n These tests might take a minute or two to run\n";
+
 my $z0 = Math::GMPz->new(1);
 Rmpz_mul_2exp($z0, $z0, 4200000000);
 my $z1 = Math::GMPz->new(1);
