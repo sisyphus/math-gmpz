@@ -1,7 +1,7 @@
 # Maximum index that can be passed to mpz_setbit, mpz_tstbit, mpz_combit,
 # mpz_clrbit, mpz_scan0 and mpz_scan1 is ULONG_MAX.
 # If longsize < ivsize, then we need to croak if the UV arg is greater than
-# ULONG_MAX. (We assume this gmp bug will be fixed in gmp-7.)
+# ULONG_MAX. (We assume this gmp behaviour will be fixed in gmp-7.)
 # This script checks that the error is being caught, and that bit indexing is
 # otherwise working as expected.
 
@@ -17,7 +17,7 @@ if($Config{ivsize} < 8) {
   exit 0;
 }
 
-print "1..5\n";
+print "1..8\n";
 
 my $z0 = Math::GMPz->new(1);
 Rmpz_mul_2exp($z0, $z0, 4200000000);
@@ -74,3 +74,38 @@ else {
   warn "\nsizeinbase 2: ", Rmpz_sizeinbase($z, 2), "\n";
   print "not ok 5\n";
 }
+
+eval{Rmpz_combit($z, 4294967296);};
+
+if($@) {
+  if($@ =~ /is greater than maximum allowed value \(4294967295\)/) {print "ok 6\n"}
+  else {
+    warn "\n\$\@: $@";
+    print "not ok 6\n";
+  }
+}
+elsif(Rmpz_tstbit($z, 0) == $zero_bit) {print "not ok 6\n"}
+else {print "ok 6\n"}
+
+eval{Rmpz_scan0($z, 4294967296);};
+
+if($Config{longsize} < 8) {
+  if($@ =~ /is greater than maximum allowed value \(4294967295\)/) {print "ok 7\n"}
+  else {
+    warn "\n\$\@: $@";
+    print "not ok 6\n";
+  }
+}
+else {print "ok 8\n"}
+
+eval{Rmpz_scan1($z, 4294967296);};
+
+if($Config{longsize} < 8) {
+  if($@ =~ /is greater than maximum allowed value \(4294967295\)/) {print "ok 8\n"}
+  else {
+    warn "\n\$\@: $@";
+    print "not ok 8\n";
+  }
+}
+else {print "ok 8\n"}
+
