@@ -85,7 +85,7 @@ else {
 
 eval{Rmpz_combit($z, 4294967296);};
 
-if($@) {
+if($Config{longsize} < 8) {
   if($@ =~ /is greater than maximum allowed value \(4294967295\)/) {print "ok 6\n"}
   else {
     warn "\n\$\@: $@";
@@ -101,10 +101,10 @@ if($Config{longsize} < 8) {
   if($@ =~ /is greater than maximum allowed value \(4294967295\)/) {print "ok 7\n"}
   else {
     warn "\n\$\@: $@";
-    print "not ok 6\n";
+    print "not ok 7\n";
   }
 }
-else {print "ok 8\n"}
+else {print "ok 7\n"}
 
 eval{Rmpz_scan1($z, 4294967296);};
 
