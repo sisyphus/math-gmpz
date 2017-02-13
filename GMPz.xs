@@ -6274,6 +6274,14 @@ SV * _sizeof_mp_bitcnt_t(pTHX) {
   return newSVuv(sizeof(mp_bitcnt_t));
 }
 
+int _gmp_index_overflow(void) {
+#if defined(_GMP_INDEX_OVERFLOW)
+  return 1;
+#else
+  return 0;
+#endif
+}
+
 
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
 
@@ -9200,5 +9208,9 @@ _sizeof_mp_bitcnt_t ()
 CODE:
   RETVAL = _sizeof_mp_bitcnt_t (aTHX);
 OUTPUT:  RETVAL
+
+
+int
+_gmp_index_overflow ()
 
 
