@@ -1,3 +1,6 @@
+0.46
+ - Rewrite tests in t/index_bug.t to avoid crashes owing to memory constraints
+
 0.45
  - Add _is_infstring() for use with overloaded comparison operators (==, !=, >, >=, <, <=, <=>)
  - Corrections made to memory allocation for string buffers in GMPz.xs. (Version 0.44 has been
