@@ -3,6 +3,7 @@ CHANGES
 Makefile.PL
 GMPz.pm
 GMPz.pod
+math_gmpz_include.h
 GMPz.xs
 V/V.xs
 V/V.pm
