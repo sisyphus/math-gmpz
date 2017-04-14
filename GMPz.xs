@@ -11,106 +11,9 @@
 #include "perl.h"
 #include "XSUB.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <gmp.h>
-
-#if defined(NV_IS_FLOAT128)
-#include <quadmath.h>
-#endif
-
-#if !defined(__GNU_MP_VERSION) || __GNU_MP_VERSION < 5
-#define mp_bitcnt_t unsigned long int
-#endif
-
-#ifdef _MSC_VER
-#pragma warning(disable:4700 4715 4716)
-#endif
-
-#if defined MATH_GMPZ_NEED_LONG_LONG_INT
-#ifndef _MSC_VER
-#include <inttypes.h>
-#endif
-#endif
-
-#ifdef OLDPERL
-#define SvUOK SvIsUV
-#endif
-
-#ifndef Newx
-#  define Newx(v,n,t) New(0,v,n,t)
-#endif
-
-#ifndef Newxz
-#  define Newxz(v,n,t) Newz(0,v,n,t)
-#endif
-
-/* for Math::BigInt overloading */
-#define MBI_DECLARATIONS		\
-     mpz_t * mpz = (mpz_t *)NULL;	\
-     const char * sign;			\
-     SV ** sign_key;
-
-#define VALIDATE_MBI_OBJECT				\
-     sign_key  = hv_fetch((HV*)SvRV(b), "sign", 4, 0);	\
-     sign = SvPV_nolen(*sign_key);			\
-     if(strNE("-", sign) && strNE("+", sign))
-
-#ifdef ENABLE_MATH_BIGINT_GMP_OVERLOAD		/* start ENABLE_MATH_BIGINT_GMP_OVERLOAD */
-
-#ifndef PERL_MAGIC_ext
-#  define PERL_MAGIC_ext '~'
-#endif
-
-#ifdef sv_magicext
-#  define MATH_GMPz_HAS_MAGICEXT 1
-#else
-#  define MATH_GMPz_HAS_MAGICEXT 0
-#endif
-
-#define MBI_GMP_DECLARATIONS 	\
-     const char * h2;		\
-     MAGIC * mg;		\
-     SV ** value_key;
-
-#if MATH_GMPz_HAS_MAGICEXT
-
-#define VALUE_TO_MPZ 							\
-  for(mg = SvMAGIC(SvRV(*value_key)); mg; mg = mg->mg_moremagic) {	\
-    if(mg->mg_type == PERL_MAGIC_ext) {					\
-      mpz = (mpz_t *)mg->mg_ptr;					\
-      break;								\
-    }									\
-  }
-
-#else
-
-#define VALUE_TO_MPZ 							\
-  for(mg = SvMAGIC(SvRV(*value_key)); mg; mg = mg->mg_moremagic) {	\
-    if(mg->mg_type == PERL_MAGIC_ext) {					\
-      mpz = INT2PTR(mpz_t *, SvIV((SV *)mg->mg_ptr));			\
-      break;								\
-    }									\
-  }
-
-#endif
-
-#define MBI_GMP_INSERT 							\
-  value_key = hv_fetch((HV*)SvRV(b), "value", 5, 0);			\
-  if(sv_isobject(*value_key)) {						\
-    h2 = HvNAME(SvSTASH(SvRV(*value_key)));				\
-    if(strEQ(h2, "Math::BigInt::GMP")) {				\
-      VALUE_TO_MPZ							\
-    }									\
-  }
 
 
-#else
-
-#define MBI_GMP_DECLARATIONS
-#define MBI_GMP_INSERT
-
-#endif						/* end ENABLE_MATH_BIGINT_GMP_OVERLOAD */
+#include "math_gmpz_include.h"
 
 SV * MATH_GMPz_IV_MAX(pTHX) {
      return newSViv((IV)IV_MAX);
@@ -1819,7 +1722,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-     if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
+     if(!sv_isobject(b) || (strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq"))) {
        New(1, mpz_t_obj, 1, mpz_t);
        if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_mul function");
        obj_ref = newSV(0);
@@ -1909,31 +1812,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         dSP;
-         SV * ret;
-         int count;
-
-         ENTER;
-
-         PUSHMARK(SP);
-         XPUSHs(b);
-         XPUSHs(a);
-         XPUSHs(sv_2mortal(newSViv(1)));
-         PUTBACK;
-
-         count = call_pv("Math::MPFR::overload_mul", G_SCALAR);
-
-         SPAGAIN;
-
-         if (count != 1)
-           croak("Error in Math::GMPz::overload_mul callback to Math::MPFR::overload_mul\n");
-
-         ret = POPs;
-
-         /* Avoid "Attempt to free unreferenced scalar" warning */
-         SvREFCNT_inc(ret);
-         LEAVE;
-         return ret;
+         _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -1951,6 +1830,9 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
          return obj_ref;
+       }
+       if(strEQ(h, "Math::GMPq")) {
+         _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul");
        }
      }
 
@@ -1981,7 +1863,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-     if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
+     if(!sv_isobject(b) || (strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq"))) {
        New(1, mpz_t_obj, 1, mpz_t);
        if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_add function");
        obj_ref = newSV(0);
@@ -2073,31 +1955,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         dSP;
-         SV * ret;
-         int count;
-
-         ENTER;
-
-         PUSHMARK(SP);
-         XPUSHs(b);
-         XPUSHs(a);
-         XPUSHs(sv_2mortal(newSViv(1)));
-         PUTBACK;
-
-         count = call_pv("Math::MPFR::overload_add", G_SCALAR);
-
-         SPAGAIN;
-
-         if (count != 1)
-           croak("Error in Math::GMPz::overload_add callback to Math::MPFR::overload_add\n");
-
-         ret = POPs;
-
-         /* Avoid "Attempt to free unreferenced scalar" warning */
-         SvREFCNT_inc(ret);
-         LEAVE;
-         return ret;
+         _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2119,6 +1977,9 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
          return obj_ref;
+       }
+       if(strEQ(h, "Math::GMPq")) {
+         _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add");
        }
      }
 
@@ -2150,7 +2011,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-     if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
+     if(!sv_isobject(b) || (strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq"))) {
        New(1, mpz_t_obj, 1, mpz_t);
        if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_sub function");
        obj_ref = newSV(0);
@@ -2254,31 +2115,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         dSP;
-         SV * ret;
-         int count;
-
-         ENTER;
-
-         PUSHMARK(SP);
-         XPUSHs(b);
-         XPUSHs(a);
-         XPUSHs(sv_2mortal(&PL_sv_yes));
-         PUTBACK;
-
-         count = call_pv("Math::MPFR::overload_sub", G_SCALAR);
-
-         SPAGAIN;
-
-         if (count != 1)
-           croak("Error in Math::GMPz::overload_sub callback to Math::MPFR::overload_sub\n");
-
-         ret = POPs;
-
-         /* Avoid "Attempt to free unreferenced scalar" warning */
-         SvREFCNT_inc(ret);
-         LEAVE;
-         return ret;
+         _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2300,6 +2137,9 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
          return obj_ref;
+       }
+       if(strEQ(h, "Math::GMPq")) {
+         _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub");
        }
      }
 
@@ -2331,7 +2171,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
      if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
 
-     if(!sv_isobject(b) || strNE(h, "Math::MPFR")) {
+     if(!sv_isobject(b) || (strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq"))) {
        New(1, mpz_t_obj, 1, mpz_t);
        if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_div function");
        obj_ref = newSV(0);
@@ -2444,31 +2284,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         dSP;
-         SV * ret;
-         int count;
-
-         ENTER;
-
-         PUSHMARK(SP);
-         XPUSHs(b);
-         XPUSHs(a);
-         XPUSHs(sv_2mortal(&PL_sv_yes));
-         PUTBACK;
-
-         count = call_pv("Math::MPFR::overload_div", G_SCALAR);
-
-         SPAGAIN;
-
-         if (count != 1)
-           croak("Error in Math::GMPz::overload_div callback to Math::MPFR::overload_div\n");
-
-         ret = POPs;
-
-         /* Avoid "Attempt to free unreferenced scalar" warning */
-         SvREFCNT_inc(ret);
-         LEAVE;
-         return ret;
+         _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2486,6 +2302,9 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
          return obj_ref;
+       }
+       if(strEQ(h, "Math::GMPq")) {
+         _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div");
        }
      }
 
@@ -3276,6 +3095,17 @@ SV * overload_com(pTHX_ mpz_t * p, SV * second, SV * third) {
      return obj_ref;
 }
 
+int my_cmp_z(mpq_t * p, mpz_t *z) {
+    int ret;
+    mpz_t temp;
+
+    mpz_init_set(temp, *z);
+    mpz_mul(temp, temp, mpq_denref(*p));
+    ret = mpz_cmp(mpq_numref(*p), temp);
+    mpz_clear(temp);
+    return ret;
+}
+
 SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
@@ -3340,7 +3170,9 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         croak("overloading \">\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b))), a);
+         if(ret < 0) return newSViv(1);
+         return newSViv(0);
 #else
          ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), *a);
          if(ret < 0) return newSViv(1);
@@ -3445,7 +3277,9 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         croak("overloading \">=\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b))), a);
+         if(ret <= 0) return newSViv(1);
+         return newSViv(0);
 #else
          ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), *a);
          if(ret <= 0) return newSViv(1);
@@ -3550,7 +3384,9 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         croak("overloading \"<\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b))), a);
+         if(ret > 0) return newSViv(1);
+         return newSViv(0);
 #else
          ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), *a);
          if(ret > 0) return newSViv(1);
@@ -3655,7 +3491,9 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         croak("overloading \"<=\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b))), a);
+         if(ret >= 0) return newSViv(1);
+         return newSViv(0);
 #else
          ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), *a);
          if(ret >= 0) return newSViv(1);
@@ -3751,7 +3589,8 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         croak("overloading \"<=>\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b))), a);
+         return newSViv(ret * -1);
 #else
          ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), *a);
          return newSViv(ret * -1);
@@ -3901,7 +3740,9 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         croak("overloading \"==\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b))), a);
+         if(ret == 0) return newSViv(1);
+         return newSViv(0);
 #else
          ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), *a);
          if(ret == 0) return newSViv(1);
@@ -4054,7 +3895,9 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         croak("overloading \"!=\": mpq_cmp_z not implemented in this version (%s) of gmp - need at least 6.1.0", gmp_version);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), a);
+         if(ret != 0) return newSViv(1);
+         return newSViv(0);
 #else
          ret = mpq_cmp_z(*(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), *a);
          if(ret != 0) return newSViv(1);
@@ -8614,6 +8457,11 @@ overload_com (p, second, third)
 CODE:
   RETVAL = overload_com (aTHX_ p, second, third);
 OUTPUT:  RETVAL
+
+int
+my_cmp_z (p, z)
+	mpq_t *	p
+	mpz_t *	z
 
 SV *
 overload_gt (a, b, third)
