@@ -30,7 +30,7 @@ unless($@) {
     else { warn "1c: ref: ", ref($rop), "\n"}
     if($rop == 1007500) {$ok .= 'd'}
     else {warn "1d: \$rop: $rop\n"}
-print "$mpz - $op\n";
+
     $rop = $mpz - $op;
     if(ref($rop) eq 'Math::MPFR'){$ok .= 'e'}
     else { warn "1e: ref: ", ref($rop), "\n"}
@@ -107,13 +107,13 @@ unless($@) {
     $rop = $mpz - $op;
     if(ref($rop) eq 'Math::GMPq'){$ok .= 'e'}
     else { warn "1e: ref: ", ref($rop), "\n"}
-    if($rop == '-372675/37') {$ok .= 'f'}
+    if($rop == '372675/37') {$ok .= 'f'}
     else {warn "1f: \$rop: $rop\n"}
 
     $rop = $mpz / $op;
     if(ref($rop) eq 'Math::GMPq'){$ok .= 'g'}
     else { warn "1g: ref: ", ref($rop), "\n"}
-    if($rop == '100/372775') {$ok .= 'h'}
+    if($rop == '14911/4') {$ok .= 'h'}
     else {warn "1h: \$rop: $rop\n"}
 
     my $ccount = Math::GMPz::_wrap_count();
