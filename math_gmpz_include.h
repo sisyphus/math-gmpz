@@ -99,7 +99,7 @@
 
 #endif						/* end ENABLE_MATH_BIGINT_GMP_OVERLOAD */
 
-#define _overload_callback(_1st_arg,_2nd_arg)						\
+#define _overload_callback(_1st_arg,_2nd_arg,_3rd_arg)						\
   dSP;											\
   SV * ret;										\
   int count;										\
@@ -108,7 +108,7 @@
   PUSHMARK(SP);										\
   XPUSHs(b);										\
   XPUSHs(a);										\
-  XPUSHs(sv_2mortal(newSViv(1)));							\
+  XPUSHs(sv_2mortal(_3rd_arg));							\
   PUTBACK;										\
   sprintf(buf, "%s", _1st_arg);								\
   count = call_pv(buf, G_SCALAR);							\
