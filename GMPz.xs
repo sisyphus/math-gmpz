@@ -1812,7 +1812,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul");
+         _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -1832,7 +1832,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
-         _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul");
+         _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
        }
      }
 
@@ -1955,7 +1955,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add");
+         _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add", newSViv(0));
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -1979,7 +1979,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
-         _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add");
+         _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add", newSViv(0));
        }
      }
 
@@ -2115,7 +2115,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub");
+         _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2139,7 +2139,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
-         _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub");
+         _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
        }
      }
 
@@ -2284,7 +2284,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div");
+         _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2304,7 +2304,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
-         _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div");
+         _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
        }
      }
 
