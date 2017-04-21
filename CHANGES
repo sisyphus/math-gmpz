@@ -3,6 +3,9 @@
    builds of Math::GMPz (ie doesn't have to be built against gmp-6.1.0 or later).
  - Allow overloading of addition, subtraction, multiplication and division operations to
    accept an mpq_t argument (and return an mpq_t object).
+ - Move the defines at the beginning of GMPz.xs out of that file and into (the newly
+   created) math_gmpz_include.h
+ - Croak on divby0 (instead of crashing).
 
 0.46
  - Rewrite tests in t/index_bug.t to avoid crashes owing to memory constraints
