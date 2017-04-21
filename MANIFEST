@@ -34,6 +34,7 @@ t/primes.t
 t/random.t
 t/theoretic.t
 t/div2.t
+t/divby0.t
 t/cdiv.t
 t/fdiv.t
 t/io_raw.t
