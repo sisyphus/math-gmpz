@@ -751,30 +751,44 @@ void Rmpz_abs(mpz_t * dest, mpz_t * src) {
 }
 
 void Rmpz_cdiv_q( mpz_t * q, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_cdiv_q");
      mpz_cdiv_q(*q, *n, *d);
 }
 
 void Rmpz_cdiv_r( mpz_t * mod, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_cdiv_r");
      mpz_cdiv_r(*mod, *n, *d);
 }
 
 void Rmpz_cdiv_qr( mpz_t * q, mpz_t * r, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_cdiv_qr");
      mpz_cdiv_qr(*q, *r, *n, *d);
 }
 
 unsigned long Rmpz_cdiv_q_ui( mpz_t * q, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_cdiv_q_ui");
      return mpz_cdiv_q_ui(*q, *n, d);
 }
 
 unsigned long Rmpz_cdiv_r_ui( mpz_t * q, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_cdiv_r_ui");
      return mpz_cdiv_r_ui(*q, *n, d);
 }
 
 unsigned long Rmpz_cdiv_qr_ui( mpz_t * q, mpz_t * r, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_cdiv_qr_ui");
      return mpz_cdiv_qr_ui(*q, *r, *n, d);
 }
 
 unsigned long Rmpz_cdiv_ui( mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_cdiv_ui");
      return mpz_cdiv_ui(*n, d);
 }
 
@@ -787,48 +801,70 @@ void Rmpz_cdiv_r_2exp(pTHX_  mpz_t * r, mpz_t *  n, SV * b) {
 }
 
 void Rmpz_fdiv_q( mpz_t * q, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_fdiv_q");
      mpz_fdiv_q(*q, *n, *d);
 }
 
 void Rmpz_div( mpz_t * q, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_div");
      mpz_div(*q, *n, *d);
 }
 
 /* % mpz-t (modulus) operator */
 void Rmpz_fdiv_r( mpz_t * mod, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_fdiv_r");
      mpz_fdiv_r(*mod, *n, *d);
 }
 
 void Rmpz_fdiv_qr( mpz_t * q, mpz_t * r, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_fdiv_qr");
      mpz_fdiv_qr(*q, *r, *n, *d);
 }
 
 void Rmpz_divmod( mpz_t * q, mpz_t * r, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_divmod");
      mpz_divmod(*q, *r, *n, *d);
 }
 
 unsigned long Rmpz_fdiv_q_ui( mpz_t * q, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_fdiv_q_ui");
      return mpz_fdiv_q_ui(*q, *n, d);
 }
 
 unsigned long Rmpz_div_ui( mpz_t * q, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_div_ui");
      return mpz_div_ui(*q, *n, d);
 }
 
 unsigned long Rmpz_fdiv_r_ui( mpz_t * q, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_fdiv_r_ui");
      return mpz_fdiv_r_ui(*q, *n, d);
 }
 
 unsigned long Rmpz_fdiv_qr_ui( mpz_t * q, mpz_t * r, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_fdiv_qr_ui");
      return mpz_fdiv_qr_ui(*q, *r, *n, d);
 }
 
 unsigned long Rmpz_divmod_ui( mpz_t * q, mpz_t * r, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_divmod_ui");
      return mpz_divmod_ui(*q, *r, *n, d);
 }
 
 /* % int (modulus) operator */
 unsigned long Rmpz_fdiv_ui( mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_fdiv_ui");
      return mpz_fdiv_ui(*n, d);
 }
 
@@ -845,32 +881,46 @@ void Rmpz_mod_2exp(pTHX_  mpz_t * r, mpz_t *  n, SV * b) {
 }
 
 void Rmpz_tdiv_q( mpz_t * q, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_tdiv_q");
      mpz_tdiv_q(*q, *n, *d);
 }
 
 /* % mpz-t (modulus) operator */
 void Rmpz_tdiv_r( mpz_t * mod, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_tdiv_r");
      mpz_tdiv_r(*mod, *n, *d);
 }
 
 void Rmpz_tdiv_qr( mpz_t * q, mpz_t * r, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_tdiv_qr");
      mpz_tdiv_qr(*q, *r, *n, *d);
 }
 
 unsigned long Rmpz_tdiv_q_ui( mpz_t * q, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_tdiv_q_ui");
      return mpz_tdiv_q_ui(*q, *n, d);
 }
 
 unsigned long Rmpz_tdiv_r_ui( mpz_t * q, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_tdiv_r_ui");
      return mpz_tdiv_r_ui(*q, *n, d);
 }
 
 unsigned long Rmpz_tdiv_qr_ui( mpz_t * q, mpz_t * r, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_tdiv_qr_ui");
      return mpz_tdiv_qr_ui(*q, *r, *n, d);
 }
 
 /* % int (modulus) operator */
 unsigned long Rmpz_tdiv_ui( mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_tdiv_ui");
      return mpz_tdiv_ui(*n, d);
 }
 
@@ -883,18 +933,26 @@ void Rmpz_tdiv_r_2exp(pTHX_  mpz_t * r, mpz_t *  n, SV * b) {
 }
 
 void Rmpz_mod( mpz_t * r, mpz_t *  n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_mod");
      mpz_mod(*r, *n, *d);
 }
 
 unsigned long Rmpz_mod_ui( mpz_t * r, mpz_t *  n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_mod_ui");
      return mpz_mod_ui(*r, *n, d);
 }
 
 void Rmpz_divexact(mpz_t * dest, mpz_t * n, mpz_t * d) {
+     if(!mpz_cmp_ui(*d, 0))
+       croak("Division by 0 not allowed in Rmpz_divexact");
      mpz_divexact(*dest, *n, *d );
 }
 
 void Rmpz_divexact_ui(mpz_t * dest, mpz_t * n, unsigned long d) {
+     if(d == 0)
+       croak("Division by 0 not allowed in Rmpz_divexact_ui");
      mpz_divexact_ui(*dest, *n, d);
 }
 
@@ -2181,43 +2239,41 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        SvREADONLY_on(obj);
      }
 
-
-
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SvIOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string (%s) supplied to Math::GMPz::overload_div", SvPV_nolen(b));
-       if(third == &PL_sv_yes) mpz_tdiv_q(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
-       else mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
+       if(third == &PL_sv_yes) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
+       else Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
        return obj_ref;
      }
 #else
      if(SvUOK(b)) {
        if(third == &PL_sv_yes) {
          mpz_set_ui(*mpz_t_obj, SvUVX(b));
-         mpz_tdiv_q(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
+         Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
          return obj_ref;
        }
-       mpz_tdiv_q_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
+       Rmpz_tdiv_q_ui(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvUVX(b));
        return obj_ref;
      }
 
      if(SvIOK(b)) {
-       if(SvIV(b) >= 0) {
+       if(SvIVX(b) >= 0) {
          if(third == &PL_sv_yes) {
            mpz_set_si(*mpz_t_obj, SvIVX(b));
-           mpz_tdiv_q(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
+           Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
            return obj_ref;
          }
-         mpz_tdiv_q_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvIVX(b));
+         Rmpz_tdiv_q_ui(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvIVX(b));
          return obj_ref;
        }
        if(third == &PL_sv_yes) {
          mpz_set_si(*mpz_t_obj, SvIVX(b));
-         mpz_tdiv_q(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
+         Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
          return obj_ref;
      }
-       mpz_tdiv_q_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvIVX(b) * -1);
+       Rmpz_tdiv_q_ui(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvIVX(b) * -1);
        mpz_neg(*mpz_t_obj, *mpz_t_obj);
        return obj_ref;
      }
@@ -2265,22 +2321,22 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_div, cannot coerce an Inf to a Math::GMPz value");
        mpz_set_d(*mpz_t_obj, d);
 #endif
-       if(third == &PL_sv_yes) mpz_tdiv_q(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
-       else mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
+       if(third == &PL_sv_yes) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
+       else Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
        return obj_ref;
      }
 
      if(SvPOK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string (%s) supplied to Math::GMPz::overload_div", SvPV_nolen(b));
-       if(third == &PL_sv_yes) mpz_tdiv_q(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
-       else mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
+       if(third == &PL_sv_yes) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
+       else Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
        return obj_ref;
      }
 
      if(sv_isobject(b)) {
        if(strEQ(h, "Math::GMPz")) {
-         mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(b))));
          return obj_ref;
        }
        if(strEQ(h, "Math::MPFR")) {
@@ -2300,7 +2356,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          }
 
          mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
-         mpz_tdiv_q(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
+         Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
          return obj_ref;
        }
        if(strEQ(h, "Math::GMPq")) {
