@@ -2678,31 +2678,7 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
          }
        }
        if(strEQ(h, "Math::MPFR")) {
-         dSP;
-         SV * ret;
-         int count;
-
-         ENTER;
-
-         PUSHMARK(SP);
-         XPUSHs(b);
-         XPUSHs(a);
-         XPUSHs(sv_2mortal(&PL_sv_yes));
-         PUTBACK;
-
-         count = call_pv("Math::MPFR::overload_pow", G_SCALAR);
-
-         SPAGAIN;
-
-         if (count != 1)
-           croak("Error in Math::GMPz:overload_pow callback to Math::MPFR::overload_pow\n");
-
-         ret = POPs;
-
-         /* Avoid "Attempt to free unreferenced scalar" warning */
-         SvREFCNT_inc(ret);
-         LEAVE;
-         return ret;
+         _overload_callback("Math::MPFR::overload_pow", "Math::GMPz:overload_pow", &PL_sv_yes);
        }
      }
 
