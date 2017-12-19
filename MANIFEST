@@ -20,6 +20,7 @@ t/aliases.t
 t/alloc.t
 t/arith.t
 t/bits.t
+t/bitwise.t
 t/cmp.t
 t/cmp_q.t
 t/fac.t
