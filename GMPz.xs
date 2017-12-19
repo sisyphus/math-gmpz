@@ -2702,7 +2702,7 @@ SV * overload_sqrt(pTHX_ mpz_t * p, SV * second, SV * third) {
      return obj_ref;
 }
 
-SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
@@ -2839,7 +2839,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_and");
 }
 
-SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
@@ -2975,7 +2975,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_ior");
 }
 
-SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
@@ -3975,7 +3975,7 @@ SV * overload_not(pTHX_ mpz_t * a, SV * second, SV * third) {
 
 /* Finish typemapping */
 
-SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -4143,7 +4143,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_xor_eq");
 }
 
-SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -4310,7 +4310,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_ior_eq");
 }
 
-SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -8656,31 +8656,46 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-overload_and (a, b, third)
+overload_and (a, b, third, ...)
 	mpz_t *	a
 	SV *	b
 	SV *	third
-CODE:
-  RETVAL = overload_and (aTHX_ a, b, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        CODE:
+        temp = PL_markstack_ptr++;
+        RETVAL = overload_and(aTHX_ a, b, third);
+        PL_markstack_ptr = temp;
+        OUTPUT:
+        RETVAL
 
 SV *
-overload_ior (a, b, third)
+overload_ior (a, b, third, ...)
 	mpz_t *	a
 	SV *	b
 	SV *	third
-CODE:
-  RETVAL = overload_ior (aTHX_ a, b, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        CODE:
+        temp = PL_markstack_ptr++;
+        RETVAL = overload_ior(aTHX_ a, b, third);
+        PL_markstack_ptr = temp;
+        OUTPUT:
+        RETVAL
 
 SV *
-overload_xor (a, b, third)
+overload_xor (a, b, third, ...)
 	mpz_t *	a
 	SV *	b
 	SV *	third
-CODE:
-  RETVAL = overload_xor (aTHX_ a, b, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        CODE:
+        temp = PL_markstack_ptr++;
+        RETVAL = overload_xor(aTHX_ a, b, third);
+        PL_markstack_ptr = temp;
+        OUTPUT:
+        RETVAL
 
 SV *
 overload_com (p, second, third)
@@ -8769,31 +8784,46 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-overload_xor_eq (a, b, third)
+overload_xor_eq (a, b, third, ...)
 	SV *	a
 	SV *	b
 	SV *	third
-CODE:
-  RETVAL = overload_xor_eq (aTHX_ a, b, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        CODE:
+        temp = PL_markstack_ptr++;
+        RETVAL = overload_xor_eq(aTHX_ a, b, third);
+        PL_markstack_ptr = temp;
+        OUTPUT:
+        RETVAL
 
 SV *
-overload_ior_eq (a, b, third)
+overload_ior_eq (a, b, third, ...)
 	SV *	a
 	SV *	b
 	SV *	third
-CODE:
-  RETVAL = overload_ior_eq (aTHX_ a, b, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        CODE:
+        temp = PL_markstack_ptr++;
+        RETVAL = overload_ior_eq(aTHX_ a, b, third);
+        PL_markstack_ptr = temp;
+        OUTPUT:
+        RETVAL
 
 SV *
-overload_and_eq (a, b, third)
+overload_and_eq (a, b, third, ...)
 	SV *	a
 	SV *	b
 	SV *	third
-CODE:
-  RETVAL = overload_and_eq (aTHX_ a, b, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        CODE:
+        temp = PL_markstack_ptr++;
+        RETVAL = overload_and_eq(aTHX_ a, b, third);
+        PL_markstack_ptr = temp;
+        OUTPUT:
+        RETVAL
 
 SV *
 overload_pow_eq (a, b, third)
