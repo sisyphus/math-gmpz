@@ -9,6 +9,8 @@
  - In overload_xor_eq, overload_ior_eq, overload_and_eq, overload_pow_eq, overload_rshift_eq,
    overload_lshift_eq, overload_mod_eq, overload_div_eq, overload_sub_eq, overload_add_eq and
    overload_mul_eq, SvREFCNT_dec(a) before every occurrence of croak().
+ - modify overloaded bitwise functions to work when feature 'bitwise' is enabled - and add
+   a test file (bitwise.t) to test this.
 
 0.46
  - Rewrite tests in t/index_bug.t to avoid crashes owing to memory constraints
