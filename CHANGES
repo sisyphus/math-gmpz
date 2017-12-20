@@ -1,4 +1,6 @@
 0.48
+ - Fix coding error in overload_not_equiv. (Affected older gmp versions only).
+   Thanks chargr.
 
 0.47
  - Extend overloading of comparisons between mpz_t and mpq_t such that it is available for all
