@@ -3927,7 +3927,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
        if(strEQ(h, "Math::GMPq")) {
 #if __GNU_MP_RELEASE < 60099
-         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b)))), a);
+         ret = my_cmp_z(INT2PTR(mpq_t *, SvIVX(SvRV(b))), a);
          if(ret != 0) return newSViv(1);
          return newSViv(0);
 #else
