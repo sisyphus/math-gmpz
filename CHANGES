@@ -1,4 +1,6 @@
 0.49
+ - skip tests 37 & 38 in t/divby0.t if Math::GMPq version is less than 0.45.
+ - Have t/_basic.t print out the Math::GMPq version (iff Math::GMPq is loadable).
 
 0.48
  - Fix coding error in overload_not_equiv. (Affected older gmp versions only).
