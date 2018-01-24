@@ -23,6 +23,7 @@ t/bits.t
 t/bitwise.t
 t/cmp.t
 t/cmp_q.t
+t/constants.t
 t/fac.t
 t/imp_exp.t
 t/index_bug.t
