@@ -59,6 +59,8 @@ print "If this is wrong, see the \"64-bit support\" section in the README\n\n";
 
 if($^O =~ /MSWin32/i && $] < 5.022) {$defines .= " -D_WIN32_BIZARRE_INFNAN"}
 
+# Assume that if the next condition is true, then the UV can hold a value
+# that will overflow mp_bitcnt_t.
 if($Config{longsize} < $Config{ivsize}) {$defines .= " -D_GMP_INDEX_OVERFLOW"}
 
 if($Config{sizesize} < $Config{ivsize}) {$defines .= " -D_GMP_SIZE_T_OVERFLOW"}
