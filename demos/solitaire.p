@@ -33,6 +33,9 @@
 #										#
 # The same for{} loop can be also used to calculate the euler number to a   	#
 # specified precision. See demos/euler.p in the Math::MPFR source distro.	#
+#										#
+# When played with a full deck of 52 standard playing cards, the game is known	#
+# as "frustration solitaire".							#
 #################################################################################
 
 use strict;
