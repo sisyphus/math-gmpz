@@ -9,7 +9,7 @@ require DynaLoader;
 
 our $VERSION = '0.49';
 #$VERSION = eval $VERSION;
-DynaLoader::bootstrap Math::GMPz::V $VERSION;
+Math::GMPz::V->DynaLoader::bootstrap($VERSION);
 
 @Math::GMPz::V::EXPORT = ();
 @Math::GMPz::V::EXPORT_OK = ();
