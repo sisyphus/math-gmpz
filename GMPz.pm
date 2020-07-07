@@ -112,7 +112,7 @@ zgmp_urandomb_ui zgmp_urandomm_ui
     our $VERSION = '0.49';
     #$VERSION = eval $VERSION;
 
-    DynaLoader::bootstrap Math::GMPz $VERSION;
+    Math::GMPz->DynaLoader::bootstrap($VERSION);
 
     $Math::GMPz::NULL = _Rmpz_NULL();
 
