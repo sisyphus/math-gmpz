@@ -8,7 +8,7 @@
 =head1 DEPENDENCIES
 
    This module needs the GMP C library - available from:
-   http://gmplib.org
+   https://gmplib.org
 
 =head1 DESCRIPTION
 
