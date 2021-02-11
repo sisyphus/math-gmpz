@@ -894,6 +894,11 @@
     See the GMP manual for a full explanation of what these
     variables mean.
 
+    NOTE: The actual data contained in $bstr is read in, byte by byte.
+          Hence, eg., a string containing any non-ASCII characters will
+          therefore assign a different value to $rop if a
+          utf8::upgrade($bstr) has been done.
+
    $bstr = Rmpz_export($order, $size, $endian, $nails, $op);
 
     Rmpz_export() is simply the reverse of Rmpz_import().
