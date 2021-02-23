@@ -1360,7 +1360,31 @@ SV * Rmpz_tstbit(pTHX_ mpz_t * num, SV * bit_index) {
 
 /* Turn a binary string into an mpz_t */
 void Rmpz_import(pTHX_ mpz_t * rop, SV * count, SV * order, SV * size, SV * endian, SV * nails, SV * op){
+     int is_utf8 = 0;
+
+     if(SvUTF8(op) && !SvIV(get_sv("Math::GMPz::utf8_no_downgrade", 0))) {
+       if(!SvIV(get_sv("Math::GMPz::utf8_no_warn", 0))) {
+         warn( "%s", RMPZ_IMPORT_UTF8_WARN ); /* RMPZ_IMPORT_UTF8_WARN defined in math_gmpz_include.h */
+         warn("  To disable this warning set $Math::GMPz::utf8_no_warn to 1.");
+       }
+
+       is_utf8 = 1;
+       if(!sv_utf8_downgrade(op, SvIV(get_sv("Math::GMPz::utf8_no_croak", 0)))) {
+         /* downgrade has failed, and this will cause an immediate croak if     *
+          * $Math::GMPz::utf8_no_croak is false. If $Math::GMPz::utf8_no_croak  *
+          * is true && $Math::GMPz::utf8_no_fail is false, we warn as follows:  */
+
+         if(!SvIV(get_sv("Math::GMPz::utf8_no_fail", 0))) {
+           /* No need to check status of $Math::GMPz::utf8_no_croak. *
+            * If we've reached here then it must be true.            */
+           warn("%s", RMPZ_IMPORT_DOWNGRADE_WARN); /*RMPZ_IMPORT_DOWNGRADE_WARN defined in math_gmpz_include.h */
+           warn("  To disable this warning set $Math::GMPz::utf8_no_fail to 1");
+         }
+       }
+     }
+
      mpz_import(*rop, SvUV(count), SvIV(order), SvIV(size), SvIV(endian), SvUV(nails), SvPV_nolen(op));
+     if(is_utf8) sv_utf8_upgrade(op);
 }
 
 /* Return an mpz_t to a binary string */
