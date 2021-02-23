@@ -114,7 +114,13 @@ zgmp_urandomb_ui zgmp_urandomm_ui
 
     Math::GMPz->DynaLoader::bootstrap($VERSION);
 
-    $Math::GMPz::NULL = _Rmpz_NULL();
+    $Math::GMPz::NULL              = _Rmpz_NULL();
+    $Math::GMPz::utf8_no_downgrade = 0; # allow utf8::downgrade of utf8 strings
+                                        # passed to Rmpz_import.
+    $Math::GMPz::utf8_no_warn      = 0; # warn  if utf8 string is passed to Rmpz_import.
+    $Math::GMPz::utf8_no_croak     = 0; # croak if utf8::downgrade fails in Rmpz_import.
+    $Math::GMPz::utf8_no_fail      = 0; # warn  if $Math::GMPz::utf8_no_croak is true &&
+                                        #          utf8::downgrade fails in Rmpz_import.
 
     %Math::GMPz::EXPORT_TAGS =(mpz => [qw(
 MATH_GMPz_IV_MAX MATH_GMPz_IV_MIN MATH_GMPz_UV_MAX
