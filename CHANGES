@@ -1,4 +1,5 @@
 0.50
+ - Rework Rmpz_import to better handle UTF8 strings.
 
 0.49
  - skip tests 37 & 38 in t/divby0.t if Math::GMPq version is less than 0.45.
