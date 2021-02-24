@@ -884,11 +884,11 @@
 
     Take a string ($str) and convert it to a Math::GMPz object ($rop)
     treating the string as a base 256 number.
-    $len many words are read, each $size bytes.
-    Normally, $len = length($bstr) with $size set to 1,
+    $len many words are read, each of $size bytes.
+    Normally, $len = length($str) with $size set to 1,
     but you can opt not to take the entire string if you like.
-
-    Usually ($order, $size, $endian, $nails) = (1, 1, 0, 0);
+    Yet another alternative is to set $len = 1, and
+    $size = length($str).
 
     $order can be 1 for most significant byte first or -1 for least significant
     byte first.
@@ -941,10 +941,24 @@
     That way, you don't have to concern yourself with those 4 package global
     scalars at all !!
 
-   $bstr = Rmpz_export($order, $size, $endian, $nails, $op);
+    You might (or might not) find t/imp_exp.t from the Math-GMPz test suite
+    helpful in comprehending this documentation.
 
-    Returns a base 256 ASCII string representation of the
-    number held by the Math::GMPz object, "$op".
+   $str = Rmpz_export($order, $size, $endian, $nails, $op);
+
+    Returns a base 256 ASCII string representation of the number held by
+    the Math::GMPz object, "$op".  While Rmpz_import converts a string to a
+    number, this function can convert that number to an ASCII string.
+    This returned $str will be equal to the original string passed to
+    Rmpz_import if and only if:
+     a) that original string was not UTF8;
+       or
+     b) the original string was UTF8 && was successfully downgraded during
+        the Rmpz_import processing.
+
+    However, in the case of b), the fact that the original string was UTF8
+    suggests that you ought to utf8::upgrade the string returned by
+    Rmpz_export.
 
 
    ###############################
