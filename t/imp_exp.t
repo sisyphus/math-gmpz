@@ -32,11 +32,17 @@ utf8::upgrade($s);
 
 cmp_ok(utf8::is_utf8($s), '!=', 0, "string is utf8");
 
-$Math::GMPz::utf8_no_warn = 1;
+$Math::GMPz::utf8_no_warn = 1; # suppress the warning that would tell us $s is UTF8 and
+                               # will therefore be subjected to a utf8::downgrade
+                               # inside Rmpz_import.
 
 Rmpz_import($z_up, length($s), 1, 1, 0, 0, $s);
 
 cmp_ok($z_up, '==', $z, "Rmpz_import processes downgraded string");
+
+# $s was given a utf8::downgrade inside Rmpz_import.
+# Next we check that Rmpz_import restored $s to its original status,
+# by doing a utf8::upgrade prior to termination.
 
 cmp_ok(utf8::is_utf8($s), '!=', 0, "Rmpz_import restores upgrade");
 
@@ -50,11 +56,19 @@ my $ws = "\x60\x{150}\x90";
 
 $Math::GMPz::utf8_no_warn = 1; # Disable warning.
 
+# $ws is a UTF8 string that cannot be downgraded.
+# $Math::GMPz::utf8_no_croak is currently set to 0, so Rmpz_import should
+# croak on the "Wide character" when it tries to process $ws.
+# Next we check that this is so.
+
 eval{ Rmpz_import($z, length($ws), $order, $size, $endian, $nails, $ws); };
 like($@, qr/^Wide character in subroutine/, '$@ set as exected');
 
 $Math::GMPz::utf8_no_croak = 1;
 $Math::GMPz::utf8_no_fail = 1;
+
+# With $Math::GMPz::no_croak set to a true value, we verify that
+# that Rmpz_import no longer croaks when processing $ws.
 
 eval{ Rmpz_import($z, length($ws), $order, $size, $endian, $nails, $ws); };
 cmp_ok($@, 'eq', '', '1: $@ unset as expected');
@@ -67,6 +81,21 @@ eval{ Rmpz_import($z_up, length($ws), $order, $size, $endian, $nails, $ws); };
 cmp_ok($@, 'eq', '', '2: $@ unset as expected');
 
 cmp_ok($z_up, '==', $z, "wide character string without utf8 downgrade treatment ok");
+
+$Math::GMPz::utf8_no_downgrade = 0;
+
+$z_down = Math::GMPz->new((ord('a') * (256 ** 2)) + (ord('B') * 256) + ord('c'));
+Rmpz_import($z, 1, $order, 3, 1, $nails, 'aBc');
+
+cmp_ok($z, '==', $z_down, "basic sanity check");
+
+# ord('a') == 0x61
+#If we ignore the 4 most siginificant bits of ord('a') then the value is 0x01
+$z_down = Math::GMPz->new((1 * (256 ** 2)) + (ord('B') * 256) + ord('c'));
+Rmpz_import($z, 1, $order, 3, 1, 4, 'aBc'); # ignore first 4 bits of 'aBc'
+
+cmp_ok($z, '==', $z_down, "nails test");
+
 
 done_testing();
 
