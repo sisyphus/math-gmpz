@@ -927,7 +927,7 @@
     IOW, if you're passing UTF8 strings to Rmpz_import, it's probably best if you
     can do the downgrade and subsequent upgrade yourself - eg, something like:
 
-      ....
+      ...
       if(utf8::is_utf8($str)) {
         utf8::downgrade($str);
         Rmpz_import($rop, $len, $order, $size, $endian, $nails, $str);
@@ -936,7 +936,7 @@
       else {
         Rmpz_import($rop, $len, $order, $size, $endian, $nails, $str);
       }
-      ....
+      ...
 
     That way, you don't have to concern yourself with those 4 package global
     scalars at all !!
@@ -949,17 +949,33 @@
     Returns a base 256 ASCII string representation of the number held by
     the Math::GMPz object, "$op".  While Rmpz_import converts a string to a
     number, this function can convert that number to an ASCII string.
-    This returned $str will be equal to the original string passed to
-    Rmpz_import if and only if:
+    Assuming that Rmpz_export and Rmpz_import receive a value of $nails = 0
+    && that they both also receive the same values for $order, $size and
+    $endian, then this returned $str will be equal to the original string
+    passed to Rmpz_import if and only if:
      a) that original string was not UTF8;
        or
      b) the original string was UTF8 && was successfully downgraded during
         the Rmpz_import processing.
 
     However, in the case of b), the fact that the original string was UTF8
-    suggests that you ought to utf8::upgrade the string returned by
+    suggests that you might want to utf8::upgrade the string returned by
     Rmpz_export.
 
+   Rmpz_import_UV($rop, $len, $order, $size, $endian, $nails, $arref);
+
+    As for Rmpz_import, except that the final argument is a reference to an
+    array of Uvs (unsigned perl integers).
+
+   $arref = Rmpz_export_UV($order, $size, $endian, $nails, $op);
+
+    As for Rmpz_export, except that it returns a reference to an array of
+    UVs (unsigned perl integers).
+    Assuming that Rmpz_export_UV and Rmpz_import_UV receive a value of
+    $nails = 0 && that they both also receive the same values for $order,
+    $size and $endian, then the array of UVs returned by this function, when
+    given to Rmpz_import_UV will generate a Math::GMPz object whose value is
+    equivalent to that of $op.
 
    ###############################
 
