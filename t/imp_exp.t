@@ -2,6 +2,7 @@ use strict;
 use warnings;
 use Math::GMPz qw(:mpz);
 use Test::More;
+use Config;
 
 print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 
@@ -87,7 +88,7 @@ $Math::GMPz::utf8_no_downgrade = 0;
 $z_down = Math::GMPz->new((ord('a') * (256 ** 2)) + (ord('B') * 256) + ord('c'));
 Rmpz_import($z, 1, $order, 3, 1, $nails, 'aBc');
 
-cmp_ok($z, '==', $z_down, "basic sanity check");
+cmp_ok($z, '==', $z_down, "Rmpz_import basic sanity check");
 
 # ord('a') == 0x61
 #If we ignore the 4 most siginificant bits of ord('a') then the value is 0x01
@@ -95,6 +96,26 @@ $z_down = Math::GMPz->new((1 * (256 ** 2)) + (ord('B') * 256) + ord('c'));
 Rmpz_import($z, 1, $order, 3, 1, 4, 'aBc'); # ignore first 4 bits of 'aBc'
 
 cmp_ok($z, '==', $z_down, "nails test");
+
+my $bits = $Config{ivsize} * 8;
+my @uv = (1234567890, 9876543210, ~0, 112233445566);
+
+my $val_check =  Math::GMPz->new($uv[3]) +
+                (Math::GMPz->new($uv[2]) <<  $bits) +
+                (Math::GMPz->new($uv[1]) << ($bits * 2)) +
+                (Math::GMPz->new($uv[0]) << ($bits * 3));
+
+Rmpz_import_UV($z, scalar(@uv), 0, $Config{ivsize}, 0, 0, \@uv);
+
+cmp_ok($z, '==', $val_check, "Rmpz_import_UV basic sanity check");
+
+my @ret = Rmpz_export_UV(0, $Config{ivsize}, 0, 0, $z);
+
+cmp_ok(scalar(@ret), '==', scalar(@uv), "returned array is of expected size");
+cmp_ok($ret[0], '==', $uv[0], "1st array elements match");
+cmp_ok($ret[1], '==', $uv[1], "2nd array elements match");
+cmp_ok($ret[2], '==', $uv[2], "3rd array elements match");
+cmp_ok($ret[3], '==', $uv[3], "4th array elements match");
 
 
 done_testing();
