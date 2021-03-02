@@ -1405,6 +1405,51 @@ SV * Rmpz_export(pTHX_ SV * order, SV * size, SV * endian, SV * nails, mpz_t * n
      return outsv;
 }
 
+/* Turn an array of UVs into an mpz_t */
+void Rmpz_import_UV(pTHX_ mpz_t * rop, SV * count, SV * order, SV * size, SV * endian, SV * nails, AV * op){
+    int len, i;
+    UV * arr;
+
+    len = av_len(op) + 1;
+
+    Newxz(arr, len, UV);
+    if(arr == NULL) croak("Couldn't allocate memory in Rmpz_import_UV");
+
+    for(i = 0; i < len; i++) {
+      arr[i] = SvUV(*(av_fetch(op, i, 0)));
+    }
+
+/*  mpz_import(*rop, SvUV(count), SvIV(order), SvIV(size), SvIV(endian), SvUV(nails), SvPV_nolen(op)) */
+    mpz_import(*rop, SvUV(count), SvIV(order), SvIV(size), SvIV(endian), SvUV(nails), arr);
+
+    Safefree(arr);
+}
+
+
+/* Return an mpz_t to an array of UVs */
+void Rmpz_export_UV(pTHX_ SV * order, SV * size, SV * endian, SV * nails, mpz_t * op) {
+    dXSARGS;
+    UV * arr;
+    int count, i;
+    int numb = (8 * SvIV(size)) - SvUV(nails);
+
+    count = (mpz_sizeinbase (*op, 2) + numb-1) / numb;
+
+    Newxz(arr, count, UV);
+    if(arr == NULL) croak("Couldn't allocate memory in Rmpz_export_UV");
+
+    mpz_export(arr, NULL, SvIV(order), SvIV(size), SvIV(endian), SvIV(nails), *op);
+
+    sp = mark;
+
+    for(i = 0; i < count; i++) {
+      XPUSHs(sv_2mortal(newSVuv(arr[i])));
+    }
+
+    Safefree(arr);
+    XSRETURN(count);
+}
+
 int Rmpz_fits_ulong_p(mpz_t * in) {
     return mpz_fits_ulong_p(*in);
 }
@@ -8372,6 +8417,48 @@ Rmpz_export (order, size, endian, nails, number)
 CODE:
   RETVAL = Rmpz_export (aTHX_ order, size, endian, nails, number);
 OUTPUT:  RETVAL
+
+void
+Rmpz_import_UV (rop, count, order, size, endian, nails, op)
+	mpz_t *	rop
+	SV *	count
+	SV *	order
+	SV *	size
+	SV *	endian
+	SV *	nails
+	AV *	op
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpz_import_UV(aTHX_ rop, count, order, size, endian, nails, op);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpz_export_UV (order, size, endian, nails, op)
+	SV *	order
+	SV *	size
+	SV *	endian
+	SV *	nails
+	mpz_t *	op
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpz_export_UV(aTHX_ order, size, endian, nails, op);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 int
 Rmpz_fits_ulong_p (in)
