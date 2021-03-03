@@ -6,9 +6,9 @@ use Config;
 
 print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 
-my $z      = Rmpz_init2(50);
-my $z_up   = Rmpz_init2(50);
-my $z_down = Rmpz_init2(50);
+my $z      = Math::GMPz->new();
+my $z_up   = Math::GMPz->new();
+my $z_down = Math::GMPz->new();
 
 my $s = "\xf4\x57\xbc\x2b\xaf\xb7\x3f\x2b\x41\x43\xe9\x3f\x3f\x2b\xc5\x52\x48\x90";
 my ($order, $size, $endian, $nails) = (1, 1, 0, 0);
@@ -90,6 +90,10 @@ Rmpz_import($z, 1, $order, 3, 1, $nails, 'aBc');
 
 cmp_ok($z, '==', $z_down, "Rmpz_import basic sanity check");
 
+$check = Rmpz_export( $order, 1, 1, $nails, $z);
+
+cmp_ok($check, 'eq', 'aBc', "Rmpz_export retrieves original string");
+
 # ord('a') == 0x61
 #If we ignore the 4 most siginificant bits of ord('a') then the value is 0x01
 $z_down = Math::GMPz->new((1 * (256 ** 2)) + (ord('B') * 256) + ord('c'));
@@ -106,6 +110,8 @@ my $val_check =  Math::GMPz->new($uv[3]) +
                 (Math::GMPz->new($uv[0]) << ($bits * 3));
 
 Rmpz_import_UV($z, scalar(@uv), 0, $Config{ivsize}, 0, 0, \@uv);
+
+print "$z\n$val_check\n";
 
 cmp_ok($z, '==', $val_check, "Rmpz_import_UV basic sanity check");
 
