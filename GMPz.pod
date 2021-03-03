@@ -880,6 +880,11 @@
 
    INTEGER IMPORT AND EXPORT
 
+    NOTE: There's a demo (demos/imp_exp.p) in the source distro. It
+          contains comments that will hopefully explain the basics of the
+          import and export functions, if it's not clear from the following
+          documentation.
+
    Rmpz_import($rop, $len, $order, $size, $endian, $nails, $str);
 
     Take a string ($str) and convert it to a Math::GMPz object ($rop)
@@ -965,7 +970,7 @@
    Rmpz_import_UV($rop, $len, $order, $size, $endian, $nails, $arref);
 
     As for Rmpz_import, except that the final argument is a reference to an
-    array of Uvs (unsigned perl integers).
+    array of UVs (unsigned perl integers).
 
    $arref = Rmpz_export_UV($order, $size, $endian, $nails, $op);
 
