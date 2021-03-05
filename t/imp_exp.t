@@ -9,6 +9,9 @@ print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 my $z      = Math::GMPz->new();
 my $z_up   = Math::GMPz->new();
 my $z_down = Math::GMPz->new();
+my $z_check = Math::GMPz->new();
+
+my $iterations = 500;
 
 my $s = "\xf4\x57\xbc\x2b\xaf\xb7\x3f\x2b\x41\x43\xe9\x3f\x3f\x2b\xc5\x52\x48\x90";
 my ($order, $size, $endian, $nails) = (1, 1, 0, 0);
@@ -123,6 +126,180 @@ cmp_ok($ret[1], '==', $uv[1], "2nd array elements match");
 cmp_ok($ret[2], '==', $uv[2], "3rd array elements match");
 cmp_ok($ret[3], '==', $uv[3], "4th array elements match");
 
+for(1 .. $iterations) {
+
+    my ($s, $ords) = randstr(0);  # These strings are normal ASCII strings, with all
+                                  # characters in the range \x00 .. \x7f.
+                                  # Makes no difference to Rmpz_import whether they
+                                  # have been upgraded to UTF8 or not.
+#   utf8::upgrade($s);
+    my $len = length($s);
+    Rmpz_import($z, $len, 1, 1, 0, 0, $s);
+#   Rmpz_out_str($z, 16);
+#   print("\n");
+    my $s_check = Rmpz_export(1, 1, 0, 0, $z);
+    Rmpz_import($z_check, $len, 1, 1, 0, 0, $s_check);
+
+    cmp_ok($len, '==', 3, "length of original string (@$ords) is 3");
+    cmp_ok($s, 'eq', $s_check, "strings match");
+    cmp_ok($z, '==', $z_check, "values match");
+    cmp_ok(utf8::is_utf8($s), '==', 0, "string is NOT UTF8");
+}
+
+set_globals_to_default();
+
+for(1 .. $iterations) {
+
+    my ($s, $ords) = randstr(0);  # These strings are normal ASCII strings, with all
+                                  # characters in the range \x00 .. \x7f.
+                                  # Makes no difference to Rmpz_import whether they
+                                  # have been upgraded to UTF8 or not.
+
+    $Math::GMPz::utf8_no_warn  = 1;   # Don't warn about utf8 strings
+
+    utf8::upgrade($s);
+    my $len = length($s);
+    Rmpz_import($z, $len, 1, 1, 0, 0, $s);
+#   Rmpz_out_str($z, 16);
+#   print("\n");
+    my $s_check = Rmpz_export(1, 1, 0, 0, $z);
+    Rmpz_import($z_check, $len, 1, 1, 0, 0, $s_check);
+
+    cmp_ok($len, '==', 3, "length of original string (@$ords) is 3");
+    cmp_ok($s, 'eq', $s_check, "strings match");
+    cmp_ok($z, '==', $z_check, "values match");
+    cmp_ok(utf8::is_utf8($s), '!=', 0, "string is UTF8");
+}
+
+set_globals_to_default();
+
+for(1 .. $iterations) {
+
+    my ($s, $ords) = randstr(1); # These strings contain at least one character
+                                 # in the range \x80 .. \xff, and Rmpz_import
+                                 # will treat them differently, depending upon
+                                 # their UTF8 status.
+
+#   utf8::upgrade($s);
+    my $len = length($s);
+    Rmpz_import($z, $len, 1, 1, 0, 0, $s);
+#   Rmpz_out_str($z, 16);
+#   print("\n");
+    my $s_check = Rmpz_export(1, 1, 0, 0, $z);
+    Rmpz_import($z_check, $len, 1, 1, 0, 0, $s_check);
+
+    cmp_ok($len, '==', 3, "length of original string (@$ords) is 3");
+    cmp_ok($s, 'eq', $s_check, "strings match");
+    cmp_ok($z, '==', $z_check, "values match");
+    cmp_ok(utf8::is_utf8($s), '==', 0, "string is NOT UTF8");
+}
+
+set_globals_to_default();
+
+for(1 .. $iterations) {
+
+    my ($s, $ords) = randstr(1); # These strings contain at least one character
+                                 # in the range \x80 .. \xff, and Rmpz_import
+                                 # will treat them differently, depending upon
+                                 # their UTF8 status.
+
+    $Math::GMPz::utf8_no_warn  = 1;   # Don't warn about utf8 strings
+    utf8::upgrade($s);
+    my $len = length($s);
+    Rmpz_import($z, $len, 1, 1, 0, 0, $s);
+#   Rmpz_out_str($z, 16);
+#   print("\n");
+    my $s_check = Rmpz_export(1, 1, 0, 0, $z);
+    Rmpz_import($z_check, $len, 1, 1, 0, 0, $s_check);
+
+    cmp_ok($len, '==', 3, "length of original string (@$ords) is 3");
+    cmp_ok($s, 'eq', $s_check, "strings match");
+    cmp_ok($z, '==', $z_check, "values match");
+    cmp_ok(utf8::is_utf8($s), '!=', 0, "string is UTF8");
+}
+
+set_globals_to_default();
+
+for(1 .. $iterations) {
+    my ($s, $ords) = randstr(1);
+    $Math::GMPz::utf8_no_warn  = 1;     # Don't warn about utf8 strings
+    $Math::GMPz::utf8_no_downgrade = 1; # Don't perform utf8 downgrade
+    utf8::upgrade($s);
+    my $len = length($s);
+    Rmpz_import($z, $len, 1, 1, 0, 0, $s);
+#   Rmpz_out_str($z, 16);
+#   print("\n");
+    my $s_check = Rmpz_export(1, 1, 0, 0, $z);
+    Rmpz_import($z_check, $len, 1, 1, 0, 0, $s_check);
+
+    cmp_ok($len, '==', 3, "length of original string (@$ords) is 3");
+    cmp_ok($s, 'ne', $s_check, "strings do NOT match");
+    cmp_ok($z, '==', $z_check, "values match");
+    cmp_ok(utf8::is_utf8($s), '!=', 0, "string is UTF8");
+}
+
+set_globals_to_default();
+
+for(1 .. $iterations) {
+
+    my ($s, $ords) = randstr(2);      # These strings are automatically UTF8, containing
+                                      # at least one character greater than \xff.
+                                      # Therefore, they cannot be downgraded.
+
+    $Math::GMPz::utf8_no_warn      = 1;     # Don't warn about utf8 strings
+    $Math::GMPz::utf8_no_downgrade = 1;     # Don't attempt to downgrade as
+                                            # it will inevitably fail.
+
+#   utf8::upgrade($s); # not needed - already utf8.
+    my $len = length($s);
+    Rmpz_import($z, $len, 1, 1, 0, 0, $s);
+#   Rmpz_out_str($z, 16);
+#   print("\n");
+    my $s_check = Rmpz_export(1, 1, 0, 0, $z);
+    Rmpz_import($z_check, $len, 1, 1, 0, 0, $s_check);
+
+    cmp_ok($len, '==', 3, "length of original string (@$ords) is 3");
+    cmp_ok($s, 'ne', $s_check, "strings do NOT match");
+    cmp_ok($z, '==', $z_check, "values match");
+    cmp_ok(utf8::is_utf8($s), '!=', 0, "string is UTF8");
+}
+
+set_globals_to_default();
 
 done_testing();
+
+sub randstr {
+
+  # Takes one argument - either something that == 0,
+  # or somethng that == 1,
+  # or something that !=0 && != 1.
+
+  my($r1, $r2, $r3);
+  if($_[0] == 0) {    # all ordinal values < 128
+    $r1 = int(rand(127)) + 1;   # disallow 0
+    $r2 = int(rand(128));
+    $r3 = int(rand(128));
+  }
+  elsif($_[0] == 1) { # all ordinal values < 256
+    $r1 = int(rand(255)) + 1;   # disallow 0
+    $r2 = 128 + int(rand(128)); # force value > 127
+    $r3 = int(rand(256));
+  }
+  else {              # all ordinal values < 512
+    $r1 = int(rand(511)) + 1;   # disallow 0
+    $r2 = 256 + int(rand(255)); # force value > 255
+    $r3 = int(rand(512));
+  }
+
+  my $s = chr($r1) . chr($r2) . chr($r3);
+  my @ords = ($r1, $r2, $r3);
+  return ($s, \@ords);
+}
+
+sub set_globals_to_default{
+  $Math::GMPz::utf8_no_croak = 0;
+  $Math::GMPz::utf8_no_warn  = 0;
+  $Math::GMPz::utf8_no_fail  = 0;
+  $Math::GMPz::utf8_no_downgrade = 0;
+}
 
