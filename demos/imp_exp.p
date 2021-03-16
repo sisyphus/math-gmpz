@@ -24,8 +24,9 @@ my $nails  = 0; # Read *all* of the bits in each byte.
 
 # Calculate the expected value by hand.
 # If $order were set to -1, we would need to do:
-#  $expected = Math::GMPz->new((ord('c') * (256 ** 2)) + (ord('B') * 256) + ord('a'))
-my $expected = Math::GMPz->new((ord('a') * (256 ** 2)) + (ord('B') * 256) + ord('c'));
+# my $expected = Math::GMPz->new((ord('c') * (256 ** 2)) + (ord('B') * 256) + ord('a'));
+# But $order is set to +1:
+my   $expected = Math::GMPz->new((ord('a') * (256 ** 2)) + (ord('B') * 256) + ord('c'));
 
 my $got = Math::GMPz->new();
 
