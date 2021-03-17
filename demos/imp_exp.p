@@ -80,4 +80,31 @@ my @ret = Rmpz_export_UV($order, $size, $endian, $nails, $got);
 
 is_deeply(\@ret, \@uv, "array retrieval succeeds");
 
+
+####################################################################
+# Next we'll deal with an array of numbers, all less than 2 ** 16, #
+# treating them as 16-bit integers rather than $Config{ivsize}-bit #
+# integers.                                                        #
+####################################################################
+
+@uv = (57840, 9271, 37925, 52962);
+
+$expected =  Math::GMPz->new($uv[3]) +
+            (Math::GMPz->new($uv[2]) <<  16) +
+            (Math::GMPz->new($uv[1]) << (16 * 2)) +
+            (Math::GMPz->new($uv[0]) << (16 * 3));
+
+# Set $nails such that all but the 16 least siginificant
+# bits of each IV will be ignored:
+
+$nails = $bits - 16;
+
+Rmpz_import_UV($got, scalar(@uv), $order, $size, $endian, $nails, \@uv);
+
+cmp_ok($got, '==', $expected, "Rmpz_import_UV correctly handles 16-bit values");
+
+@ret = Rmpz_export_UV($order, $size, $endian, $nails, $got);
+
+is_deeply(\@ret, \@uv, "array retrieval of 16-bit values succeeds");
+
 done_testing();
