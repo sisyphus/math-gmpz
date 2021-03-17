@@ -105,7 +105,7 @@ Rmpz_import($z, 1, $order, 3, 1, 4, 'aBc'); # ignore first 4 bits of 'aBc'
 cmp_ok($z, '==', $z_down, "nails test");
 
 my $bits = $Config{ivsize} * 8;
-my @uv = (1234567890, 9876543210, ~0, 112233445566);
+my @uv = (1234567890, 876543210, ~0, 2233445566);
 
 my $val_check =  Math::GMPz->new($uv[3]) +
                 (Math::GMPz->new($uv[2]) <<  $bits) +
@@ -222,6 +222,7 @@ set_globals_to_default();
 
 for(1 .. $iterations) {
     my ($s, $ords) = randstr(1);
+    my @o = @$ords;
     $Math::GMPz::utf8_no_warn  = 1;     # Don't warn about utf8 strings
     $Math::GMPz::utf8_no_downgrade = 1; # Don't perform utf8 downgrade
     utf8::upgrade($s);
@@ -232,8 +233,20 @@ for(1 .. $iterations) {
     my $s_check = Rmpz_export(1, 1, 0, 0, $z);
     Rmpz_import($z_check, $len, 1, 1, 0, 0, $s_check);
 
-    cmp_ok($len, '==', 3, "length of original string (@$ords) is 3");
-    cmp_ok($s, 'ne', $s_check, "strings do NOT match");
+    cmp_ok($len, '==', 3, "length of original string (@o) is 3");
+
+    if($o[1] == 195 && $o[2] == 131) {
+      if($s ne $s_check) {
+        warn "unexpected mismatch - ords: $o[0] $o[1] $o[2]\n";
+      }
+      cmp_ok($s, 'eq', $s_check, "strings match - the exception to the rule");
+    }
+    else {
+      if($s eq $s_check) {
+        warn "unexpected match - ords: $o[0] $o[1] $o[2]\n";
+      }
+      cmp_ok($s, 'ne', $s_check, "strings do NOT match");
+    }
     cmp_ok($z, '==', $z_check, "values match");
     cmp_ok(utf8::is_utf8($s), '!=', 0, "string is UTF8");
 }
