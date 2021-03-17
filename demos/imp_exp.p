@@ -51,7 +51,7 @@ cmp_ok($check, 'eq', 'aBc', "string retrieval succeeds");
 # to Rmpz_import_UV and the value that is created from that string #
 ####################################################################
 
-my @uv = (1234567890, 9876543210, ~0, 112233445566);
+my @uv = (1234567890, 876543210, ~0, 2233445566);
 my $bits = $Config{ivsize} * 8; # size of UV in bits.
 
 $expected =  Math::GMPz->new($uv[3]) +
