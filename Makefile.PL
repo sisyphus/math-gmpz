@@ -73,13 +73,19 @@ my %options = (
   AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
   ABSTRACT => 'Perl interface to the GMP integer functions',
   DEFINE   => $defines,
+
   LIBS => [
     '-lgmp'
   ],
+
   LICENSE  => 'perl',
   VERSION_FROM => 'GMPz.pm',
+
   PREREQ_PM => { 'Test::More' => '0.88',
-                 'Exporter' => '5.58' }, # avoid test failures on pre perl-5.8.4
+                 'Test::Warn' => '0.36',
+                 'Exporter'   => '5.58', # avoid test failures on pre perl-5.8.4
+               },
+
   clean   => { FILES => 'out1.txt out2.txt out3.txt out4.txt out5.txt out6.txt out7.txt out21.txt out22.txt' },
   META_MERGE => {
    'meta-spec' => { version => 2 },
