@@ -1,3 +1,7 @@
+Revision history for Perl module Math::GMPz
+
+0.52
+
 0.51
  - Add Test::Warn to PREREQ_PM in Makefile.PL. (Overlooked in previous release.)
  - In the Makefile.PL, place all 'make test' prerequisite modules in TEST_REQUIRES
