@@ -1,5 +1,6 @@
     package Math::GMPz;
     use strict;
+    use warnings;
     use Math::GMPz::Random;
     require Exporter;
     *import = \&Exporter::import;
