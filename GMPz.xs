@@ -5774,10 +5774,12 @@ SV * wrap_gmp_snprintf(pTHX_ SV * s, SV * bytes, SV * a, SV * b, int buflen) {
 }
 
 SV * _itsa(pTHX_ SV * a) {
-     if(SvUOK(a)) return newSViv(1);
-     if(SvIOK(a)) return newSViv(2);
-     if(SvNOK(a) && !SvPOK(a)) return newSViv(3);
+     if(SvIOK(a)) {
+       if(SvUOK(a)) return newSViv(1);
+       return newSViv(2);
+     }
      if(SvPOK(a)) return newSViv(4);
+     if(SvNOK(a)) return newSViv(3);
      if(sv_isobject(a)) {
        const char *h = HvNAME(SvSTASH(SvRV(a)));
        if(strEQ(h, "Math::GMPz"))        return newSViv(8);
