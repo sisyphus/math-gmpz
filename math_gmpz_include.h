@@ -32,6 +32,15 @@
 #  define Newxz(v,n,t) Newz(0,v,n,t)
 #endif
 
+#define SV_IS_IOK(x) \
+     SvIOK(x)
+
+#define SV_IS_POK(x) \
+     SvPOK(x)
+
+#define SV_IS_NOK(x) \
+     SvNOK(x)
+
 /* for Math::BigInt overloading */
 #define MBI_DECLARATIONS		\
      mpz_t * mpz = (mpz_t *)NULL;	\
