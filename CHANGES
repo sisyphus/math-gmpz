@@ -2,6 +2,7 @@ Revision history for Perl module Math::GMPz
 
 0.52
  - Add "use warnings;" to GMPz.pm.
+ - Refactor IV/UV/NV/PV handling inside overload subs.
 
 0.51
  - Add Test::Warn to PREREQ_PM in Makefile.PL. (Overlooked in previous release.)
