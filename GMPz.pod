@@ -1072,30 +1072,22 @@
     using the first value it finds, or croaking if it gets
     to step 6:
 
-    1. If the variable is an unsigned long then that value is used.
-       The variable is considered to be an unsigned long if
-       (perl 5.8) the UOK flag is set or if (perl 5.6) SvIsUV()
-       returns true. (In the case of perls whose ivtype is long long,
-       the variable is treated as an unsigned long long int if the
-       UOK/SvISUV flag is set.)
+    1. If the variable is a UV then that value is used. The variable
+       is considered to be a UV if the IOK and IsUV flags are set.
 
-    2. If the variable is a signed long int, then that value is used.
-       The variable is considered to be a signed long int if the
-       IOK flag is set. (In the case of perls whose ivtype is long long,
-       the variable is treated as a signed long long int if the IOK flag
-       is set.)
+    2. If the variable is an IV, then that value is used.
+       The variable is considered to be an IV if the IOK flag is set.
 
-    3. If the variable is an NV, then that value is used. The variable
-       is considered to be an NV if the NOK flag is set && the POK flag
-       is unset.
-
-    4. If the variable is a string (ie the POK flag is set) then the
+    3. If the variable is a string (ie the POK flag is set) then the
        value of that string is used. Octal strings must begin with
        '0', hex strings must begin with either '0x' or '0X' -
        otherwise the string is assumed to be decimal. If the POK
        flag is set, but the string is not a valid base 8, 10, or 16
        number, the subroutine croaks with an appropriate error
        message.
+
+    4. If the variable is an NV, then that value is used. The variable
+       is considered to be an NV if the NOK flag is set.
 
     5. If the variable is a Math::GMPz object (or, for operators
        specified above, a Math::MPFR/Math::GMPq object) then the value
