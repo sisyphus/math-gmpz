@@ -31,6 +31,15 @@ my $uv2 = ~0 - 1;
 my $foo = $uv2 + 2;
 cmp_ok(_ITSA($uv2),     '==', 1, "\$uv2 is still UV");
 
+my $uv3 = ~0;
+$uv3 += 1;
+cmp_ok(_ITSA($uv3),     '==', 3, "\$uv3 is now NV");
+
+my $uv4 = ~0;
+$foo = "$uv4";
+$uv4 += 1;
+cmp_ok(_ITSA($uv4),     '==', 3, "\$uv4 is now NV");
+
 my $iv = -23;
 cmp_ok(_ITSA($iv),      '==', 2, "\$iv is IV");
 my $iv_copy = $iv;
