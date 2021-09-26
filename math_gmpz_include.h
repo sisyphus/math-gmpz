@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <gmp.h>
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 #include <quadmath.h>
 #endif
 
