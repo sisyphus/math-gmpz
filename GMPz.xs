@@ -293,7 +293,7 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
      char * buffer;
      int returned;
      __float128 buffer_size;
@@ -360,7 +360,7 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
 
 void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
      char * buffer;
      int returned;
      __float128 buffer_size;
@@ -1197,7 +1197,7 @@ int Rmpz_cmp_d(mpz_t * n, double d) {
 int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
     if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int ret, returned;
@@ -1858,7 +1858,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -1914,7 +1914,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_mul, cannot coerce a NaN to a Math::GMPz value");
@@ -1999,7 +1999,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -2058,7 +2058,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_add, cannot coerce a NaN to a Math::GMPz value");
@@ -2147,7 +2147,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -2218,7 +2218,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
      if(ld != ld) croak("In Math::GMPz::overload_sub, cannot coerce a NaN to a Math::GMPz value");
@@ -2308,7 +2308,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -2387,7 +2387,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
      if(ld != ld) croak("In Math::GMPz::overload_div, cannot coerce a NaN to a Math::GMPz value");
@@ -2472,7 +2472,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -2541,7 +2541,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_mod, cannot coerce a NaN to a Math::GMPz value");
@@ -2810,7 +2810,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -2863,7 +2863,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_and, cannot coerce a NaN to a Math::GMPz value");
@@ -2946,7 +2946,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -2999,7 +2999,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_ior, cannot coerce a NaN to a Math::GMPz value");
@@ -3082,7 +3082,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -3135,7 +3135,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_xor, cannot coerce a NaN to a Math::GMPz value");
@@ -3766,7 +3766,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -3816,7 +3816,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_equiv, cannot compare a NaN to a Math::GMPz value");
@@ -3921,7 +3921,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -3971,7 +3971,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) { /* do not use the NV if POK is set */
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) croak("In Math::GMPz::overload_not_equiv, cannot compare a NaN to a Math::GMPz value");
@@ -4082,7 +4082,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -4137,7 +4137,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -4250,7 +4250,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -4305,7 +4305,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -4417,7 +4417,7 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -4472,7 +4472,7 @@ SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -4677,7 +4677,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -4734,7 +4734,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -4844,7 +4844,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -4900,7 +4900,7 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -5007,7 +5007,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -5062,7 +5062,7 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -5173,7 +5173,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -5229,7 +5229,7 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -5340,7 +5340,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
      char * buffer;
      int returned;
@@ -5391,7 +5391,7 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_NOK(b)) {
 
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
 
        ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
        if(ld != ld) {
@@ -5884,7 +5884,7 @@ int _has_longdouble(void) {
 }
 
 int _has_float128(void) {
-#if defined(NV_IS_FLOAT128)
+#if defined(USE_QUADMATH)
     return 1;
 #else
     return 0;
