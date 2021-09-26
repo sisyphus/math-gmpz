@@ -4,8 +4,7 @@ Revision history for Perl module Math::GMPz
  - Add "use warnings;" to GMPz.pm.
  - Refactor IV/UV/NV/PV handling inside overload subs.
  - Simplify Makefile.PL.
- - Replace XS defines NV_IS_FLOAT128 and NV_IS_LONG_DOUBLE with
-   USE_QUADMATH and USE_LONG_DOUBLE (which are already defined by perl headers).
+ - Replace XS defines NV_IS_FLOAT128 with USE_QUADMATH (which is already defined by perl headers).
 
 0.51
  - Add Test::Warn to PREREQ_PM in Makefile.PL. (Overlooked in previous release.)
