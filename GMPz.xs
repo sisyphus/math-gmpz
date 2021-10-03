@@ -364,7 +364,7 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
      char * buffer;
      int returned;
      __float128 buffer_size;
-     __float128 ld = (__float128)SvNVX(original) >= 0 ? floorq((__float128)SvNVX(original)) : ceilq((__float128)SvNVX(original));
+     __float128 ld = (__float128)SvNV(original) >= 0 ? floorq((__float128)SvNV(original)) : ceilq((__float128)SvNV(original));
      if(ld != ld) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
      if(ld != 0 && (ld / ld != 1))
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
@@ -383,21 +383,29 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
 #elif defined(USE_LONG_DOUBLE)
      char * buffer;
      long double buffer_size;
-     long double ld = (long double)SvNVX(original) >= 0 ? floorl((long double)SvNVX(original)) : ceill((long double)SvNVX(original));
-     if(ld != ld) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
-     if(ld != 0 && (ld / ld != 1))
-       croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
+     long double ld = (long double)SvNV(original);
 
-     buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
+     if(ld < 1.0L && ld > -1.0L) { /* floorl and/or ceill might be buggy *
+                                    * for doubledoubles in this range    */
+       mpz_set_ui(*copy, 0);
+     }
+     else {
+       ld = ld > 0 ? floorl(ld) : ceill(ld);
+       if(ld != ld) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
+       if(ld != 0 && (ld / ld != 1))
+         croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
-     Newxz(buffer, buffer_size + 5, char);
+       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
+       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
-     if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Rmpz_set_NV, buffer overflow in sprintf function");
-     mpz_set_str(*copy, buffer, 10);
-     Safefree(buffer);
+       Newxz(buffer, buffer_size + 5, char);
+
+       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Rmpz_set_NV, buffer overflow in sprintf function");
+       mpz_set_str(*copy, buffer, 10);
+       Safefree(buffer);
+     }
 #else
-     double d = SvNVX(original);
+     double d = SvNV(original);
      if(d != d) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
      if(d != 0 && (d / d != 1))
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
@@ -664,6 +672,42 @@ int Rmpz_fits_UV_p(pTHX_ mpz_t * n) {
 
 double Rmpz_get_d(mpz_t * n) {
      return mpz_get_d(*n);
+}
+
+NV Rmpz_get_NV(mpz_t * n) {
+     NV d;
+
+#if NVSIZE == 8
+     long exp;
+
+     d = mpz_get_d_2exp(&exp, *n);
+     if(exp > 1024) return strtod("inf", NULL);
+     return d * pow(2.0, (double)exp - 1) * 2;
+
+#else
+   /* Rely on strtold/strtoflt128 to correctly handle *
+    * the stringified form of the mpz_t argument      */
+     char * out;
+
+     Newxz(out, mpz_sizeinbase(*n, 10) + 3, char);
+     if(out == NULL) croak("Failed to allocate memory in Rmpz_get_NV function");
+
+     mpz_get_str(out, 10, *n);
+
+#  if defined(USE_LONG_DOUBLE)
+       d = strtold(out, NULL);
+
+#  elif defined(USE_QUADMATH)
+       mpz_get_str(out, 10, *n);
+       d = strtoflt128(out, NULL);
+
+#  else
+       Safefree(out);
+       croak("Unrecognized nvtype");
+#  endif
+     Safefree(out);
+     return d;
+#endif
 }
 
 void Rmpz_get_d_2exp(pTHX_ mpz_t * n) {
@@ -1195,7 +1239,7 @@ int Rmpz_cmp_d(mpz_t * n, double d) {
 }
 
 int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
-    if(SV_IS_NOK(b)) {
+/*  if(SV_IS_NOK(b)) { */
 
 #if defined(USE_QUADMATH)
 
@@ -1205,7 +1249,7 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      __float128 ld;
      mpz_t t;
 
-     ld = (__float128)SvNVX(b) >= 0 ? floorq((__float128)SvNVX(b)) : ceilq((__float128)SvNVX(b));
+     ld = (__float128)SvNV(b) >= 0 ? floorq((__float128)SvNV(b)) : ceilq((__float128)SvNV(b));
      if(ld != ld) croak("In Rmpz_cmp_NV, cannot compare a NaN to a Math::GMPz value");
      if((ld != 0 && (ld / ld != 1))) {
        if(ld > 0) return -1;
@@ -1223,7 +1267,7 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      ret = mpz_cmp(*a, t);
      mpz_clear(t);
 
-     if(ld == (__float128)SvNVX(b)) return ret;
+     if(ld == (__float128)SvNV(b)) return ret;
      /* else cannot be equal - ie must be less than or greater than */
      if(!ret) {
        if(ld >= 0) ret = -1;
@@ -1240,7 +1284,7 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      int ret;
      mpz_t t;
 
-     ld = (long double)SvNVX(b) >= 0 ? floorl((long double)SvNVX(b)) : ceill((long double)SvNVX(b));
+     ld = (long double)SvNV(b) >= 0 ? floorl((long double)SvNV(b)) : ceill((long double)SvNV(b));
      if(ld != ld) croak("In Rmpz_cmp_NV, cannot compare a NaN to a Math::GMPz value");
      if((ld != 0 && (ld / ld != 1))) {
        if(ld > 0) return -1;
@@ -1255,7 +1299,7 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      Safefree(buffer);
      ret = mpz_cmp(*a, t);
      mpz_clear(t);
-     if(ld == (long double)SvNVX(b)) return ret;
+     if(ld == (long double)SvNV(b)) return ret;
      /* else cannot be equal - ie must be less than or greater than */
      if(!ret) {
        if(ld >= 0) ret = -1;
@@ -1265,14 +1309,12 @@ int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
      return ret;
 
 #else
-    if((double)SvNVX(b) != (double)SvNVX(b))
+    if((double)SvNV(b) != (double)SvNV(b))
       croak("In Rmpz_cmp_NV, cannot compare a NaN to a Math::GMPz value");
 
-    return mpz_cmp_d(*a, (double)SvNVX(b));
+    return mpz_cmp_d(*a, (double)SvNV(b));
 #endif
 
-    }
-    croak("Invalid argument provided to Rmpz_cmp_NV");
 }
 
 int Rmpz_cmp_si(mpz_t * n, long d) {
@@ -6910,6 +6952,10 @@ OUTPUT:  RETVAL
 
 double
 Rmpz_get_d (n)
+	mpz_t *	n
+
+NV
+Rmpz_get_NV (n)
 	mpz_t *	n
 
 void
