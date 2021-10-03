@@ -5,6 +5,9 @@ Revision history for Perl module Math::GMPz
  - Refactor IV/UV/NV/PV handling inside overload subs.
  - Simplify Makefile.PL.
  - Replace XS defines NV_IS_FLOAT128 with USE_QUADMATH (which is already defined by perl headers).
+ - Export Rmpz_get_d() by default. (It was an oversight that this was not already the case.)
+ - Add Rmpz_get_NV().
+ - Rmpz_set_NV and Rmpz_cmp_NV will now accept an integer (IV/UV) as the second arg.
 
 0.51
  - Add Test::Warn to PREREQ_PM in Makefile.PL. (Overlooked in previous release.)
