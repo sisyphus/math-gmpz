@@ -18,7 +18,7 @@ my $dd = 0;
 
 # NOTE: The following applies only to 'doubledouble' NVs.
 # If the NV is doubledouble (long double) and Math::MPFR
-# is available, then values in the exponent range [16 .. 32]
+# is available, then values in the exponent range [15 .. 32]
 # are best tested by using Math::MPFR. We set $dd to 1 if
 # the NV is doubledouble.
 # If Math::MPFR is not available then we currently skip
@@ -82,8 +82,6 @@ cmp_ok($z, '==', 0, "Rmpz_set_NV set correctly for 0 >= NV > -1");
 
 for(1 .. 3000) {
 
-#  1.500495833586177339481334751153706244e308
-
   my $str = random_string();
   my ($integerize, $check) = (0, 0);
 
@@ -92,9 +90,9 @@ for(1 .. 3000) {
   $integerize = 1 if $exp <= 36;
 
   # we invoke use of Math::MPFR for testing only when
-  # NV is doubledouble && $exp is in the range [16 .. 32]
+  # NV is doubledouble && $exp is in the range [15 .. 32]
   my $engage_mpfr = 0;
-  $engage_mpfr = 1 if($dd && $exp >= 16 && $exp <= 32);
+  $engage_mpfr = 1 if($dd && $exp >= 15 && $exp <= 32);
 
   my $s = $str;
   my $n = $s / 1.0;
