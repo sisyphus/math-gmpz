@@ -675,18 +675,14 @@ double Rmpz_get_d(mpz_t * n) {
 }
 
 NV Rmpz_get_NV(mpz_t * n) {
-     NV d;
 
 #if NVSIZE == 8
-     long exp;
-
-     d = mpz_get_d_2exp(&exp, *n);
-     if(exp > 1024) return strtod("inf", NULL);
-     return d * pow(2.0, (double)exp - 1) * 2;
+     return mpz_get_d(*n);
 
 #else
    /* Rely on strtold/strtoflt128 to correctly handle *
     * the stringified form of the mpz_t argument      */
+     NV d;
      char * out;
 
      Newxz(out, mpz_sizeinbase(*n, 10) + 3, char);
@@ -704,9 +700,11 @@ NV Rmpz_get_NV(mpz_t * n) {
 #  else
        Safefree(out);
        croak("Unrecognized nvtype");
+
 #  endif
      Safefree(out);
      return d;
+
 #endif
 }
 
