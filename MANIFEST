@@ -28,6 +28,7 @@ t/cmp.t
 t/cmp_q.t
 t/constants.t
 t/fac.t
+t/get_set_cmp_NV.t
 t/imp_exp.t
 t/imp_warnings.t
 t/index_bug.t
