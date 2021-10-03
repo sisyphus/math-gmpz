@@ -284,7 +284,11 @@
     'Rmpz_fits_IV_p' and 'Rmpz_fits_UV_p'.
 
    $double = Rmpz_get_d($op);
-     Place the value of $op into a normal perl scalar.
+     Assign the value of $op, expressed in double precision, to
+     an NV.
+
+   $NV = Rmpz_get_NV($op);
+     Assign the value of $op to an NV.
 
    ($double, $si) = Rmpz_get_d_2exp($op);
     Find $double and $si such that $double times 2 raised to
