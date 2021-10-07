@@ -627,6 +627,7 @@
    $si = Rmpz_cmp($op1, $op2);
    $si = Rmpz_cmp_d($op, $double);
    $si = Rmpz_cmp_NV($op, $nv); # $nv is an NV
+   $si = Rmpz_cmp_IV($op, $iv); # $iv is an IV
    $si = Rmpz_cmp_si($op, $si);
    $si = Rmpz_cmp_ui($op, $ui);
     Compare 1st and 2nd args.  Return a positive value if
@@ -636,6 +637,11 @@
     actual value held in the double/NV - not to the truncated
     integer value. Comparison to an Inf is allowed, but
     comparison to a NaN is a fatal error.
+
+    NOTE: Rmpz_cmp_NV also accepts an IV as the 2nd argument,
+          which it then casts to an NV. This is probably not
+          what you want if IV precision is greater than NV
+          precision.
 
    $si = Rmpz_cmpabs($op1, $op2);
    $si = Rmpz_cmpabs_d($op, $double);
