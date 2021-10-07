@@ -85,7 +85,7 @@ Rmpz_get_ui Rmpz_getlimbn Rmpz_hamdist Rmpz_import Rmpz_import_UV
 Rmpz_init Rmpz_init2
 Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
 Rmpz_init_set_IV Rmpz_init_set_NV
-Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV
+Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV Rmpz_cmp_IV
 Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
@@ -152,7 +152,7 @@ Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
 Rmpz_init_set_IV Rmpz_init_set_NV
-Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV
+Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV Rmpz_cmp_IV
 Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
 Rmpz_invert Rmpz_ior new_from_MBI
 Rmpz_jacobi Rmpz_kronecker Rmpz_kronecker_si Rmpz_kronecker_ui Rmpz_lcm
