@@ -8,6 +8,7 @@ Revision history for Perl module Math::GMPz
  - Export Rmpz_get_d() by default. (It was an oversight that this was not already the case.)
  - Add Rmpz_get_NV().
  - Rmpz_set_NV and Rmpz_cmp_NV will now accept an integer (IV/UV) as the second arg.
+ - Add Rmpz_cmp_IV and make use of it in the overloaded comparison XSubs.
 
 0.51
  - Add Test::Warn to PREREQ_PM in Makefile.PL. (Overlooked in previous release.)
