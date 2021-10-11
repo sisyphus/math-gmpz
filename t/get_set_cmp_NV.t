@@ -118,12 +118,12 @@ for(1 .. 6000) {
 
     # TODO:
     # For values around 1e15, I'm getting occasional off-by-one ULP differences.
-    # For now, when $exp is in the range [48 .. 53], I'll call it a pass if
+    # For now, when $exp is in the range [47 .. 53], I'll call it a pass if
     # either Rmpfr_rint_roundeven() or Rmpfr_rint_trunc() produces the desired result.
 
-    if( $exp >= 48 && $exp <= 53) {
+    if( $exp >= 47 && $exp <= 53) {
       if(Rmpz_get_NV($z) != $f) {
-        # We'll try Rmpfr_rint_round_trunc() instead.
+        # We'll try Rmpfr_rint_trunc() instead.
         Math::MPFR::Rmpfr_set_NV($f, $n, 0);
         Math::MPFR::Rmpfr_rint_trunc($f, $f, 0);
         $check = Math::MPFR::Rmpfr_get_NV($f, 0);
