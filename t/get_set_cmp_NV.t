@@ -15,21 +15,24 @@ use Math::GMPz qw(:mpz);
 use Test::More;
 
 my $dd = 0;
-
-# NOTE: The following applies only to 'doubledouble' NVs.
-# If the NV is doubledouble (long double) and Math::MPFR
-# is available, then values with binary exponent in the
-# range [48 .. 121]are best tested by using Math::MPFR.
-# We set $dd to 1 if the NV is doubledouble.
-# If Math::MPFR is not available then we currently skip
-# the testing of doubledoubles in that exponent range.
-
 $dd = 1 if((2 ** 100) + (2 ** -100) > 2 ** 100); # NV is doubledouble
 
 my $use_mpfr = 0;
-eval {require Math::MPFR;};
+eval {require Math::MPFR; Math::MPFR->import(":mpfr"); };
 $use_mpfr = 1 unless $@;
-Math::MPFR::Rmpfr_set_default_prec(2098) if ($dd && $use_mpfr);
+
+my $mpfr_obj;
+
+if($use_mpfr) {
+  if($dd) {
+    Rmpfr_set_default_prec(2098);
+  }
+  else {
+    Rmpfr_set_default_prec(113);
+  }
+
+  $mpfr_obj = Math::MPFR->new();
+}
 
 my $z = Math::GMPz->new();
 
@@ -88,61 +91,32 @@ for(1 .. 6000) {
   my $s = $str;
   my $n = $s / 1.0;
 
-  my $exp = log($n) / log(2);
-
-  $integerize = 1 if $exp <= 121; # The value of $n might not be integer.
-
-  # we invoke use of Math::MPFR for testing only when
-  # NV is doubledouble && $exp < 120.6
-  my $engage_mpfr = 0;
-
-  $engage_mpfr = 1 if($dd && $exp >= 48 && $exp < 121);
-
   die "$str numifies to zero"
     if $n == 0;
 
   die "$str numifies to NaN"
     if $n != $n;
 
+  $check = int($n);
+
   next if $n / $n != 1; # $n is Inf
 
   Rmpz_set_NV($z, $n);
 
-  if($dd && $engage_mpfr) {
-    next unless $use_mpfr; # Skip testing of this particular doubledouble
-                           # value if Math::MPFR is not available.
-
-    my $f = Math::MPFR->new($n);
-    Math::MPFR::Rmpfr_rint_roundeven($f, $f, 0); # 0 == Round to Nearest
-    my $check = Math::MPFR::Rmpfr_get_NV($f, 0); # 0 == Round to Nearest
-
-    # TODO:
-    # For values around 1e15, I'm getting occasional off-by-one ULP differences.
-    # For now, when $exp is in the range [47 .. 53], I'll call it a pass if
-    # either Rmpfr_rint_roundeven() or Rmpfr_rint_trunc() produces the desired result.
-
-    if( $exp >= 47 && $exp <= 53) {
-      if(Rmpz_get_NV($z) != $f) {
-        # We'll try Rmpfr_rint_trunc() instead.
-        Math::MPFR::Rmpfr_set_NV($f, $n, 0);
-        Math::MPFR::Rmpfr_rint_trunc($f, $f, 0);
-        $check = Math::MPFR::Rmpfr_get_NV($f, 0);
-      }
-    }
-
-    cmp_ok(Rmpz_get_NV($z), '==', $f, "Rmpz_get_NV handles $str correctly" );
-
-    cmp_ok(Rmpz_cmp_NV($z, Math::MPFR::Rmpfr_get_NV($f, 0)), '==', 0,
-          "Rmpz_cmp_NV compares $str correctly");
-
+  if($use_mpfr) {
+    Rmpfr_set_NV($mpfr_obj, $n, 0);
+    Rmpfr_rint_trunc($mpfr_obj, $mpfr_obj, 0);
+    my $nv_check = Rmpfr_get_NV($mpfr_obj, 0);
+    cmp_ok(Rmpz_get_NV($z), '==', $nv_check, "Rmpz_get_NV returns the value that mpfr expects");
   }
-  else {
-    $check = $integerize ? int($n) : $n;
 
-    cmp_ok(Rmpz_get_NV($z), '==', $check, "Rmpz_get_NV handles $str correctly" );
-
-    cmp_ok(Rmpz_cmp_NV($z, $check / 1.0), '==', 0, "Rmpz_cmp_NV compares $str correctly");
+  cmp_ok(Rmpz_get_NV($z), '==', $check, "Rmpz_get_NV handles $str correctly" );
+  cmp_ok(Rmpz_cmp_NV($z, $check), '==', 0, "Rmpz_cmp_NV compares $str correctly");
+  if($z != $n) {
+    cmp_ok(Rmpz_cmp_NV($z, $n), '<', 0, "$z is less than $n");
+    cmp_ok($n - $check, '<', 1, "$check - $z is less than 1");
   }
+  cmp_ok(Rmpz_cmp_NV($z, Rmpz_get_NV($z)), '==', 0, "Rmpz_cmp_NV affirms Rmpz_get_NV is retrieving value correctly");
 }
 
 unless($Config{nvsize} == 8 || $dd) { # Skip these tests for 'double' and 'doubledouble'
@@ -168,6 +142,7 @@ unless($Config{nvsize} == 8 || $dd) { # Skip these tests for 'double' and 'doubl
 
     cmp_ok(Rmpz_get_NV($z), '==', int($n), "Rmpz_get_NV handles $str correctly" );
     cmp_ok(Rmpz_cmp_NV($z, int($n) / 1.0), '==', 0, "Rmpz_cmp_NV compares $str correctly");
+    cmp_ok(Rmpz_cmp_NV($z, Rmpz_get_NV($z)), '==', 0, "Rmpz_cmp_NV affirms Rmpz_get_NV is retrieving value correctly");
 
   }
 }
@@ -194,4 +169,4 @@ sub random_string_big_exponent {
 
 __END__
 
-
+1.345113042674234168859608843877322690e17
