@@ -382,57 +382,42 @@ SV * Rmpz_init_set_NV(pTHX_ SV * p) {
 
 void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
 
-#if defined(USE_QUADMATH)
-     char * buffer;
+     NV integer, buffer_size, nv = SvNV(original);
      int returned;
-     __float128 buffer_size;
-     __float128 ld = (__float128)SvNV(original) >= 0 ? floorq((__float128)SvNV(original)) : ceilq((__float128)SvNV(original));
-     if(ld != ld) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
-     if(ld != 0 && (ld / ld != 1))
+     char * buffer;
+     if(nv != nv) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
+     if(nv != 0 && (nv / nv != 1))
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
-     buffer_size = ld < 0.0Q ? ld * -1.0Q : ld;
+#if defined(USE_QUADMATH)
+     buffer_size = nv < 0.0Q ? nv * -1.0Q : nv;
      buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
      Newxz(buffer, (int)buffer_size + 5, char);
 
-     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", ld);
+     modfq(nv, &integer);
+
+     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", integer);
      if(returned < 0) croak("In Rmpz_set_NV, encoding error in quadmath_snprintf function");
      if(returned >= buffer_size + 5) croak("In Rmpz_set_NV, buffer given to quadmath_snprintf function was too small");
      mpz_set_str(*copy, buffer, 10);
      Safefree(buffer);
 
 #elif defined(USE_LONG_DOUBLE)
-     char * buffer;
-     long double buffer_size;
-     long double ld = (long double)SvNV(original);
+     buffer_size = nv < 0.0L ? nv * -1.0L : nv;
+     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
 
-     if(ld < 1.0L && ld > -1.0L) { /* floorl and/or ceill might be buggy *
-                                    * for doubledoubles in this range    */
-       mpz_set_ui(*copy, 0);
-     }
-     else {
-       ld = ld > 0 ? floorl(ld) : ceill(ld);
-       if(ld != ld) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
-       if(ld != 0 && (ld / ld != 1))
-         croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
+     Newxz(buffer, buffer_size + 5, char);
 
-       buffer_size = ld < 0.0L ? ld * -1.0L : ld;
-       buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
+     modfl(nv, &integer);
 
-       Newxz(buffer, buffer_size + 5, char);
+     if(sprintf(buffer, "%.0Lf", integer) >= (int)buffer_size + 5) croak("In Rmpz_set_NV, buffer overflow in sprintf function");
+     mpz_set_str(*copy, buffer, 10);
+     Safefree(buffer);
 
-       if(sprintf(buffer, "%.0Lf", ld) >= (int)buffer_size + 5) croak("In Rmpz_set_NV, buffer overflow in sprintf function");
-       mpz_set_str(*copy, buffer, 10);
-       Safefree(buffer);
-     }
 #else
-     double d = SvNV(original);
-     if(d != d) croak("In Rmpz_set_NV, cannot coerce a NaN to a Math::GMPz value");
-     if(d != 0 && (d / d != 1))
-       croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
+     mpz_set_d(*copy, nv);
 
-     mpz_set_d(*copy, d);
 #endif
 }
 
