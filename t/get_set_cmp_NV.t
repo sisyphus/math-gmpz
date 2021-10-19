@@ -83,7 +83,7 @@ Rmpz_set_NV($z, -999.87654321e-3);
 cmp_ok($z, '==', 0, "Rmpz_set_NV set correctly for 0 >= NV > -1");
 
 
-for(1 .. 6000) {
+for(1 .. 5000) {
 
   my $str = random_string();
   my ($integerize, $check) = (0, 0);
@@ -107,15 +107,29 @@ for(1 .. 6000) {
     Rmpfr_set_NV($mpfr_obj, $n, 0);
     Rmpfr_rint_trunc($mpfr_obj, $mpfr_obj, 0);
     my $nv_check = Rmpfr_get_NV($mpfr_obj, 0);
-    cmp_ok(Rmpz_get_NV($z), '==', $nv_check, "Rmpz_get_NV returns the value that mpfr expects");
+    cmp_ok(Rmpz_get_NV($z), '==', $nv_check, "Rmpz_get_NV returns the value that mpfr predicts");
+
+    # If the test that was just run has failed, then we
+    # don't bother with running any more tests:
+    if(Rmpz_get_NV($z) != $nv_check) {
+      warn "$str\n";
+      next;
+    }
   }
 
-  cmp_ok(Rmpz_get_NV($z), '==', $check, "Rmpz_get_NV handles $str correctly" );
-  cmp_ok(Rmpz_cmp_NV($z, $check), '==', 0, "Rmpz_cmp_NV compares $str correctly");
-  if($z != $n) {
-    cmp_ok(Rmpz_cmp_NV($z, $n), '<', 0, "$z is less than $n");
-    cmp_ok($n - $check, '<', 1, "$check - $z is less than 1");
+  cmp_ok($z, '==', Math::GMPz->new($n), "Rmpz_set_NV and Rmpz_init_set_NV assign identical values");
+
+  unless($dd) { #  Perl's int() function is buggy on my DoubleDouble builds.
+    cmp_ok(Rmpz_get_NV($z), '==', $check, "Rmpz_get_NV handles $str correctly" );
+    cmp_ok(Rmpz_cmp_NV($z, $check), '==', 0, "Rmpz_cmp_NV compares $str correctly");
   }
+
+  if($z != $n) {
+    # For positive values only
+    cmp_ok(Rmpz_cmp_NV($z, $n), '<', 0, "$z is less than $n");
+    cmp_ok(Rmpz_cmp_NV($z + 1, $n), '>', 0, "$z + 1 is greater than $n");
+  }
+
   cmp_ok(Rmpz_cmp_NV($z, Rmpz_get_NV($z)), '==', 0, "Rmpz_cmp_NV affirms Rmpz_get_NV is retrieving value correctly");
 }
 
@@ -140,6 +154,7 @@ unless($Config{nvsize} == 8 || $dd) { # Skip these tests for 'double' and 'doubl
 
     Rmpz_set_NV($z, $n);
 
+    cmp_ok($z, '==', Math::GMPz->new($n), "Rmpz_set_NV and Rmpz_init_set_NV assign identical values");
     cmp_ok(Rmpz_get_NV($z), '==', int($n), "Rmpz_get_NV handles $str correctly" );
     cmp_ok(Rmpz_cmp_NV($z, int($n) / 1.0), '==', 0, "Rmpz_cmp_NV compares $str correctly");
     cmp_ok(Rmpz_cmp_NV($z, Rmpz_get_NV($z)), '==', 0, "Rmpz_cmp_NV affirms Rmpz_get_NV is retrieving value correctly");
@@ -169,4 +184,3 @@ sub random_string_big_exponent {
 
 __END__
 
-1.345113042674234168859608843877322690e17
