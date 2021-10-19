@@ -45,13 +45,17 @@ $use_long_double == 1 ? print "Building with 'long double' support\n"
 $use_quadmath == 1    ? print "Building with '__float128' support\n"
                       : print "Building without '__float128' support\n";
 
-if($^O =~ /MSWin32/i && $] < 5.022) {$defines .= " -D_WIN32_BIZARRE_INFNAN"}
+if($^O =~ /MSWin32/i && $] < 5.022)     { $defines .= " -D_WIN32_BIZARRE_INFNAN"}
 
-# Assume that if the next condition is true, then the UV can hold a value
+# Assume that if the next condition is
+# true, then the UV can hold a value
 # that will overflow mp_bitcnt_t.
-if($Config{longsize} < $Config{ivsize}) {$defines .= " -D_GMP_INDEX_OVERFLOW"}
+if($Config{longsize} < $Config{ivsize}) { $defines .= " -D_GMP_INDEX_OVERFLOW"  }
 
-if($Config{sizesize} < $Config{ivsize}) {$defines .= " -D_GMP_SIZE_T_OVERFLOW"}
+if($Config{sizesize} < $Config{ivsize}) { $defines .= " -D_GMP_SIZE_T_OVERFLOW" }
+
+if((2 ** 100) + (2 ** -100) > 2 ** 100) { $defines .= " -DNV_IS_DOUBLEDOUBLE";
+                                          print "NV is doubledouble\n"          }
 
 my %options = (
   NAME => 'Math::GMPz',
