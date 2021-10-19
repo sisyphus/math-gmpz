@@ -222,15 +222,9 @@ sub new {
 
     # Create a Math::GMPz object that has $arg1 as its value.
     # Die if there are any additional args (unless $type == _POK_T)
-    if($type == _UOK_T || $type == _IOK_T) {
+    if($type == _IOK_T || $type == _UOK_T) {
       if(@_ ) {die "Too many arguments supplied to new() - expected only one"}
       return Rmpz_init_set_IV($arg1);
-    }
-
-    if($type == _NOK_T) {
-      if(@_ ) {die "Too many arguments supplied to new() - expected only one"}
-      return Rmpz_init_set_NV($arg1);
-
     }
 
     if($type == _POK_T) { # POK
@@ -239,6 +233,12 @@ sub new {
       if($base < 0 || $base == 1 || $base > 62) {die "Invalid value for base"}
       $arg1 =~ s/^(\s+)?\+//; # Rmpz_init_set_str() dies if there's a leading '+'.
       return Rmpz_init_set_str($arg1, $base);
+    }
+
+    if($type == _NOK_T) {
+      if(@_ ) {die "Too many arguments supplied to new() - expected only one"}
+      return Rmpz_init_set_NV($arg1);
+
     }
 
     if($type == _MATH_GMPz_T || $type == _MATH_GMP_T) { # Math::GMPz or Math::GMP object
@@ -552,11 +552,6 @@ sub Rmpz_snprintf {
 
     return $len;
 }
-
-# Use an XSub instead
-# sub Rmpz_get_NV {
-#   return "$_[0]" / 1;
-#}
 
 sub __GNU_MP_VERSION            () {return ___GNU_MP_VERSION()}
 sub __GNU_MP_VERSION_MINOR      () {return ___GNU_MP_VERSION_MINOR()}
