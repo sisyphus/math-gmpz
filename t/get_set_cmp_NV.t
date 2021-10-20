@@ -133,6 +133,41 @@ for(1 .. 5000) {
   cmp_ok(Rmpz_cmp_NV($z, Rmpz_get_NV($z)), '==', 0, "Rmpz_cmp_NV affirms Rmpz_get_NV is retrieving value correctly");
 }
 
+my $dbl_max = 0;
+for(971 .. 1023) { $dbl_max += 2 ** $_ }
+my $dbl_min = -$dbl_max;
+my $dbl_next = 2 ** 970;
+
+my $mpz_pos = Math::GMPz->new($dbl_max);
+my $mpz_neg = Math::GMPz->new($dbl_min);
+
+$mpz_pos += Math::GMPz->new($dbl_next);
+$mpz_neg -= Math::GMPz->new($dbl_next);
+
+my $nv_pos = Rmpz_get_NV($mpz_pos);
+my $nv_neg = Rmpz_get_NV($mpz_neg);
+
+if($dd) {
+  cmp_ok($nv_pos, '>', 0, "Inf > 0");
+  cmp_ok($nv_neg, '<', 0, "-Inf < 0");
+
+  if($nv_pos != 0) {
+    cmp_ok($nv_pos / $nv_pos, '!=', 1, "is Inf");
+  }
+
+  if($nv_neg != 0) {
+    cmp_ok($nv_neg / $nv_neg, '!=', 1, "is -Inf");
+  }
+}
+elsif($Config{nvsize} == 8) {
+  cmp_ok($nv_pos, '==', $dbl_max, "is DBL_MAX");
+  cmp_ok($nv_neg, '==', $dbl_min, "is -DBL_MAX");
+}
+else {
+  cmp_ok($nv_pos, '>', $dbl_max, "> DBL_MAX");
+  cmp_ok($nv_neg, '<', $dbl_min, "< -DBL_MAX");
+}
+
 unless($Config{nvsize} == 8 || $dd) { # Skip these tests for 'double' and 'doubledouble'
                                       # as the values we're testing here are all Inf on
                                       # on those configurations.
