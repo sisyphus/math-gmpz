@@ -469,7 +469,7 @@ else {
   if(!Math::GMPz::_has_longdouble() && !Math::GMPz::_has_float128()) {print "ok 45\n"}
   else {
     warn "\n double:\n Math::GMPz::_has_longdouble(): ", Math::GMPz::_has_longdouble(),
-         "\n Math::GMPzV_has_float128(): ", Math::GMPzV_has_float128(), "\n";
+         "\n Math::GMPzV_has_float128(): ", Math::GMPz_has_float128(), "\n";
     print "not ok 45\n";
   }
 }
