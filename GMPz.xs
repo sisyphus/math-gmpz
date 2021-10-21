@@ -342,80 +342,6 @@ void _mpf_set_dd(mpf_t * q, SV * p) {
 #endif
 }
 
-SV * Rmpz_init_set_NV(pTHX_ SV * p) {
-     mpz_t * mpz_t_obj;
-     SV * obj_ref, * obj;
-     NV nv = SvNV(p);
-
-#if defined(USE_QUADMATH) || defined(USE_LONG_DOUBLE)
-#  if defined(NV_IS_DOUBLEDOUBLE)
-     mpf_t f;
-
-#  else
-     NV buffer_size;
-     int returned;
-     char * buffer;
-
-#  endif
-
-#endif
-
-     if(nv != nv) croak("In Rmpz_init_set_NV, cannot coerce a NaN to a Math::GMPz value");
-     if(nv != 0 && (nv / nv != 1))
-       croak("In Rmpz_init_set_NV, cannot coerce an Inf to a Math::GMPz value");
-
-     Newx(mpz_t_obj, 1, mpz_t);
-     if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
-     obj_ref = newSV(0);
-     obj = newSVrv(obj_ref, "Math::GMPz");
-
-#if defined(USE_QUADMATH)
-
-     buffer_size = nv < 0.0Q ? nv * -1.0Q : nv;
-     buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
-
-     Newxz(buffer, (int)buffer_size + 5, char);
-
-     nv = nv >= 0 ? floorq(nv) : ceilq(nv);
-
-     returned = quadmath_snprintf(buffer, (size_t)buffer_size + 5, "%.0Qf", nv);
-     if(returned < 0) croak("In Rmpz_init_set_NV, encoding error in quadmath_snprintf function");
-     if(returned >= buffer_size + 5) croak("In Rmpz_init_set_NV, buffer given to quadmath_snprintf function was too small");
-     mpz_init_set_str(*mpz_t_obj, buffer, 10);
-     Safefree(buffer);
-
-#elif defined(USE_LONG_DOUBLE)
-# if defined(NV_IS_DOUBLEDOUBLE)
-     mpf_init2(f, 2098);
-     mpz_init(*mpz_t_obj);
-     _mpf_set_dd(&f, p);
-     mpz_set_f(*mpz_t_obj, f);
-     mpf_clear(f);
-
-#  else
-     buffer_size = nv < 0.0L ? nv * -1.0L : nv;
-     buffer_size = ceill(logl(buffer_size + 1) / 2.30258509299404568401799145468436418L);
-
-     Newxz(buffer, (int)buffer_size + 5, char);
-
-     nv = nv >= 0 ? floorl(nv) : ceill(nv);
-     if(sprintf(buffer, "%.0Lf", nv) >= (int)buffer_size + 5) croak("In Rmpz_init_set_NV, buffer overflow in sprintf function");
-
-     mpz_init_set_str(*mpz_t_obj, buffer, 10);
-     Safefree(buffer);
-#  endif
-
-#else
-
-     mpz_init_set_d(*mpz_t_obj, nv);
-
-#endif
-     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-     SvREADONLY_on(obj);
-     return obj_ref;
-
-}
-
 void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
      NV nv = SvNV(original);
 
@@ -473,6 +399,23 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
      mpz_set_d(*copy, nv);
 
 #endif
+}
+
+SV * Rmpz_init_set_NV(pTHX_ SV * p) {
+     mpz_t * mpz_t_obj;
+     SV * obj_ref, * obj;
+
+     Newx(mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in _Rmpz_init_set_NV function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+
+     mpz_init(*mpz_t_obj);
+
+     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     Rmpz_set_NV(aTHX_ mpz_t_obj, p);
+     SvREADONLY_on(obj);
+     return obj_ref;
 }
 
 SV * Rmpz_init_set_str(pTHX_ SV * num, SV * base) {
@@ -755,7 +698,6 @@ NV Rmpz_get_NV(mpz_t * n) {
        d = strtold(out, NULL);
 
 #  elif defined(USE_QUADMATH)
-       mpz_get_str(out, 10, *n);
        d = strtoflt128(out, NULL);
 
 #  else
@@ -6547,13 +6489,6 @@ _mpf_set_dd (q, p)
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
 
-SV *
-Rmpz_init_set_NV (p)
-	SV *	p
-CODE:
-  RETVAL = Rmpz_init_set_NV (aTHX_ p);
-OUTPUT:  RETVAL
-
 void
 Rmpz_set_NV (copy, original)
 	mpz_t *	copy
@@ -6570,6 +6505,13 @@ Rmpz_set_NV (copy, original)
         }
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
+
+SV *
+Rmpz_init_set_NV (p)
+	SV *	p
+CODE:
+  RETVAL = Rmpz_init_set_NV (aTHX_ p);
+OUTPUT:  RETVAL
 
 SV *
 Rmpz_init_set_str (num, base)
