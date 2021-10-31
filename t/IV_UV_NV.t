@@ -3,7 +3,7 @@ use warnings;
 use Math::GMPz qw(:mpz);
 use Config;
 
-print "1..51\n";
+print "1..52\n";
 
 #####################################
 
@@ -516,4 +516,10 @@ if(!NOK_flag("2.3")) { print "ok 51\n" }
 else {
   warn "IOK_flag('2.3') == ", IOK_flag('2.3'), "\n";
   print "not ok 51\n";
+}
+
+if(POK_flag("2.3")) { print "ok 52\n" }
+else {
+  warn "POK_flag('2.3') == ", POK_flag('2.3'), "\n";
+  print "not ok 52\n";
 }
