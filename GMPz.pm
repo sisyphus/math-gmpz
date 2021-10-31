@@ -64,6 +64,7 @@ use overload
 __GNU_MP_VERSION __GNU_MP_VERSION_MINOR __GNU_MP_VERSION_PATCHLEVEL
 __GNU_MP_RELEASE __GMP_CC __GMP_CFLAGS MATH_GMPz_IV_MAX MATH_GMPz_IV_MIN
 MATH_GMPz_UV_MAX
+IOK_flag NOK_flag POK_flag
 Rmpz_abs Rmpz_add Rmpz_add_ui Rmpz_addmul Rmpz_addmul_ui Rmpz_and Rmpz_bin_ui
 Rmpz_bin_uiui Rmpz_bin_si Rmpz_cdiv_q Rmpz_cdiv_q_2exp Rmpz_cdiv_q_ui Rmpz_cdiv_qr
 Rmpz_cdiv_qr_ui Rmpz_cdiv_r Rmpz_cdiv_r_2exp Rmpz_cdiv_r_ui Rmpz_cdiv_ui
@@ -84,9 +85,9 @@ Rmpz_get_d Rmpz_get_NV
 Rmpz_get_ui Rmpz_getlimbn Rmpz_hamdist Rmpz_import Rmpz_import_UV
 Rmpz_init Rmpz_init2
 Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
-Rmpz_init_set_IV Rmpz_init_set_NV
+Rmpz_init_set_IV Rmpz_init_set_IV_nobless Rmpz_init_set_NV Rmpz_init_set_NV_nobless
 Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV Rmpz_cmp_IV
-Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
+Rmpz_get_IV Rmpz_fits_IV_p
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
@@ -128,6 +129,7 @@ zgmp_urandomb_ui zgmp_urandomm_ui
 
     %Math::GMPz::EXPORT_TAGS =(mpz => [qw(
 MATH_GMPz_IV_MAX MATH_GMPz_IV_MIN MATH_GMPz_UV_MAX
+IOK_flag NOK_flag POK_flag
 Rmpz_abs Rmpz_add Rmpz_add_ui Rmpz_addmul Rmpz_addmul_ui Rmpz_and Rmpz_bin_ui
 Rmpz_bin_uiui Rmpz_bin_si Rmpz_cdiv_q Rmpz_cdiv_q_2exp Rmpz_cdiv_q_ui Rmpz_cdiv_qr
 Rmpz_cdiv_qr_ui Rmpz_cdiv_r Rmpz_cdiv_r_2exp Rmpz_cdiv_r_ui Rmpz_cdiv_ui
@@ -151,9 +153,9 @@ Rmpz_init2_nobless Rmpz_init_nobless Rmpz_init_set Rmpz_init_set_d
 Rmpz_init_set_d_nobless Rmpz_init_set_nobless Rmpz_init_set_si
 Rmpz_init_set_si_nobless Rmpz_init_set_str Rmpz_init_set_str_nobless
 Rmpz_init_set_ui Rmpz_init_set_ui_nobless Rmpz_inp_str Rmpz_inp_raw
-Rmpz_init_set_IV Rmpz_init_set_NV
+Rmpz_init_set_IV Rmpz_init_set_IV_nobless Rmpz_init_set_NV Rmpz_init_set_NV_nobless
 Rmpz_set_IV Rmpz_set_NV Rmpz_cmp_NV Rmpz_cmp_IV
-Rmpz_get_IV Rmpz_fits_IV_p Rmpz_fits_UV_p
+Rmpz_get_IV Rmpz_fits_IV_p
 Rmpz_invert Rmpz_ior new_from_MBI
 Rmpz_jacobi Rmpz_kronecker Rmpz_kronecker_si Rmpz_kronecker_ui Rmpz_lcm
 Rmpz_lcm_ui Rmpz_legendre Rmpz_lucnum2_ui Rmpz_lucnum_ui Rmpz_mod Rmpz_mod_ui
