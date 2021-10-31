@@ -36,23 +36,11 @@ if($use_mpfr) {
 
 my $z = Math::GMPz->new();
 
-###############################
-# Test set and cmp with IV/UV #
-###############################
-
-Rmpz_set_NV($z, 123456);
+Rmpz_set_NV($z, 123456.0);
 
 cmp_ok(Rmpz_cmp_NV($z, 123456.0), '==', 0, "compares correctly with equivalent double");
 cmp_ok(Rmpz_cmp_NV($z, 123455.999), '>', 0, "compares correctly with smaller double");
 cmp_ok(Rmpz_cmp_NV($z, 123456.001), '<', 0, "compares correctly with larger double");
-cmp_ok(Rmpz_cmp_NV($z, 123456), '==', 0, "compares correctly with equivalent iv");
-cmp_ok(Rmpz_cmp_NV($z, 123455), '>', 0, "compares correctly with smaller iv");
-cmp_ok(Rmpz_cmp_NV($z, 123457), '<', 0, "compares correctly with larger iv");
-
-Rmpz_set_NV($z, ~0);
-
-cmp_ok(Rmpz_cmp_NV($z, ~0), '==', 0, "compares correctly with equivalent uv");
-cmp_ok(Rmpz_cmp_NV($z, ~0 >> 1), '>', 0, "compares correctly with smaller iv");
 
 ################################
 ################################
@@ -101,6 +89,11 @@ for(1 .. 5000) {
 
   next if $n / $n != 1; # $n is Inf
 
+  if(!NOK_flag($n)) {
+    $n = "${n}.0" + 0;
+    next if !NOK_flag($n);
+  }
+
   Rmpz_set_NV($z, $n);
 
   if($use_mpfr) {
@@ -130,7 +123,13 @@ for(1 .. 5000) {
 
   unless($dd) { #  Perl's int() function is buggy on my DoubleDouble builds.
     cmp_ok(Rmpz_get_NV($z), '==', $check, "Rmpz_get_NV handles $str correctly" );
-    cmp_ok(Rmpz_cmp_NV($z, $check), '==', 0, "Rmpz_cmp_NV compares $str correctly");
+    if(NOK_flag($check)) {
+      cmp_ok(Rmpz_cmp_NV($z, $check), '==', 0, "Rmpz_cmp_NV compares $str correctly");
+    }
+    else {
+      eval { Rmpz_cmp_NV($z, $check);};
+      like($@, qr/In Rmpz_cmp_NV, 2nd argument is not an NV/, "Rmpz_cmp_NV croaks when 2nd arg is is not NOK");
+    }
   }
 
   if($z != $n) {
