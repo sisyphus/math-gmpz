@@ -7,8 +7,11 @@ Revision history for Perl module Math::GMPz
  - Replace XS defines NV_IS_FLOAT128 with USE_QUADMATH (which is already defined by perl headers).
  - Export Rmpz_get_d() by default. (It was an oversight that this was not already the case.)
  - Add Rmpz_get_NV().
- - Rmpz_set_NV and Rmpz_cmp_NV will now accept an integer (IV/UV) as the second arg.
  - Add Rmpz_cmp_IV and make use of it in the overloaded comparison XSubs.
+ - Add Rmpz_init_set_NV_nobless and Rmpz_init_set_IV_nobless (just to complete the set).
+ - Remove Rmpz_fits_UV_p. UVs are now also handled by Rmpz_fits_IV_p - which is how things
+   should have been done in the first place.
+ - Add IOK_flag(), NOK_flag(), POK_flag() functions.
 
 0.51
  - Add Test::Warn to PREREQ_PM in Makefile.PL. (Overlooked in previous release.)
