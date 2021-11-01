@@ -129,7 +129,6 @@ zgmp_urandomb_ui zgmp_urandomm_ui
 
     %Math::GMPz::EXPORT_TAGS =(mpz => [qw(
 MATH_GMPz_IV_MAX MATH_GMPz_IV_MIN MATH_GMPz_UV_MAX
-IOK_flag NOK_flag POK_flag
 Rmpz_abs Rmpz_add Rmpz_add_ui Rmpz_addmul Rmpz_addmul_ui Rmpz_and Rmpz_bin_ui
 Rmpz_bin_uiui Rmpz_bin_si Rmpz_cdiv_q Rmpz_cdiv_q_2exp Rmpz_cdiv_q_ui Rmpz_cdiv_qr
 Rmpz_cdiv_qr_ui Rmpz_cdiv_r Rmpz_cdiv_r_2exp Rmpz_cdiv_r_ui Rmpz_cdiv_ui
