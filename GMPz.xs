@@ -228,6 +228,22 @@ SV * Rmpz_init_set_si(pTHX_ SV * p) {
 }
 
 /* also handles UV values */
+
+void Rmpz_set_IV(pTHX_ mpz_t * copy, SV * original) {
+
+#ifndef MATH_GMPZ_NEED_LONG_LONG_INT
+     if(SV_IS_IOK(original)) {
+       if(SvUOK(original))   mpz_set_ui(*copy, SvUVX(original));
+       else mpz_set_si(*copy, SvIVX(original));
+     }
+     else croak("Arg provided to Rmpz_set_IV is not an IV");
+#else
+     if(SvUOK(original) || SV_IS_IOK(original)) mpz_set_str(*copy, SvPV_nolen(original), 10);
+     else croak("Arg provided to Rmpz_set_IV is not an IV");
+#endif
+}
+
+/* also handles UV values */
 SV * Rmpz_init_set_IV(pTHX_ SV * p) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
@@ -237,18 +253,10 @@ SV * Rmpz_init_set_IV(pTHX_ SV * p) {
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "Math::GMPz");
 
-#ifndef MATH_GMPZ_NEED_LONG_LONG_INT
-     if(SV_IS_IOK(p)) {
-       if(SvUOK(p))   mpz_init_set_ui(*mpz_t_obj, SvUVX(p));
-       else mpz_init_set_si(*mpz_t_obj, SvIVX(p));
-     }
-     else croak("Arg provided to Rmpz_init_set_IV is not an IV");
-#else
-     if(SvUOK(p) || SV_IS_IOK(p)) mpz_init_set_str(*mpz_t_obj, SvPV_nolen(p), 10);
-     else croak("Arg provided to Rmpz_init_set_IV is not an IV");
-#endif
+     mpz_init(*mpz_t_obj);
 
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     Rmpz_set_IV(aTHX_ mpz_t_obj, p);
      SvREADONLY_on(obj);
      return obj_ref;
 }
@@ -263,18 +271,10 @@ SV * Rmpz_init_set_IV_nobless(pTHX_ SV * p) {
      obj_ref = newSV(0);
      obj = newSVrv(obj_ref, "NULL");
 
-#ifndef MATH_GMPZ_NEED_LONG_LONG_INT
-     if(SV_IS_IOK(p)) {
-       if(SvUOK(p))   mpz_init_set_ui(*mpz_t_obj, SvUVX(p));
-       else mpz_init_set_si(*mpz_t_obj, SvIVX(p));
-     }
-     else croak("Arg provided to Rmpz_init_set_IV_nobless is not an IV");
-#else
-     if(SvUOK(p) || SV_IS_IOK(p)) mpz_init_set_str(*mpz_t_obj, SvPV_nolen(p), 10);
-     else croak("Arg provided to Rmpz_init_set_IV is not an IV");
-#endif
+     mpz_init(*mpz_t_obj);
 
      sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     Rmpz_set_IV(aTHX_ mpz_t_obj, p);
      SvREADONLY_on(obj);
      return obj_ref;
 }
@@ -430,20 +430,6 @@ NV Rmpz_get_NV(mpz_t * n) {
 }
 
 /* also handles UV values */
-
-void Rmpz_set_IV(pTHX_ mpz_t * copy, SV * original) {
-
-#ifndef MATH_GMPZ_NEED_LONG_LONG_INT
-     if(SV_IS_IOK(original)) {
-       if(SvUOK(original))   mpz_set_ui(*copy, SvUVX(original));
-       else mpz_set_si(*copy, SvIVX(original));
-     }
-     else croak("Arg provided to Rmpz_set_IV is not an IV");
-#else
-     if(SvUOK(original) || SV_IS_IOK(original)) mpz_set_str(*copy, SvPV_nolen(original), 10);
-     else croak("Arg provided to Rmpz_set_IV is not an IV");
-#endif
-}
 
 int Rmpz_cmp_IV(pTHX_ mpz_t * z, SV * iv) {
      int ret;
@@ -6503,6 +6489,23 @@ CODE:
   RETVAL = Rmpz_init_set_si (aTHX_ p);
 OUTPUT:  RETVAL
 
+void
+Rmpz_set_IV (copy, original)
+	mpz_t *	copy
+	SV *	original
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpz_set_IV(aTHX_ copy, original);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
 SV *
 Rmpz_init_set_IV (p)
 	SV *	p
@@ -6538,23 +6541,6 @@ Rmpz_get_d (n)
 NV
 Rmpz_get_NV (n)
 	mpz_t *	n
-
-void
-Rmpz_set_IV (copy, original)
-	mpz_t *	copy
-	SV *	original
-        PREINIT:
-        I32* temp;
-        PPCODE:
-        temp = PL_markstack_ptr++;
-        Rmpz_set_IV(aTHX_ copy, original);
-        if (PL_markstack_ptr != temp) {
-          /* truly void, because dXSARGS not invoked */
-          PL_markstack_ptr = temp;
-          XSRETURN_EMPTY; /* return empty stack */
-        }
-        /* must have used dXSARGS; list context implied */
-        return; /* assume stack size is correct */
 
 int
 Rmpz_cmp_IV (z, iv)
