@@ -1,6 +1,6 @@
 use strict;
 use warnings;
-use Math::GMPz qw(:mpz);
+use Math::GMPz qw(:mpz IOK_flag NOK_flag POK_flag);
 use Config;
 
 print "1..52\n";
