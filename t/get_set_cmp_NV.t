@@ -10,7 +10,7 @@
 use strict;
 use warnings;
 use Config;
-use Math::GMPz qw(:mpz);
+use Math::GMPz qw(:mpz NOK_flag);
 
 use Test::More;
 
