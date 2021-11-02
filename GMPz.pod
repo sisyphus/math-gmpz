@@ -201,8 +201,8 @@
     Set $rop to the value of $iv. (If $iv is an unsigned integer
     value then that unsigned value is assigned.)
     $iv must have its IOK flag set, or the function will croak.
-    IOK_flag($iv) will return a non-zero value if and only if
-    the IOK flag is set.
+    Best to first check IOK_flag($iv), which will return a non-zero
+    value if and only if the IOK flag is set.
 
    Rmpz_set_NV($rop, $nv); # $nv is a perl floating point value (NV)
     Set $rop to the value of $nv. (First truncate to an integer if
@@ -210,8 +210,8 @@
     The program dies with an appropriate error message if $nv is
     Inf or NaN.
     $nv must have its NOK flag set, or the function will croak.
-    NOK_flag($nv) will return a non-zero value if and only if
-    the NOK flag is set.
+    Best to first check NOK_flag($nv), which will return a non-zero
+    value if and only if the NOK flag is set.
 
 
    Rmpz_swap($rop1, $rop2); # swap the values
@@ -646,13 +646,15 @@
     actual value held in the double/NV - not to the truncated
     integer value. Comparison to an Inf is allowed, but
     comparison to a NaN is a fatal error.
-    NOTE:
-         Rmpz_cmp_IV() and Rmpfr_cmp_NV() require that the 2nd
-         argument has it's IOK/NOK flag set - otherwise the
-         function croaks.
-         IOK_flag($iv) and IOK_flag($nv) return a non-zero value
-         if and only if the flag in question is set.
 
+    NOTE:
+         Rmpz_cmp_IV() requires that the 2nd argument has its IOK
+         flag set, and Rmpz_cmp_NV() requires that the 2nd
+         argument has its NOK flag set.
+         Otherwise these functions croak.
+         Suggestion: first check the status of the flag using
+         IOK_flag($iv) or NOK_flag($nv),which return a non-zero
+         value if and only if the flag in question is set.
 
    $si = Rmpz_cmpabs($op1, $op2);
    $si = Rmpz_cmpabs_d($op, $double);
