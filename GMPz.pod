@@ -746,11 +746,11 @@
     is different (to match the order of the mpz_out_str args).
     To print to STDERR:
        TRmpz_out_str(*stderr, $base, $digits, $op);
-    To print to an open filehandle (let's call it FH):
-       TRmpz_out_str(\*FH, $base, $digits, $op);
+    To print to an open filehandle (let's call it $fh):
+       TRmpz_out_str(\*$fh, $base, $digits, $op);
 
-   $bytes_written = Rmpz_out_raw(\*FH, $op);
-    Output $op to filehandle FH, in raw binary format. The integer is
+   $bytes_written = Rmpz_out_raw(\*$fh, $op);
+    Output $op to filehandle $fh, in raw binary format. The integer is
     written in a portable format, with 4 bytes of size information, and
     that many bytes of limbs. Both the size and the limbs are written
     in decreasing significance order (i.e., in big-endian). The output
@@ -772,11 +772,11 @@
     from somewhere other than STDIN.
     To read from STDIN:
        TRmpz_inp_str($rop, *stdin, $base);
-    To read from an open filehandle (let's call it FH):
-       TRmpz_inp_str($rop, \*FH, $base);
+    To read from an open filehandle (let's call it $fh):
+       TRmpz_inp_str($rop, \*$fh, $base);
 
-    $bytes_read = Rmpz_inp_raw($rop, \*FH);
-     Input from filehandle FH in the format written by Rmpz_out_raw,
+    $bytes_read = Rmpz_inp_raw($rop, \*$fh);
+     Input from filehandle $fh in the format written by Rmpz_out_raw,
      and put the result in $rop. Return the number of bytes read, or
      if an error occurred, return 0.
 
