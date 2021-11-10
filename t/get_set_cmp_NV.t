@@ -74,6 +74,7 @@ cmp_ok($z, '==', 0, "Rmpz_set_NV set correctly for 0 >= NV > -1");
 for(1 .. 5000) {
 
   my $str = random_string();
+
   my ($integerize, $check) = (0, 0);
 
   my $s = $str;
@@ -122,7 +123,19 @@ for(1 .. 5000) {
   cmp_ok($z, '==', Math::GMPz->new($n), "Rmpz_set_NV and Rmpz_init_set_NV assign identical values");
 
   unless($dd) { #  Perl's int() function is buggy on my DoubleDouble builds.
-    cmp_ok(Rmpz_get_NV($z), '==', $check, "Rmpz_get_NV handles $str correctly" );
+
+    my $nv = Rmpz_get_NV($z);
+
+    unless($Config{nvsize} == $Config{ivsize} && $] < 5.030 && $nv < 1e20 && $nv > 1e15) {
+      # pre-5.30.0 versions of perl might mis-assign values.
+      # If a mis-assignment of a value in the (approximate)
+      # range 1e15 .. 1e20 occurs on a perl whose ivsize and
+      # nvsize are both 8 then this test is invalidated
+      # and could register a fail. So we skip it.
+
+      cmp_ok($nv, '==', $check, "Rmpz_get_NV handles $str correctly" );
+    }
+
     if(NOK_flag($check)) {
       cmp_ok(Rmpz_cmp_NV($z, $check), '==', 0, "Rmpz_cmp_NV compares $str correctly");
     }
@@ -226,4 +239,7 @@ sub random_string_big_exponent {
 }
 
 __END__
-
+1.545143676791001168350990143070476153e19
+1.088355858462611894930586880325393409e19
+1.147387420406408722255266019251435023e18
+1.069080449043293909274989126610866662e17
