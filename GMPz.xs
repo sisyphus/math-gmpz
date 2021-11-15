@@ -52,7 +52,7 @@ int _is_infstring(char * s) {
 
 SV * Rmpz_init_set_str_nobless(pTHX_ SV * num, SV * base) {
      mpz_t * mpz_t_obj;
-     unsigned long b = SvUV(base);
+     int b = (int)SvUV(base);
      SV * obj_ref, * obj;
 
      if(b == 1 || b > 62) croak("Second argument supplied to Rmpz_init_set_str_nobless is not in acceptable range");
@@ -639,7 +639,7 @@ SV * Rmpz_init_set_NV_nobless(pTHX_ SV * p) {
 
 SV * Rmpz_init_set_str(pTHX_ SV * num, SV * base) {
      mpz_t * mpz_t_obj;
-     unsigned long b = SvUV(base);
+     int b = (int)SvUV(base);
      SV * obj_ref, * obj;
 
      if(b == 1 || b > 62) croak("Second argument supplied to Rmpz_init_set_str is not in acceptable range");
@@ -6219,7 +6219,7 @@ void autocorrelation(pTHX_ mpz_t * bitstream, int offset) {
        mpz_mul_2exp(temp, temp, 19999);
        mpz_add(*bitstream, *bitstream, temp);
      }
-     if(mpz_sizeinbase(*bitstream, 2) != 20000) croak("Bit sequence has length of %d bits in autocorrelation function", mpz_sizeinbase(*bitstream, 2));
+     if(mpz_sizeinbase(*bitstream, 2) != 20000) croak("Bit sequence has length of %d bits in autocorrelation function", (int)mpz_sizeinbase(*bitstream, 2));
 
      index = 19999 - offset;
      for(i = 0; i < index - 1; ++i) {
@@ -6265,7 +6265,7 @@ int autocorrelation_20000(pTHX_ mpz_t * bitstream, int offset) {
       mpz_mul_2exp(temp, temp, 19999 + offset);
       mpz_add(*bitstream, *bitstream, temp);
     }
-   if(mpz_sizeinbase(*bitstream, 2) != 20000 + offset) croak("Bit sequence has length of %d bits in autocorrelation_20000 function; should have size of %d bits", mpz_sizeinbase(*bitstream, 2), 20000 + offset);
+   if(mpz_sizeinbase(*bitstream, 2) != 20000 + offset) croak("Bit sequence has length of %d bits in autocorrelation_20000 function; should have size of %d bits", (int)mpz_sizeinbase(*bitstream, 2), 20000 + offset);
 
     for(i = 0; i < 19999; ++i) {
       if(mpz_tstbit(*bitstream, i) ^ mpz_tstbit(*bitstream, i + offset)) count += 1;
