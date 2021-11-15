@@ -100,7 +100,8 @@ Rmpz_perfect_power_p Rmpz_perfect_square_p
 Rmpz_popcount Rmpz_pow_ui Rmpz_powm Rmpz_powm_sec Rmpz_powm_ui Rmpz_printf
 Rmpz_probab_prime_p Rmpz_realloc2 Rmpz_remove Rmpz_root Rmpz_rootrem
 Rmpz_rrandomb Rmpz_scan0 Rmpz_scan1 Rmpz_set Rmpz_set_d Rmpz_set_f Rmpz_set_q
-Rmpz_set_si Rmpz_set_str Rmpz_set_ui Rmpz_setbit Rmpz_sgn Rmpz_si_kronecker
+Rmpz_set_si Rmpz_set_sj Rmpz_set_str Rmpz_set_ui Rmpz_set_uj
+Rmpz_setbit Rmpz_sgn Rmpz_si_kronecker
 Rmpz_size Rmpz_sizeinbase Rmpz_sqrt Rmpz_sqrtrem Rmpz_sub Rmpz_sub_ui
 Rmpz_submul Rmpz_submul_ui Rmpz_swap Rmpz_tdiv_q Rmpz_tdiv_q_2exp
 Rmpz_tdiv_q_ui Rmpz_tdiv_qr Rmpz_tdiv_qr_ui Rmpz_tdiv_r Rmpz_tdiv_r_2exp
@@ -164,7 +165,8 @@ Rmpz_perfect_power_p Rmpz_perfect_square_p
 Rmpz_popcount Rmpz_pow_ui Rmpz_powm Rmpz_powm_sec Rmpz_powm_ui Rmpz_printf
 Rmpz_probab_prime_p Rmpz_realloc2 Rmpz_remove Rmpz_root Rmpz_rootrem
 Rmpz_rrandomb Rmpz_scan0 Rmpz_scan1 Rmpz_set Rmpz_set_d Rmpz_set_f Rmpz_set_q
-Rmpz_set_si Rmpz_set_str Rmpz_set_ui Rmpz_setbit Rmpz_sgn Rmpz_si_kronecker
+Rmpz_set_si Rmpz_set_sj Rmpz_set_str Rmpz_set_ui Rmpz_set_uj
+Rmpz_setbit Rmpz_sgn Rmpz_si_kronecker
 Rmpz_size Rmpz_sizeinbase Rmpz_sqrt Rmpz_sqrtrem Rmpz_sub Rmpz_sub_ui
 Rmpz_submul Rmpz_submul_ui Rmpz_swap Rmpz_tdiv_q Rmpz_tdiv_q_2exp
 Rmpz_tdiv_q_ui Rmpz_tdiv_qr Rmpz_tdiv_qr_ui Rmpz_tdiv_r Rmpz_tdiv_r_2exp
