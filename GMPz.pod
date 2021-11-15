@@ -178,6 +178,14 @@
    Rmpz_set_ui($rop, $ui);
     Assign the 'unsigned int', $ui, to $rop.
 
+   Rmpz_set_sj($rop, $sj); # GMP does not provide mpz_set_sj
+    Assign the 'signed long long int', $sj, to $rop.
+    Available only if $Config{ivtype} is 'long long'.
+
+   Rmpz_set_uj($rop, $uj); # GMP does not provide mpz_set_uj
+    Assign the 'unsigned long long int', $uj, to $rop.
+    Available only if $Config{ivtype} is 'long long'.
+
    Rmpz_set_d($rop, $double);
     Assign $double to $rop. (First truncate to an integer if $double
     does not contain an integer value.)
