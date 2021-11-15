@@ -12,6 +12,8 @@ Revision history for Perl module Math::GMPz
  - Remove Rmpz_fits_UV_p. UVs are now also handled by Rmpz_fits_IV_p - which is how things
    should have been done in the first place.
  - Add IOK_flag(), NOK_flag(), POK_flag() functions.
+ - Add Rmpz_set_sj and Rmpz_set_sj (despite that the gmp library provides neither mpz_set_sj
+   nor mpz_set_uj).
 
 0.51
  - Add Test::Warn to PREREQ_PM in Makefile.PL. (Overlooked in previous release.)
