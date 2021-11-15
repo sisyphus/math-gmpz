@@ -227,20 +227,52 @@ SV * Rmpz_init_set_si(pTHX_ SV * p) {
      return obj_ref;
 }
 
+void Rmpz_set_uj(mpz_t * copy, UV original) {
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
+     mpz_set_ui(*copy, original >> 32);
+     if(mpz_cmp_ui(*copy, 0))
+       mpz_mul_2exp(*copy, *copy, 32);
+     mpz_add_ui(*copy, *copy, original & 4294967295);
+
+#else
+     croak("Rmpz_set_uj function not implemented on this build of perl");
+
+#endif
+
+}
+
+void Rmpz_set_sj(mpz_t * copy, IV original) {
+#ifdef MATH_GMPZ_NEED_LONG_LONG_INT
+     if(original >= 0) Rmpz_set_uj(copy, original);
+     else {
+       Rmpz_set_uj(copy, -original);
+       mpz_neg(*copy, *copy);
+     }
+
+#else
+     croak("Rmpz_set_sj function not implemented on this build of perl");
+
+#endif
+
+}
+
 /* also handles UV values */
 
 void Rmpz_set_IV(pTHX_ mpz_t * copy, SV * original) {
 
-#ifndef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(original)) {
+#ifndef MATH_GMPZ_NEED_LONG_LONG_INT
        if(SvUOK(original))   mpz_set_ui(*copy, SvUVX(original));
        else mpz_set_si(*copy, SvIVX(original));
      }
-     else croak("Arg provided to Rmpz_set_IV is not an IV");
+
 #else
-     if(SvUOK(original) || SV_IS_IOK(original)) mpz_set_str(*copy, SvPV_nolen(original), 10);
-     else croak("Arg provided to Rmpz_set_IV is not an IV");
+       if(SvUOK(original))   Rmpz_set_uj(copy, SvUVX(original));
+       else Rmpz_set_sj(copy, SvIVX(original));
+     }
+
 #endif
+     else croak("Arg provided to Rmpz_set_IV is not an IV");
 }
 
 /* also handles UV values */
@@ -2014,8 +2046,7 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-         croak(" Invalid string (%s) supplied to Math::GMPz::overload_mul", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
        return obj_ref;
      }
@@ -2155,8 +2186,7 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-         croak(" Invalid string (%s) supplied to Math::GMPz::overload_add", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
        return obj_ref;
      }
@@ -2304,8 +2334,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-         croak(" Invalid string (%s) supplied to Math::GMPz::overload_sub", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        if(third == &PL_sv_yes) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
        else mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
        return obj_ref;
@@ -2464,8 +2493,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-          croak(" Invalid string (%s) supplied to Math::GMPz::overload_div", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        if(third == &PL_sv_yes) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
        else Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
        return obj_ref;
@@ -2624,8 +2652,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-          croak(" Invalid string (%s) supplied to Math::GMPz::overload_mod", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        if(third == &PL_sv_yes) {
          mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
          return obj_ref;
@@ -2962,8 +2989,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-         croak("Invalid string (%s) supplied to Math::GMPz::overload_and", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        mpz_and(*mpz_t_obj, *a, *mpz_t_obj);
        return obj_ref;
      }
@@ -3098,8 +3124,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-         croak("Invalid string (%s) supplied to Math::GMPz::overload_ior", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        mpz_ior(*mpz_t_obj, *a, *mpz_t_obj);
        return obj_ref;
      }
@@ -3234,8 +3259,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
-       if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
-         croak("Invalid string (%s) supplied to Math::GMPz::overload_xor", SvPV_nolen(b));
+       Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        mpz_xor(*mpz_t_obj, *a, *mpz_t_obj);
        return obj_ref;
      }
@@ -6488,6 +6512,40 @@ Rmpz_init_set_si (p)
 CODE:
   RETVAL = Rmpz_init_set_si (aTHX_ p);
 OUTPUT:  RETVAL
+
+void
+Rmpz_set_uj (copy, original)
+	mpz_t *	copy
+	UV	original
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpz_set_uj(copy, original);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
+
+void
+Rmpz_set_sj (copy, original)
+	mpz_t *	copy
+	IV	original
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        Rmpz_set_sj(copy, original);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 void
 Rmpz_set_IV (copy, original)
