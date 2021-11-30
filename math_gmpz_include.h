@@ -15,9 +15,7 @@
 #endif
 
 #if defined MATH_GMPZ_NEED_LONG_LONG_INT
-#ifndef _MSC_VER
 #include <inttypes.h>
-#endif
 #endif
 
 #ifdef OLDPERL
