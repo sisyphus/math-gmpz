@@ -5802,14 +5802,10 @@ int _has_float128(void) {
 
 /* Has inttypes.h been included ? */
 int _has_inttypes(void) {
-#ifdef _MSC_VER
-return 0;
-#else
 #if defined MATH_GMPZ_NEED_LONG_LONG_INT
 return 1;
 #else
 return 0;
-#endif
 #endif
 }
 
