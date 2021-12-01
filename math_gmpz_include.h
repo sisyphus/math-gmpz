@@ -10,9 +10,11 @@
 #define mp_bitcnt_t unsigned long int
 #endif
 
+/*
 #ifdef _MSC_VER
 #pragma warning(disable:4700 4715 4716)
 #endif
+*/
 
 #if defined MATH_GMPZ_NEED_LONG_LONG_INT
 #include <inttypes.h>
