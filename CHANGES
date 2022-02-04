@@ -1,6 +1,8 @@
 Revision history for Perl module Math::GMPz
 
 0.53
+ - Fix https://github.com/sisyphus/math-decimal64/pull/1 (also aplies to Math::GMPz)
+   Thanks to @hiratara
  - Remove all references to _MSC_VER
  - Correct the SYNOPSIS in GMPz.pod. (The :primes and :supp tags no longer exist.)
    Thanks, Peter Acklam.
