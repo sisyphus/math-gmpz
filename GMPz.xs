@@ -2335,14 +2335,14 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
        Rmpz_set_IV(aTHX_ mpz_t_obj, b);
-       if(third == &PL_sv_yes) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
+       if(SWITCH_ARGS) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
        else mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
        return obj_ref;
      }
 #else
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
-         if(third == &PL_sv_yes) {
+         if(SWITCH_ARGS) {
            mpz_ui_sub(*mpz_t_obj, SvUVX(b), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
            return obj_ref;
          }
@@ -2351,7 +2351,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(SvIV(b) >= 0) {
-         if(third == &PL_sv_yes) {
+         if(SWITCH_ARGS) {
            mpz_ui_sub(*mpz_t_obj, SvIVX(b), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
            return obj_ref;
            }
@@ -2359,7 +2359,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
        mpz_add_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvIVX(b) * -1);
-       if(third == &PL_sv_yes) mpz_neg(*mpz_t_obj, *mpz_t_obj);
+       if(SWITCH_ARGS) mpz_neg(*mpz_t_obj, *mpz_t_obj);
        return obj_ref;
      }
 #endif
@@ -2367,7 +2367,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      if(SV_IS_POK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
          croak(" Invalid string (%s) supplied to Math::GMPz::overload_sub", SvPV_nolen(b));
-       if(third == &PL_sv_yes) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
+       if(SWITCH_ARGS) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
        else mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
        return obj_ref;
      }
@@ -2414,7 +2414,7 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_sub, cannot coerce an Inf to a Math::GMPz value");
        mpz_set_d(*mpz_t_obj, SvNVX(b));
 #endif
-       if(third == &PL_sv_yes) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
+       if(SWITCH_ARGS) mpz_sub(*mpz_t_obj, *mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
        else mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
        return obj_ref;
      }
@@ -2494,14 +2494,14 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
        Rmpz_set_IV(aTHX_ mpz_t_obj, b);
-       if(third == &PL_sv_yes) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
+       if(SWITCH_ARGS) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
        else Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
        return obj_ref;
      }
 #else
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
-         if(third == &PL_sv_yes) {
+         if(SWITCH_ARGS) {
            mpz_set_ui(*mpz_t_obj, SvUVX(b));
            Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
            return obj_ref;
@@ -2511,7 +2511,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(SvIVX(b) >= 0) {
-         if(third == &PL_sv_yes) {
+         if(SWITCH_ARGS) {
            mpz_set_si(*mpz_t_obj, SvIVX(b));
            Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
            return obj_ref;
@@ -2520,7 +2520,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          return obj_ref;
        }
 
-       if(third == &PL_sv_yes) {
+       if(SWITCH_ARGS) {
          mpz_set_si(*mpz_t_obj, SvIVX(b));
          Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
          return obj_ref;
@@ -2535,7 +2535,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      if(SV_IS_POK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string (%s) supplied to Math::GMPz::overload_div", SvPV_nolen(b));
-       if(third == &PL_sv_yes) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
+       if(SWITCH_ARGS) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
        else Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
        return obj_ref;
      }
@@ -2582,7 +2582,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_div, cannot coerce an Inf to a Math::GMPz value");
        mpz_set_d(*mpz_t_obj, d);
 #endif
-       if(third == &PL_sv_yes) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
+       if(SWITCH_ARGS) Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));
        else Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
        return obj_ref;
      }
@@ -2653,7 +2653,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
        Rmpz_set_IV(aTHX_ mpz_t_obj, b);
-       if(third == &PL_sv_yes) {
+       if(SWITCH_ARGS) {
          mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
          return obj_ref;
        }
@@ -2663,7 +2663,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
 #else
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
-         if(third == &PL_sv_yes) {
+         if(SWITCH_ARGS) {
            mpz_set_ui(*mpz_t_obj, SvUVX(b));
            mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
            return obj_ref;
@@ -2673,7 +2673,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
        }
 
        mpz_set_si(*mpz_t_obj, SvIVX(b));
-       if(third == &PL_sv_yes) {
+       if(SWITCH_ARGS) {
          mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
          return obj_ref;
        }
@@ -2685,7 +2685,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      if(SV_IS_POK(b)) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string (%s) supplied to Math::GMPz::overload_mod", SvPV_nolen(b));
-       if(third == &PL_sv_yes) {
+       if(SWITCH_ARGS) {
          mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
          return obj_ref;
        }
@@ -2735,7 +2735,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("In Math::GMPz::overload_mod, cannot coerce an Inf to a Math::GMPz value");
        mpz_set_d(*mpz_t_obj, d);
 #endif
-       if(third == &PL_sv_yes) {
+       if(SWITCH_ARGS) {
          mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
          return obj_ref;
        }
@@ -2894,7 +2894,7 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
-         if(third == &PL_sv_yes) {
+         if(SWITCH_ARGS) {
            if(ui) {
              mpz_ui_pow_ui(*mpz_t_obj, (unsigned long)SvUVX(b), ui);
              return obj_ref;
@@ -2906,7 +2906,7 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
        }
 
        if(SvIVX(b) < 0) croak("Negative argument supplied to Math::GMPz::overload_pow");
-       if(third == &PL_sv_yes) {
+       if(SWITCH_ARGS) {
          if(ui) {
            mpz_ui_pow_ui(*mpz_t_obj, (unsigned long)SvUVX(b), ui);
            return obj_ref;
@@ -3398,7 +3398,7 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_IOK(b)) {
        ret = Rmpz_cmp_IV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3415,14 +3415,14 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("Invalid string (%s) supplied to Math::GMPz::overload_gt", SvPV_nolen(b));
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
      }
 
      if(SV_IS_NOK(b)) {
        ret = Rmpz_cmp_NV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret > 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3470,7 +3470,7 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
          mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
-         /* if(third == &PL_sv_yes) ret *= -1; */
+         /* if(SWITCH_ARGS) ret *= -1; */
          if(ret > 0) return newSViv(1);
          return newSViv(0);
        }
@@ -3487,7 +3487,7 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_IOK(b)) {
        ret = Rmpz_cmp_IV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3503,14 +3503,14 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("Invalid string (%s) supplied to Math::GMPz::overload_gte", SvPV_nolen(b));
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
      }
 
      if(SV_IS_NOK(b)) {
        ret = Rmpz_cmp_NV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret >= 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3558,7 +3558,7 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
          mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
-         /* if(third == &PL_sv_yes) ret *= -1; */
+         /* if(SWITCH_ARGS) ret *= -1; */
          if(ret >= 0) return newSViv(1);
          return newSViv(0);
        }
@@ -3575,7 +3575,7 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_IOK(b)) {
        ret = Rmpz_cmp_IV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3591,14 +3591,14 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("Invalid string (%s) supplied to Math::GMPz::overload_lt", SvPV_nolen(b));
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
      }
 
      if(SV_IS_NOK(b)) {
        ret = Rmpz_cmp_NV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret < 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3646,7 +3646,7 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
          mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
-         /* if(third == &PL_sv_yes) ret *= -1; */
+         /* if(SWITCH_ARGS) ret *= -1; */
          if(ret < 0) return newSViv(1);
          return newSViv(0);
        }
@@ -3663,7 +3663,7 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_IOK(b)) {
        ret = Rmpz_cmp_IV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3679,14 +3679,14 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("Invalid string (%s) supplied to Math::GMPz::overload_lte", SvPV_nolen(b));
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
      }
 
      if(SV_IS_NOK(b)) {
        ret = Rmpz_cmp_NV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        if(ret <= 0) return newSViv(1);
        return newSViv(0);
      }
@@ -3734,7 +3734,7 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
          mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
-         /* if(third == &PL_sv_yes) ret *= -1; */
+         /* if(SWITCH_ARGS) ret *= -1; */
          if(ret <= 0) return newSViv(1);
          return newSViv(0);
        }
@@ -3751,7 +3751,7 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SV_IS_IOK(b)) {
        ret = Rmpz_cmp_IV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        return newSViv(ret);
      }
 
@@ -3763,13 +3763,13 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
          croak("Invalid string (%s) supplied to Math::GMPz::overload_spaceship", SvPV_nolen(b));
        ret = mpz_cmp(*a, t);
        mpz_clear(t);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        return newSViv(ret);
      }
 
      if(SV_IS_NOK(b)) {
        ret = Rmpz_cmp_NV(aTHX_ a, b);
-       if(third == &PL_sv_yes) ret *= -1;
+       if(SWITCH_ARGS) ret *= -1;
        return newSViv(ret);
      }
 
@@ -3811,7 +3811,7 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
          mpz_init_set_str(t, SvPV_nolen(b), 0);
          ret = mpz_cmp(*a, t);
          mpz_clear(t);
-         /* if(third == &PL_sv_yes) ret *= -1; */
+         /* if(SWITCH_ARGS) ret *= -1; */
          return newSViv(ret);
        }
      }
