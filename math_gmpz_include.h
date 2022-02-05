@@ -33,7 +33,7 @@
 #endif
 
 /* A perl bug in perl-5.20 onwards can break &PL_sv_yes and  *
- * &PL_sv_no in. In the overload subs we therefore instead   *
+ * &PL_sv_no. In the overload subs we therefore instead      *
  * use  SvTRUE_nomg_NN where possible, which is available    *
  * beginning with perl-5.18.0.                               *
  * Otherwise we continue using &PL_sv_yes as original        *
