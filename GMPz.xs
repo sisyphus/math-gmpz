@@ -6059,7 +6059,7 @@ int Rlong_run(mpz_t * bitstream) {
         }
 
     if(init < 34 && count < 34) return 1;
-    else warn("init: %u count: %u", init, count);
+    else warn("init: %u count: %u", (int)init, (int)count);
     return 0;
 
 }
