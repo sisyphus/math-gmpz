@@ -1,5 +1,7 @@
 Revision history for Perl module Math::GMPz
 
+0.54
+
 0.53
  - Fix https://github.com/sisyphus/math-decimal64/pull/1 (also aplies to Math::GMPz)
    Thanks to @hiratara
