@@ -2925,7 +2925,7 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
          if(SWITCH_ARGS) {
-           if(ui) {
+           if(ui && SvUVX(b) <= (UV)ULONG_MAX) {
              mpz_ui_pow_ui(*mpz_t_obj, (unsigned long)SvUVX(b), ui);
              return obj_ref;
            }
