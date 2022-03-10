@@ -183,7 +183,7 @@ else {
 $ret = Math::GMPz->new(10);
 
 eval{$ret *=  $inf };
-if($@ =~ /In Math::GMPz::overload_mul_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 25\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 25\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 25\n";
@@ -197,7 +197,7 @@ else {
 }
 
 eval{$ret *=  $nan };
-if($@ =~ /In Math::GMPz::overload_mul_eq, cannot coerce a NaN to a Math::GMPz value/) {print "ok 27\n"}
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 27\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 27\n";
@@ -269,7 +269,7 @@ else {
 }
 
 eval{$ret -=  $inf };
-if($@ =~ /In Math::GMPz::overload_sub_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 37\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 37\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 37\n";
@@ -283,7 +283,7 @@ else {
 }
 
 eval{$ret -=  $nan };
-if($@ =~ /In Math::GMPz::overload_sub_eq, cannot coerce a NaN to a Math::GMPz value/) {print "ok 39\n"}
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 39\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 39\n";
@@ -312,7 +312,7 @@ else {
 }
 
 eval{$ret /=  $inf };
-if($@ =~ /In Math::GMPz::overload_div_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 43\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 43\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 43\n";
@@ -326,7 +326,7 @@ else {
 }
 
 eval{$ret /=  $nan };
-if($@ =~ /In Math::GMPz::overload_div_eq, cannot coerce a NaN to a Math::GMPz value/) {print "ok 45\n"}
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 45\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 45\n";
@@ -932,14 +932,14 @@ else {
 }
 
 eval{$ret &=  $inf };
-if($@ =~ /In Math::GMPz::overload_and_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 125\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 125\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 125\n";
 }
 
 eval{$ret &=  -$inf };
-if($@ =~ /In Math::GMPz::overload_and_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 126\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 126\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 126\n";
@@ -953,7 +953,7 @@ else {
 }
 
 eval{$ret &=  $nan };
-if($@ =~ /In Math::GMPz::overload_and_eq, cannot coerce a NaN to a Math::GMPz value/) {print "ok 128\n"}
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 128\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 128\n";
@@ -974,14 +974,14 @@ else {
 }
 
 eval{$ret |=  $inf };
-if($@ =~ /In Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 131\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 131\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 131\n";
 }
 
 eval{$ret |=  -$inf };
-if($@ =~ /In Math::GMPz::overload_ior_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 132\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 132\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 132\n";
@@ -995,7 +995,7 @@ else {
 }
 
 eval{$ret |=  $nan };
-if($@ =~ /In Math::GMPz::overload_ior_eq, cannot coerce a NaN to a Math::GMPz value/) {print "ok 134\n"}
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 134\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 134\n";
@@ -1016,14 +1016,14 @@ else {
 }
 
 eval{$ret ^=  $inf };
-if($@ =~ /In Math::GMPz::overload_xor_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 137\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 137\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 137\n";
 }
 
 eval{$ret ^=  -$inf };
-if($@ =~ /In Math::GMPz::overload_xor_eq, cannot coerce an Inf to a Math::GMPz value/) {print "ok 138\n"}
+if($@ =~ /cannot coerce an Inf to a Math::GMPz value/) {print "ok 138\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 138\n";
@@ -1037,7 +1037,7 @@ else {
 }
 
 eval{$ret ^=  $nan };
-if($@ =~ /In Math::GMPz::overload_xor_eq, cannot coerce a NaN to a Math::GMPz value/) {print "ok 140\n"}
+if($@ =~ /cannot coerce a NaN to a Math::GMPz value/) {print "ok 140\n"}
 else {
   warn "\n\$\@: $@\n";
   print "not ok 140\n";
