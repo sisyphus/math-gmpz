@@ -97,7 +97,7 @@ else {
 }
 
 # Next, we check to see whether there's some unhelpful beaviour regarding
-# the setting of the POK flag.
+# the setting of the POK flag - but only if $] < 5.035010.
 # This typically occurs in versions of perl prior to 5.22.0, but it can
 # arise elsewhere, eg:
 # http://www.cpantesters.org/cpan/report/dc4f8aec-900b-11ec-bfc9-d1f1448276d4
@@ -105,50 +105,53 @@ else {
 # https://metacpan.org/release/HAARG/Sub-Quote-2.006006/source/t/quotify.t
 # Thank you, Haarg.
 
-use B qw(svref_2object);
+if($] < 5.035010) {
+  use B qw(svref_2object);
 
-my %flags;
-{
-  no strict 'refs';
-  for my $flag (qw(
-    SVf_IOK
-    SVf_NOK
-    SVf_POK
-    SVp_IOK
-    SVp_NOK
-    SVp_POK
-            )) {
-    if (defined &{'B::'.$flag}) {
-      $flags{$flag} = &{'B::'.$flag};
+  my %flags;
+  {
+    no strict 'refs';
+    for my $flag (qw(
+      SVf_IOK
+      SVf_NOK
+      SVf_POK
+      SVp_IOK
+      SVp_NOK
+      SVp_POK
+              )) {
+      if (defined &{'B::'.$flag}) {
+       $flags{$flag} = &{'B::'.$flag};
+      }
     }
   }
-}
 
-sub flags {
-  my $flags = B::svref_2object(\($_[0]))->FLAGS;
-  join ' ', sort grep $flags & $flags{$_}, keys %flags;
-}
+  sub flags {
+    my $flags = B::svref_2object(\($_[0]))->FLAGS;
+    join ' ', sort grep $flags & $flags{$_}, keys %flags;
+  }
 
-my $pv_nv_bug = 0;
-my $test_nv = 1.3;
-my $buggery = "$test_nv";
-my $f = flags($test_nv);
+  my $pv_nv_bug = 0;
+  my $test_nv = 1.3;
+  my $buggery = "$test_nv";
+  my $f = flags($test_nv);
 
-if($f =~ /SVf_POK/) {
-  print "Dealing with unhelpful setting of POK flag\n";
-  $pv_nv_bug = 1;
+  if($f =~ /SVf_POK/) {
+    print "Dealing with unhelpful setting of POK flag\n";
+    $pv_nv_bug = 1;
+  }
+
+  if($pv_nv_bug) {
+    print "\n Defining GMPZ_PV_NV_BUG\n\n";
+    $options{DEFINE} .= " -DGMPZ_PV_NV_BUG";
+    $DEFS    .= " -DGMPZ_PV_NV_BUG";
+  }
+  else {
+    print "\n Not defining GMPZ_PV_NV_BUG\n\n";
+  }
 }
+else { print "Not defining GMPZ_PV_NV_BUG as perl version >= 5.035010\n\n" }
 
 ####################################
-
-if($pv_nv_bug) {
-  print "\n Defining GMPZ_PV_NV_BUG\n\n";
-  $options{DEFINE} .= " -DGMPZ_PV_NV_BUG";
-  $DEFS    .= " -DGMPZ_PV_NV_BUG";
-}
-else {
-  print "\n Not defining GMPZ_PV_NV_BUG\n\n";
-}
 
 WriteMakefile(%options);
 
