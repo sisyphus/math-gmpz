@@ -58,6 +58,10 @@ if($Config{sizesize} < $Config{ivsize}) { $defines .= " -D_GMP_SIZE_T_OVERFLOW" 
 if((2 ** 100) + (2 ** -100) > 2 ** 100) { $defines .= " -DNV_IS_DOUBLEDOUBLE";
                                           print "NV is doubledouble\n"          }
 
+my $libopts = '-lgmp';
+$libopts    = '-lquadmath -lgmp'
+  if ($^O eq 'cygwin' && $use_quadmath);
+
 my %options = (
   NAME => 'Math::GMPz',
   AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
@@ -65,7 +69,7 @@ my %options = (
   DEFINE   => $defines,
 
   LIBS => [
-    '-lgmp'
+    $libopts
   ],
 
   LICENSE  => 'perl',
