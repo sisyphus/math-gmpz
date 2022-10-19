@@ -38,7 +38,56 @@ if($Config::Config{nvsize} > 8 ) {
 $defines =~ /-DMATH_GMPZ_NEED_LONG_LONG_INT/ ? print "Building with 64-bit'long long' support\n"
                                               :print "Building without 64-bit 'long long' support\n";
 
+my $ld_broken = 0;
+# use of "%.0Lf" formatting is unreliable on Cygwin -Duselongdouble
+# builds of perl so we need to workaround that in mpz_set_NV.
+# The workaround is to use "%.0Qf" (libquadmath) formatting.
+$ld_broken = 1 if $^O =~ /cygwin/i && $Config{nvtype} eq 'long double' &&
+  sprintf("%.0f", 2 ** 1000) ne '10715086071862673209484250490600018105614048117055336074437503883703510511249361224931983788156958581275946729175531468251871452856923140435984577574698574803934567774824230985421074605062371141877954182153046474983581941267398767559165543946077062914571196477686542167660429831652624386837205668069376';
 
+########################################################
+# If $ld_broken is true then we need to ensure
+# that libquadmath will be found
+
+if($ld_broken) {
+  print "\nProbing (perhaps noisily) to see whether libquadmath is available:\n";
+  my($mycc, $mklib, $mkinc, $mylibpth) = ('', '', '', '') ;
+
+  if(@ARGV) {
+    for my $arg(@ARGV) {
+      $mycc   = (split /=/, $arg)[1] if $arg =~ /^cc=/i;
+      $mklib = (split /=/, $arg)[1] if $arg =~ /^libs=/i;
+    }
+  }
+
+  unless($mycc) {
+    $mycc = defined($Config{cc}) ? $Config{cc} : 'cc';
+  }
+
+  my @libpth = split /\s+/, $Config{libpth};
+  for(@libpth) { $mylibpth .= " -L$_" }
+  $mylibpth .= " -lquadmath";
+
+  my $mylibs = $mklib . " " . $mylibpth;
+
+  my $out = `$mycc -o f128.exe -x c f128.in $mylibs 2>&1`;
+
+  if(-e 'f128.exe') {
+    $out = $^O =~ /MSWin32/i ? `f128.exe` : `./f128.exe`;
+  }
+
+  unless($out =~ /^quadmath is GO!!/) {
+    print "Looking for the quadmath library resulted in:\n$out\n";
+    print "Not defining LD_PRINTF_BROKEN because I cannot find the quadmath library";
+    $ld_broken = 0;
+  }
+  else {
+    print "Building with -DLD_PRINTF_BROKEN\n";
+  }
+}
+########################################################
+
+$defines .= ' -DLD_PRINTF_BROKEN' if $ld_broken;
 
 $use_long_double == 1 ? print "Building with 'long double' support\n"
                       : print "Building without 'long double' support\n";
@@ -60,7 +109,7 @@ if((2 ** 100) + (2 ** -100) > 2 ** 100) { $defines .= " -DNV_IS_DOUBLEDOUBLE";
 
 my $libopts = '-lgmp';
 $libopts    = '-lquadmath -lgmp'
-  if ($^O eq 'cygwin' && $use_quadmath);
+  if ($^O eq 'cygwin' && ($use_quadmath || $ld_broken));
 
 my %options = (
   NAME => 'Math::GMPz',
@@ -74,15 +123,14 @@ my %options = (
 
   LICENSE  => 'perl',
   VERSION_FROM => 'GMPz.pm',
-
-  clean   => { FILES => 'out1.txt out2.txt out3.txt out4.txt out5.txt out6.txt out7.txt out21.txt out22.txt' },
-  META_MERGE => {
+  clean        => { FILES => '*.exe *.txt' },
+  META_MERGE   => {
    'meta-spec' => { version => 2 },
-    resources => {
+    resources  => {
       repository => {
         type => 'git',
-        url => 'https://github.com/sisyphus/math-gmpz.git',
-        web => 'https://github.com/sisyphus/math-gmpz',
+        url  => 'https://github.com/sisyphus/math-gmpz.git',
+        web  => 'https://github.com/sisyphus/math-gmpz',
       },
     },
   },
