@@ -537,11 +537,23 @@ void _mpf_set_dd(mpf_t * q, SV * p) {
 }
 
 void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
+#if defined(LD_PRINTF_BROKEN)
+   /* use quadmath_snprintf() instead of broken printf() */
+   __float128 nv;
+
+#else
    NV nv;
+
+#endif
 
 #if defined(USE_QUADMATH) || defined(USE_LONG_DOUBLE)
 #  if defined(NV_IS_DOUBLEDOUBLE)
      mpf_t f;
+
+#  elif defined(LD_PRINTF_BROKEN)
+     __float128 buffer_size;
+     int returned;
+     char * buffer;
 
 #  else
      NV buffer_size;
@@ -563,7 +575,7 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
      if(nv != 0 && (nv / nv != 1))
        croak("In Rmpz_set_NV, cannot coerce an Inf to a Math::GMPz value");
 
-#if defined(USE_QUADMATH)
+#if defined(USE_QUADMATH) || defined(LD_PRINTF_BROKEN)
      buffer_size = nv < 0.0Q ? nv * -1.0Q : nv;
      buffer_size = ceilq(logq(buffer_size + 1) / 2.30258509299404568401799145468436418Q);
 
@@ -1291,7 +1303,7 @@ int Rmpz_cmp_d(mpz_t * n, double d) {
 
 int Rmpz_cmp_NV(pTHX_ mpz_t * a, SV * b) {
 
-#if defined(USE_QUADMATH)
+#if defined(USE_QUADMATH) || defined(LD_PRINTF_BROKEN)
 
      char * buffer;
      int ret, returned;
@@ -5502,6 +5514,14 @@ int _has_pv_nv_bug(void) {
 #endif
 }
 
+int _ld_printf_broken(void) {
+#if defined(LD_PRINTF_BROKEN)
+     return 1;
+#else
+     return 0;
+#endif
+}
+
 
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
 
@@ -8600,5 +8620,9 @@ _gmp_index_overflow ()
 
 int
 _has_pv_nv_bug ()
+
+
+int
+_ld_printf_broken ()
 
 
