@@ -48,6 +48,7 @@ t/fdiv.t
 t/io_raw.t
 t/IV_UV_NV.t
 t/longdouble.t
+t/mpfr_NV_checks.t
 t/new.t
 t/NOK_and_POK.t
 t/not_zero.t
