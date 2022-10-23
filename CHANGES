@@ -1,6 +1,7 @@
 Revision history for Perl module Math::GMPz
 
 0.56
+ - Add new test file t/mpfr_NV_checks.t
 
 0.55
  - Simplify overloading of NVs by utilizing Rmpz_set_NV(). This also seems to fix the
