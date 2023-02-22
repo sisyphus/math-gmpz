@@ -1,8 +1,15 @@
 Revision history for Perl module Math::GMPz
 
+0.57
+
 0.56
  - Add new test file t/mpfr_NV_checks.t
  - Add Random/t/a_v_random.t
+ - Alter Rmpfr_get_z, Rmpfr_get_q and Rmpfr_get_f to croak if the Math::MPFR object
+   is Inf or Nan. The old behaviour followed the C behaviour - but that behaviour is
+   only rather confusing and somewhat pointless, IMO.
+ - Accommodate MS Visual Studio builds
+
 
 0.55
  - Simplify overloading of NVs by utilizing Rmpz_set_NV(). This also seems to fix the
