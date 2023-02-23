@@ -1,6 +1,7 @@
 Revision history for Perl module Math::GMPz
 
 0.57
+ - Fix bug in t/mpfr_NV_checks.t. (The script needs Math-MPFR-4.07 or later.)
 
 0.56
  - Add new test file t/mpfr_NV_checks.t
