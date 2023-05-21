@@ -3950,6 +3950,12 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
            return a;
          }
        }
+
+       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
+         if(strEQ(h, "Math::MPFR")) {
+           _overload_callback("Math::MPFR::overload_pow", "Math::GMPz:overload_pow", &PL_sv_yes);
+         }
+       }
      }
 
      SvREFCNT_dec(a);
@@ -4176,6 +4182,16 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
+       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
+         if(strEQ(h, "Math::GMPq")) {
+           _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
+         }
+
+         if(strEQ(h, "Math::MPFR")) {
+           _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
+         }
+       }
+
        if(strEQ(h, "Math::BigInt")) {
          VALIDATE_MBI_OBJECT {
          SvREFCNT_dec(a);
@@ -4264,6 +4280,16 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(strEQ(h, "Math::GMPz")) {
          mpz_sub(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
          return a;
+       }
+
+       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
+         if(strEQ(h, "Math::GMPq")) {
+           _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
+         }
+
+         if(strEQ(h, "Math::MPFR")) {
+           _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
+         }
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -4361,6 +4387,16 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
+       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
+         if(strEQ(h, "Math::GMPq")) {
+           _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add", newSViv(0));
+         }
+
+         if(strEQ(h, "Math::MPFR")) {
+           _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add", newSViv(0));
+         }
+       }
+
        if(strEQ(h, "Math::BigInt")) {
          VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
@@ -4449,6 +4485,16 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(strEQ(h, "Math::GMPz")) {
          mpz_mul(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
          return a;
+       }
+
+       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
+         if(strEQ(h, "Math::GMPq")) {
+           _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
+         }
+
+         if(strEQ(h, "Math::MPFR")) {
+           _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
+         }
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -5521,6 +5567,10 @@ int _ld_printf_broken(void) {
      return 0;
 #endif
 }
+
+
+
+
 
 
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
