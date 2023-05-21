@@ -1,6 +1,8 @@
 Revision history for Perl module Math::GMPz
 
 0.57
+ - Expand cross-class overloading to include +=, -=, *=, /=, and **= operations,
+   conditionally available only when $Math::GMPz::RETYPE has been set to 1.
  - Fix bug in t/mpfr_NV_checks.t. (The script needs Math-MPFR-4.07 or later.)
 
 0.56
