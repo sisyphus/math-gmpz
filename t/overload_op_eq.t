@@ -4,9 +4,9 @@
 # In these cases the operation returns a Math::GMPq
 # or (respectively) a Math::MPFR object if and only
 # if $Math::GMPz::RETYPE is set to a true value.
-# (For this to work with Math:MPFR objects it is
-# also necessary that the mpfr library was found when
-# Math::GMPz was being built.
+# Else a fatal error occurs if $Math::GMPz::RETYPE
+# is set to a false value. The initial value of
+# $Math::GMPz::RETYPE is 0 (false).
 
 use strict;
 use warnings;
@@ -32,23 +32,28 @@ $fr = Math::MPFR->new(17.1) if $have_mpfr;
 
 eval {$z *= $q;};
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_mul_eq/, '$z *= $q is illegal');
-eval {$z *= $fr;};
+eval {$z *= $fr;} if $have_mpfr;
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_mul_eq/, '$z *= $fr is illegal');
 
 eval {$z += $q;};
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_add_eq/, '$z += $q is illegal');
-eval {$z += $fr;};
+eval {$z += $fr;} if $have_mpfr;
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_add_eq/, '$z += $fr is illegal');
 
 eval {$z -= $q;};
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_sub_eq/, '$z -= $q is illegal');
-eval {$z -= $fr;};
+eval {$z -= $fr;} if $have_mpfr;
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_sub_eq/, '$z -= $fr is illegal');
 
 eval {$z /= $q;};
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_div_eq/, '$z /= $q is illegal');
-eval {$z /= $fr;};
+eval {$z /= $fr;} if $have_mpfr;
 like($@, qr/^Invalid argument supplied to Math::GMPz::overload_div_eq/, '$z /= $fr is illegal');
+
+eval {$z **= $q;};
+like($@, qr/^Invalid argument supplied to Math::GMPz::overload_pow_eq/, '$z /= $q is illegal');
+eval {$z **= $fr;} if $have_mpfr;
+like($@, qr/^Invalid argument supplied to Math::GMPz::overload_pow_eq/, '$z /= $fr is illegal');
 
 $Math::GMPz::RETYPE = 1;
 
