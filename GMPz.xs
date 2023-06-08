@@ -4010,16 +4010,12 @@ SV * overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_lshift_eq");
 }
 
-SV * overload_inc(pTHX_ SV * p, SV * second, SV * third) {
-     SvREFCNT_inc(p);
+void overload_inc(pTHX_ SV * p, SV * second, SV * third) {
      mpz_add_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), 1);
-     return p;
 }
 
-SV * overload_dec(pTHX_ SV * p, SV * second, SV * third) {
-     SvREFCNT_inc(p);
+void overload_dec(pTHX_ SV * p, SV * second, SV * third) {
      mpz_sub_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), 1);
-     return p;
 }
 
 SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
@@ -4050,7 +4046,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
          mpz_mod_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
          return a;
        }
-       mpz_init_set_si(t, SvIVX(b)); /* was SvNV(b) ?? */
+       mpz_init_set_si(t, SvIVX(b));
        mpz_mod(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t);
        mpz_clear(t);
        return a;
@@ -4097,7 +4093,6 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           /* if(strEQ("-", sign)) ...... not an issue for the divisor in a mod operation */
            mpz_mod(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mpz_srcptr)mpz);
            return a;
          }
@@ -8179,23 +8174,41 @@ CODE:
   RETVAL = overload_lshift_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
-SV *
+void
 overload_inc (p, second, third)
 	SV *	p
 	SV *	second
 	SV *	third
-CODE:
-  RETVAL = overload_inc (aTHX_ p, second, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        overload_inc(aTHX_ p, second, third);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
-SV *
+void
 overload_dec (p, second, third)
 	SV *	p
 	SV *	second
 	SV *	third
-CODE:
-  RETVAL = overload_dec (aTHX_ p, second, third);
-OUTPUT:  RETVAL
+        PREINIT:
+        I32* temp;
+        PPCODE:
+        temp = PL_markstack_ptr++;
+        overload_dec(aTHX_ p, second, third);
+        if (PL_markstack_ptr != temp) {
+          /* truly void, because dXSARGS not invoked */
+          PL_markstack_ptr = temp;
+          XSRETURN_EMPTY; /* return empty stack */
+        }
+        /* must have used dXSARGS; list context implied */
+        return; /* assume stack size is correct */
 
 SV *
 overload_mod_eq (a, b, third)
