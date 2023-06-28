@@ -232,6 +232,7 @@ void Rmpz_set_uj(mpz_t * copy, UV original) {
      mpz_set_ui(*copy, original >> 32);
      if(mpz_cmp_ui(*copy, 0))
        mpz_mul_2exp(*copy, *copy, 32);
+
      mpz_add_ui(*copy, *copy, original & 4294967295UL);
 
 #else
@@ -461,28 +462,53 @@ NV Rmpz_get_NV(mpz_t * n) {
 #endif
 }
 
+int Rmpz_cmp_uj(mpz_t * a, UV b) {
+#if defined(MATH_GMPZ_NEED_LONG_LONG_INT)
+    int ret;
+    mpz_t temp;
+    mpz_init2(temp, 64);
+
+    Rmpz_set_uj(&temp, b);
+    ret = mpz_cmp(*a, temp);
+    mpz_clear(temp);
+    return ret;
+#else
+    croak("Rmpz_cmp_uj is unavailable because MATH_GMPZ_NEED_LONG_LONG_INT is not defined");
+#endif
+}
+
+int Rmpz_cmp_sj(mpz_t * a, IV b) {
+#if defined(MATH_GMPZ_NEED_LONG_LONG_INT)
+    int ret;
+    mpz_t temp;
+    mpz_init2(temp, 64);
+
+    Rmpz_set_sj(&temp, b);
+    ret = mpz_cmp(*a, temp);
+    mpz_clear(temp);
+    return ret;
+#else
+    croak("Rmpz_cmp_sj is unavailable because MATH_GMPZ_NEED_LONG_LONG_INT is not defined");
+#endif
+}
+
 /* also handles UV values */
 
-int Rmpz_cmp_IV(pTHX_ mpz_t * z, SV * iv) {
-     int ret;
+int Rmpz_cmp_IV(pTHX_ mpz_t *a, SV * b) {
+    if(!SV_IS_IOK(b))
+      croak("Arg provided to Rmpz_cmp_IV is not an IV");
 
-#ifndef MATH_GMPZ_NEED_LONG_LONG_INT
-     if(SV_IS_IOK(iv)) {
-       if(SvUOK(iv)) ret =  mpz_cmp_ui(*z, SvUVX(iv));
-       else ret = mpz_cmp_si(*z, SvIVX(iv));
-       return ret;
-     }
-     else croak("Arg provided to Rmpz_cmp_IV is not an IV");
+#if defined(MATH_GMPZ_NEED_LONG_LONG_INT)
+    if(SvUOK(b)) {
+      return Rmpz_cmp_uj(a, SvUV(b));
+    }
+    return Rmpz_cmp_sj(a, SvIV(b));
 #else
-     mpz_t temp;
-     if(SV_IS_IOK(iv)) mpz_init_set_str(temp, SvPV_nolen(iv), 10);
-     else croak("Arg provided to Rmpz_cmp_IV is not an IV");
-     ret = mpz_cmp(*z, temp);
-     mpz_clear(temp);
-     return ret;
+    if(SvUOK(b)) {
+      return mpz_cmp_ui(*a, SvUV(b));
+    }
+    return mpz_cmp_si(*a, SvIV(b));
 #endif
-
-
 }
 
 SV * Rmpz_init_set_d(pTHX_ SV * p) {
@@ -5765,11 +5791,21 @@ Rmpz_get_NV (n)
 	mpz_t *	n
 
 int
-Rmpz_cmp_IV (z, iv)
-	mpz_t *	z
-	SV *	iv
+Rmpz_cmp_uj (a, b)
+	mpz_t *	a
+	UV	b
+
+int
+Rmpz_cmp_sj (a, b)
+	mpz_t *	a
+	IV	b
+
+int
+Rmpz_cmp_IV (a, b)
+	mpz_t *	a
+	SV *	b
 CODE:
-  RETVAL = Rmpz_cmp_IV (aTHX_ z, iv);
+  RETVAL = Rmpz_cmp_IV (aTHX_ a, b);
 OUTPUT:  RETVAL
 
 SV *
