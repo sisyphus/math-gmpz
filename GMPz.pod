@@ -647,6 +647,8 @@
    $si = Rmpz_cmp_IV($op, $iv); # $iv is an IV
    $si = Rmpz_cmp_si($op, $si);
    $si = Rmpz_cmp_ui($op, $ui);
+   $si = Rmpz_cmp_sj($op, $si); # Available if longsize < ivsize
+   $si = Rmpz_cmp_uj($op, $ui); # Available if longsize < ivsize
     Compare 1st and 2nd args.  Return a positive value if
     1st arg > 2nd arg, zero if 1st arg = 2nd arg, or a
     negative value if 1st arg < 2nd arg.
@@ -654,6 +656,8 @@
     actual value held in the double/NV - not to the truncated
     integer value. Comparison to an Inf is allowed, but
     comparison to a NaN is a fatal error.
+    Rmpz_cmp_sj and Rmpz_cmp_uj do not have gmp library counterparts
+    and are available only on perls where ivsize > longsize.
 
     NOTE:
          Rmpz_cmp_IV() requires that the 2nd argument has its IOK
