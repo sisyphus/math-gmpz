@@ -18,46 +18,107 @@ my $have_mpfr = 0;
 eval {require Math::MPFR;};
 $have_mpfr = 1 unless $@;
 
-my $have_gmpz = 0;
+my $have_gmpq = 0;
 eval {require Math::GMPq;};
-$have_gmpz = 1 unless $@;
+$have_gmpq = 1 unless $@;
 
 
-my $z  = Math::GMPz->new(123);
-my $q  = Math::GMPq->new('1/11');
+my $z1 = Math::GMPz->new(123);
+my $z2 = Math::GMPz->new(123);
+my $q = 0;
+$q  = Math::GMPq->new('1/11') if $have_gmpq;
 my $fr = 0;
 $fr = Math::MPFR->new(17.1) if $have_mpfr;
 
-# $Math::GMPz::RETYPE 0 (the default).
+eval {$z1 /= 0;};
+like($@, qr/^Division by 0 not allowed/, 'division by 0 is illegal');
 
-eval {$z *= $q;};
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_mul_eq/, '$z *= $q is illegal');
-eval {$z *= $fr;} if $have_mpfr;
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_mul_eq/, '$z *= $fr is illegal');
+cmp_ok($Math::GMPz::RETYPE, '==', 0, "retyping not allowed");
 
-eval {$z += $q;};
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_add_eq/, '$z += $q is illegal');
-eval {$z += $fr;} if $have_mpfr;
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_add_eq/, '$z += $fr is illegal');
+eval {$z1 *= $q;};
+if(ref($q)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_mul_eq/, '$z1 *= $q is illegal');
+}
+else {
+  cmp_ok($z1, '==', 0, "1: multiplication by scalar ok");
+}
+eval {$z2 *= $fr;};
+if(ref($fr)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_mul_eq/, '$z2 *= $fr is illegal');
+}
+else {
+  cmp_ok($z2, '==', 0, "2: multiplication by scalar ok");
+}
 
-eval {$z -= $q;};
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_sub_eq/, '$z -= $q is illegal');
-eval {$z -= $fr;} if $have_mpfr;
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_sub_eq/, '$z -= $fr is illegal');
+eval {$z1 += $q;};
+if(ref($q)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_add_eq/, '$z1 += $q is illegal');
+}
+else {
+  cmp_ok($z1, '==', 0, "1: addition of scalar ok");
+}
 
-eval {$z /= $q;};
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_div_eq/, '$z /= $q is illegal');
-eval {$z /= $fr;} if $have_mpfr;
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_div_eq/, '$z /= $fr is illegal');
+eval {$z2 += $fr;};
+if(ref($fr)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_add_eq/, '$z2 += $fr is illegal');
+}
+else {
+  cmp_ok($z2, '==', 0, "2: addition of scalar ok");
+}
 
-eval {$z **= $q;};
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_pow_eq/, '$z /= $q is illegal');
-eval {$z **= $fr;} if $have_mpfr;
-like($@, qr/^Invalid argument supplied to Math::GMPz::overload_pow_eq/, '$z /= $fr is illegal');
+eval {$z1 -= $q;};
+if(ref($q)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_sub_eq/, '$z1 -= $q is illegal');
+}
+else {
+  cmp_ok($z1, '==', 0, "1: subtraction of scalar ok");
+}
+
+eval {$z2 -= $fr;};
+if(ref($fr)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_sub_eq/, '$z2 -= $fr is illegal');
+}
+else {
+  cmp_ok($z2, '==', 0, "2: subtraction of scalar ok");
+}
+
+eval {$z1 /= $q;};
+if(ref($q)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_div_eq/, '$z1 /= $q is illegal');
+}
+else {
+  like($@, qr/^Division by 0 not allowed/, ' 1: division by 0 is illegal');
+}
+
+eval {$z2 /= $fr;};
+if(ref($fr)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_div_eq/, '$z2 /= $fr is illegal');
+}
+else {
+  like($@, qr/^Division by 0 not allowed/, ' 2: division by 0 is illegal');
+}
+
+eval {$z1 **= $q;};
+if(ref($q)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_pow_eq/, '$z1 /= $q is illegal');
+}
+else {
+  cmp_ok($z1, '==', 1, "1: raising to power of 0 ok");
+}
+
+eval {$z2 **= $fr;};
+if(ref($fr)) {
+  like($@, qr/^Invalid argument supplied to Math::GMPz::overload_pow_eq/, '$z2 /= $fr is illegal');
+}
+else {
+  cmp_ok($z2, '==', 1, "2: raising to power of 0 ok");
+}
 
 $Math::GMPz::RETYPE = 1;
 
-if($have_gmpz) {
+if($have_gmpq) {
+  my $z = Math::GMPz->new(123);
+  cmp_ok($Math::GMPz::RETYPE, '==', 1, "retyping allowed");
   $z *= $q;
   cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
   cmp_ok($z, '==', $q * Math::GMPz->new(123), '$z *= $q sets $z to 123/11');
@@ -82,7 +143,8 @@ if($have_gmpz) {
 ############################################
 
 if($have_mpfr) {
-  $z = Math::GMPz->new(123);
+  cmp_ok($Math::GMPz::RETYPE, '==', 1, "retyping allowed");
+  my $z = Math::GMPz->new(123);
   cmp_ok(ref($z), 'eq', 'Math::GMPz', '$z has been reverted to a Math::GMPz object');
   $z *= $fr;
   cmp_ok(ref($z), 'eq', 'Math::MPFR', '$z changes to a Math::MPFR object');
