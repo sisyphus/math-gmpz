@@ -2339,6 +2339,12 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
 
 }
 
+/**************************************************************************
+ In overload_div and overload_div_eq, use Rmpz_tdiv_q and Rmpz_tdiv_q_ui
+ instead of mpz_tdiv_q and mpz_tdiv_q_ui in order to die gracefully and
+ avoid segfault, on division by zero.
+ **************************************************************************/
+
 SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
@@ -4138,6 +4144,14 @@ SV * get_refcnt(pTHX_ SV * s) {
      return newSVuv(SvREFCNT(s));
 }
 
+/* Rmpz_tdiv_q(mpz_t_obj, mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))));   */
+/* Rmpz_tdiv_q_ui(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvUVX(b)); */
+/**************************************************************************
+ In overload_div_eq and overload_div, use Rmpz_tdiv_q and Rmpz_tdiv_q_ui
+ instead of mpz_tdiv_q and mpz_tdiv_q_ui in order to die gracefully and
+ avoid segfault, on division by zero.
+ **************************************************************************/
+
 SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
@@ -4151,22 +4165,26 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          SvREFCNT_dec(a);
          croak("Invalid string (%s) supplied to Math::GMPz::overload_div_eq", SvPV_nolen(b));
        }
-       mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t);
+       /* mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t); */
+       Rmpz_tdiv_q(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), &t);
        mpz_clear(t);
        return a;
      }
 #else
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
-         mpz_tdiv_q_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b));
+         /* mpz_tdiv_q_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvUVX(b)); */
+         Rmpz_tdiv_q_ui(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvUVX(b));
          return a;
        }
 
        if(SvIV(b) >= 0) {
-         mpz_tdiv_q_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvIVX(b));
+         /* mpz_tdiv_q_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvIVX(b)); */
+         Rmpz_tdiv_q_ui(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvIVX(b));
          return a;
        }
-       mpz_tdiv_q_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvIVX(b) * -1);
+       /* mpz_tdiv_q_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), SvIVX(b) * -1); */
+       Rmpz_tdiv_q_ui(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvIVX(b) * -1);
        mpz_neg(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
        return a;
      }
@@ -4183,7 +4201,8 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          SvREFCNT_dec(a);
          croak("Invalid string (%s) supplied to Math::GMPz::overload_div_eq", SvPV_nolen(b));
        }
-       mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t);
+       /* mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t); */
+       Rmpz_tdiv_q(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), &t);
        mpz_clear(t);
        return a;
      }
@@ -4191,7 +4210,8 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      if(SV_IS_NOK(b)) {
        mpz_init(t);
        Rmpz_set_NV(aTHX_ &t, b);
-       mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t);
+       /* mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t); */
+       Rmpz_tdiv_q(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), &t);
        mpz_clear(t);
        return a;
      }
@@ -4199,7 +4219,8 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
        if(strEQ(h, "Math::GMPz")) {
-         mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         /* mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b))))); */
+         Rmpz_tdiv_q(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(b))));
          return a;
        }
 
@@ -4222,13 +4243,15 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mpz_srcptr)mpz);
+           /* mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mpz_srcptr)mpz); */
+           Rmpz_tdiv_q(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz);
            if(strEQ("-", sign)) mpz_neg(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
            return a;
          }
 
          mpz_init_set_str(t, SvPV_nolen(b), 0);
-         mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t);
+         /* mpz_tdiv_q(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), t); */
+         Rmpz_tdiv_q(INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(a))), &t);
          mpz_clear(t);
          return a;
        }
