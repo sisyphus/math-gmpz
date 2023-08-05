@@ -1,6 +1,8 @@
 Revision history for Perl module Math::GMPz
 
 0.58
+ - Fix overload_div_eq to die gracefully (as opposed to segfaulting) on div by zero.
+ - Fix bugs in t/overload_op_eq.t
 
 0.57
  - Expand cross-class overloading to include +=, -=, *=, /=, and **= operations,
