@@ -1,6 +1,8 @@
 Revision history for Perl module Math::GMPz
 
 0.59
+ - Skip Math::MPFR checks in t.overload_cross_class.t and t/overload_op_eq.t if
+   $Math::MPFR::VERSION < 4.19
 
 0.58
  - Fix overload_div_eq to die gracefully (as opposed to segfaulting) on div by zero.
