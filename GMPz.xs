@@ -1190,6 +1190,14 @@ void Rmpz_nextprime(mpz_t * prime, mpz_t * init) {
      mpz_nextprime(*prime, *init);
 }
 
+unsigned long Rmpz_prevprime(mpz_t * prime, mpz_t * init) {
+#if __GNU_MP_RELEASE >= 60300
+     return mpz_prevprime(*prime, *init);
+#else
+     croak("Rmpz_prevprime not implemented");
+#endif
+}
+
 void Rmpz_gcd(mpz_t * gcd, mpz_t * src1, mpz_t * src2) {
      mpz_gcd(*gcd, *src1, *src2);
 }
@@ -7104,6 +7112,11 @@ Rmpz_nextprime (prime, init)
         }
         /* must have used dXSARGS; list context implied */
         return; /* assume stack size is correct */
+
+unsigned long
+Rmpz_prevprime (prime, init)
+	mpz_t *	prime
+	mpz_t *	init
 
 void
 Rmpz_gcd (gcd, src1, src2)
