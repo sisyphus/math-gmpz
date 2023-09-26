@@ -5,7 +5,7 @@ use Math::GMPz qw(:mpz);
 use Math::BigFloat; # for some error checking
 #use Devel::Peek;
 
-print "1..47\n";
+print "1..51\n";
 
 print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 
@@ -929,6 +929,36 @@ if($obj2 - $obj1 == 2) {print "ok 47\n"}
 else {
   warn "$obj2 is not 2 greater than $obj1";
   print "not ok 47\n";
+}
+
+my $shifter = Math::GMPz->new(123);
+
+eval { my $ret = $shifter << -1; };
+if($@ =~ /Negative shift not allowed/) { print "ok 48\n"}
+else {
+   warn "\$\@: $@\n";
+   print "not ok 48\n";
+}
+
+eval { my $ret = $shifter >> -1; };
+if($@ =~ /Negative shift not allowed/) { print "ok 49\n"}
+else {
+   warn "\$\@: $@\n";
+   print "not ok 49\n";
+}
+
+eval { $shifter <<= -1; };
+if($@ =~ /Negative shift not allowed/) { print "ok 50\n"}
+else {
+   warn "\$\@: $@\n";
+   print "not ok 50\n";
+}
+
+eval { $shifter >>= -1; };
+if($@ =~ /Negative shift not allowed/) { print "ok 51\n"}
+else {
+   warn "\$\@: $@\n";
+   print "not ok 51\n";
 }
 
 ## *,+,/,-,*=,+=,-=,/=,&,&=,|,|=,^,^=,
