@@ -5,7 +5,7 @@ use Math::GMPz qw(:mpz);
 use Math::BigFloat; # for some error checking
 #use Devel::Peek;
 
-print "1..51\n";
+print "1..55\n";
 
 print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 
@@ -959,6 +959,47 @@ if($@ =~ /Negative shift not allowed/) { print "ok 51\n"}
 else {
    warn "\$\@: $@\n";
    print "not ok 51\n";
+}
+
+if($Config{longsize} < $Config{ivsize}) {
+  # I've assumed that this condition will imply that
+  # the IV can overflow the mp_bitcnt_t. Let's run
+  # a test that checks this assumption:
+
+  my $t = Math::GMPz->new(1);
+
+  eval {my $ret = $t >> (~0 >> 30); };
+  if($@ =~ /Magnitude of UV argument overflows mp_bitcnt_t/) { print "ok 52\n" }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok 52\n";
+  }
+
+  eval {my $ret = $t << (~0 >> 30); };
+  if($@ =~ /Magnitude of UV argument overflows mp_bitcnt_t/) { print "ok 53\n" }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok 53\n";
+  }
+
+  eval {$t >>= (~0 >> 30); };
+  if($@ =~ /Magnitude of UV argument overflows mp_bitcnt_t/) { print "ok 54\n" }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok 54\n";
+  }
+
+  eval {$t <<= (~0 >> 30); };
+  if($@ =~ /Magnitude of UV argument overflows mp_bitcnt_t/) { print "ok 55\n" }
+  else {
+    warn "\$\@: $@\n";
+    print "not ok 55\n";
+  }
+
+}
+else {
+  warn "Skipping tests 52 to 55\n";
+  print "ok $_\n" for 52..55;
 }
 
 ## *,+,/,-,*=,+=,-=,/=,&,&=,|,|=,^,^=,
