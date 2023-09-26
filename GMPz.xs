@@ -4020,9 +4020,8 @@ SV * overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(b) < 0) {
-         croak("Negative shift not allowed in Math::GMPz::overload_rshift_eq");
-       }
+       if(SvIV(b) < 0) croak("Negative shift not allowed in Math::GMPz::overload_rshift_eq");
+       CHECK_MP_BITCNT_T_OVERFLOW(b)
        SvREFCNT_inc(a);
        mpz_tdiv_q_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
        return a;
@@ -4042,9 +4041,8 @@ SV * overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(b) < 0) {
-         croak("Negative shift not allowed in Math::GMPz::overload_lshift_eq");
-       }
+       if(SvIV(b) < 0) croak("Negative shift not allowed in Math::GMPz::overload_lshift_eq");
+       CHECK_MP_BITCNT_T_OVERFLOW(b)
        SvREFCNT_inc(a);
        mpz_mul_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUV(b));
        return a;
