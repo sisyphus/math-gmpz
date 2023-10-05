@@ -117,27 +117,33 @@ else {
 $Math::GMPz::RETYPE = 1;
 
 if($have_gmpq) {
-  my $z = Math::GMPz->new(123);
-  cmp_ok($Math::GMPz::RETYPE, '==', 1, "retyping allowed");
-  $z *= $q;
-  cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
-  cmp_ok($z, '==', $q * Math::GMPz->new(123), '$z *= $q sets $z to 123/11');
+  if($Math::GMPq::VERSION < 0.35) {
+    warn "\n  Skipping Math::GMPq tests -  Math::GMPq version 0.35(or later)\n" .
+          "  is needed. We have only version $Math::GMPq::VERSION\n";
+  }
+  else {
+    my $z = Math::GMPz->new(123);
+    cmp_ok($Math::GMPz::RETYPE, '==', 1, "retyping allowed");
+    $z *= $q;
+    cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
+    cmp_ok($z, '==', $q * Math::GMPz->new(123), '$z *= $q sets $z to 123/11');
 
-  $z = Math::GMPz->new(123);
-  cmp_ok(ref($z), 'eq', 'Math::GMPz', '$z has been reverted to a Math::GMPz object');
-  $z += $q;
-  cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
-  cmp_ok($z, '==', $q + Math::GMPz->new(123), '$z += $q sets $z to 1354/11');
+    $z = Math::GMPz->new(123);
+    cmp_ok(ref($z), 'eq', 'Math::GMPz', '$z has been reverted to a Math::GMPz object');
+    $z += $q;
+    cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
+    cmp_ok($z, '==', $q + Math::GMPz->new(123), '$z += $q sets $z to 1354/11');
 
-  $z = Math::GMPz->new(123);
-  $z -= $q;
-  cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
-  cmp_ok($z, '==', Math::GMPz->new(123) - $q, '$z -= $q sets $z to 1352/11');
+    $z = Math::GMPz->new(123);
+    $z -= $q;
+    cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
+    cmp_ok($z, '==', Math::GMPz->new(123) - $q, '$z -= $q sets $z to 1352/11');
 
-  $z = Math::GMPz->new(123);
-  $z /= $q;
-  cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
-  cmp_ok($z, '==', Math::GMPz->new(123) / $q, '$z /= $q sets $z to 1353');
+    $z = Math::GMPz->new(123);
+    $z /= $q;
+    cmp_ok(ref($z), 'eq', 'Math::GMPq', '$z changes to a Math::GMPq object');
+    cmp_ok($z, '==', Math::GMPz->new(123) / $q, '$z /= $q sets $z to 1353');
+  }
 }
 
 ############################################
