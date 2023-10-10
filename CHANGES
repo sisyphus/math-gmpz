@@ -3,6 +3,8 @@ Revision history for Perl module Math::GMPz
 0.61
  - Fix bug in t/overload_op_eq.t - fixes failure in:
      https://www.cpantesters.org/cpan/report/f08b2b04-62e8-11ee-9f69-c1f66d8775ea
+ - Fix https://github.com/sisyphus/math-gmpz/issues/5 by modifying Rmpz_urandomb,
+     Rmpz_urandomm and Rmpz_rrandomb.
 
 0.59
  - Skip Math::MPFR checks in t.overload_cross_class.t and t/overload_op_eq.t if
