@@ -4929,7 +4929,7 @@ void Rmpz_urandomb(pTHX_ SV * p, ...) {
      for(i = 0; i < q; ++i) {
         mpz_urandomb(*(INT2PTR(mpz_t *, SvIVX(SvRV(ST(i))))), *(INT2PTR(gmp_randstate_t *, SvIVX(SvRV(ST(thingies - 3))))), (mp_bitcnt_t)SvUV(ST(thingies - 2)));
         }
-     PL_markstack_ptr++;
+
      XSRETURN(0);
 }
 
@@ -4945,7 +4945,7 @@ void Rmpz_urandomm(pTHX_ SV * x, ...){
      for(i = 0; i < q; ++i) {
         mpz_urandomm(*(INT2PTR(mpz_t *, SvIVX(SvRV(ST(i))))), *(INT2PTR(gmp_randstate_t *, SvIVX(SvRV(ST(thingies - 3))))), *(INT2PTR(mpz_t *, SvIVX(SvRV(ST(thingies - 2))))));
         }
-     PL_markstack_ptr++;
+
      XSRETURN(0);
 }
 
@@ -4961,7 +4961,7 @@ void Rmpz_rrandomb(pTHX_ SV * x, ...) {
      for(i = 0; i < q; ++i) {
         mpz_rrandomb(*(INT2PTR(mpz_t *, SvIVX(SvRV(ST(i))))), *(INT2PTR(gmp_randstate_t *, SvIVX(SvRV(ST(thingies - 3))))), (mp_bitcnt_t)SvUV(ST(thingies - 2)));
         }
-     PL_markstack_ptr++;
+
      XSRETURN(0);
 }
 
@@ -7534,6 +7534,7 @@ void
 Rmpz_urandomb (p, ...)
 	SV *	p
         CODE:
+        PL_markstack_ptr++;
         Rmpz_urandomb(aTHX_ p);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -7541,6 +7542,7 @@ void
 Rmpz_urandomm (x, ...)
 	SV *	x
         CODE:
+        PL_markstack_ptr++;
         Rmpz_urandomm(aTHX_ x);
         XSRETURN_EMPTY; /* return empty stack */
 
@@ -7548,6 +7550,7 @@ void
 Rmpz_rrandomb (x, ...)
 	SV *	x
         CODE:
+        PL_markstack_ptr++;
         Rmpz_rrandomb(aTHX_ x);
         XSRETURN_EMPTY; /* return empty stack */
 
