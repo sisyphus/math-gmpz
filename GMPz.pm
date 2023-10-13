@@ -122,7 +122,7 @@ zgmp_urandomb_ui zgmp_urandomm_ui
     );
 
     @Math::GMPz::EXPORT_OK = (@untagged, @tagged);
-    our $VERSION = '0.61';
+    our $VERSION = '0.62';
     #$VERSION = eval $VERSION;
 
     Math::GMPz->DynaLoader::bootstrap($VERSION);
