@@ -806,11 +806,9 @@ void Rmpz_get_d_2exp(pTHX_ mpz_t * n) {
 
      d = mpz_get_d_2exp(&exp, *n);
 
-     /* sp = mark; */ /* not needed */
-     EXTEND(SP, 2);
      ST(0) = sv_2mortal(newSVnv(d));
      ST(1) = sv_2mortal(newSVuv(exp));
-     /* PUTBACK; */ /* not needed */
+     PL_markstack_ptr++;
      XSRETURN(2);
 }
 
