@@ -4,7 +4,6 @@
 # modified and expanded by sisyhpus.)
 # See https://github.com/sisyphus/math-gmpz/issues/5
 
-use 5.010;
 use Math::GMPz;
 use Test::More;
 
