@@ -1,5 +1,7 @@
 Revision history for Perl module Math::GMPz
 
+0.62
+
 0.61
  - Fix bug in t/overload_op_eq.t - fixes failure in:
      https://www.cpantesters.org/cpan/report/f08b2b04-62e8-11ee-9f69-c1f66d8775ea
