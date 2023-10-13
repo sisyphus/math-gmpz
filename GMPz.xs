@@ -1641,6 +1641,7 @@ void Rmpz_export_UV(pTHX_ SV * order, SV * size, SV * endian, SV * nails, mpz_t 
     }
 
     Safefree(arr);
+    PL_markstack_ptr++;
     XSRETURN(count);
 }
 
