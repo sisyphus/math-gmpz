@@ -7,44 +7,45 @@
 use Math::GMPz;
 use Test::More;
 
-package Number {
+package Number;
 
-    sub new {
-        my ($class, $n) = @_;
-        bless \$n, $class;
-    }
-
-    sub add {
-        my ($self, $n) = @_;
-        Number->new($$self + $$n);
-    }
-
-    my $srand = 1171043305;
-    my $state = Math::GMPz::zgmp_randinit_mt();
-    Math::GMPz::zgmp_randseed_ui($state, $srand);
-
-
-    sub irand1 { # mpz_urandomm
-        my ($self) = @_;
-        my $x = Math::GMPz->new($$self);
-        Math::GMPz::Rmpz_urandomm($x, $state, $x, 1);
-        return Number->new($x);
-    }
-
-    sub irand2 { # mpz_urandomb
-        my ($self) = @_;
-        my $x = Math::GMPz->new($$self);
-        Math::GMPz::Rmpz_urandomb($x, $state, "$x" + 0, 1);
-        return Number->new($x);
-    }
-
-    sub irand3 { # mpz_rrandomb
-        my ($self) = @_;
-        my $x = Math::GMPz->new($$self);
-        Math::GMPz::Rmpz_rrandomb($x, $state, "$x" + 0, 1);
-        return Number->new($x);
-    }
+sub new {
+    my ($class, $n) = @_;
+    bless \$n, $class;
 }
+
+sub add {
+    my ($self, $n) = @_;
+    Number->new($$self + $$n);
+}
+
+my $srand = 1171043305;
+my $state = Math::GMPz::zgmp_randinit_mt();
+Math::GMPz::zgmp_randseed_ui($state, $srand);
+
+
+sub irand1 { # mpz_urandomm
+    my ($self) = @_;
+    my $x = Math::GMPz->new($$self);
+    Math::GMPz::Rmpz_urandomm($x, $state, $x, 1);
+    return Number->new($x);
+}
+
+sub irand2 { # mpz_urandomb
+    my ($self) = @_;
+    my $x = Math::GMPz->new($$self);
+    Math::GMPz::Rmpz_urandomb($x, $state, "$x" + 0, 1);
+    return Number->new($x);
+}
+
+sub irand3 { # mpz_rrandomb
+    my ($self) = @_;
+    my $x = Math::GMPz->new($$self);
+    Math::GMPz::Rmpz_rrandomb($x, $state, "$x" + 0, 1);
+    return Number->new($x);
+}
+
+package main;
 
 my $x = Number->new(42);
 my $second;
@@ -70,6 +71,3 @@ cmp_ok($second - 42,  '<',  (2 ** 42) - 1, 'TEST 8: Rmpz_rrandomb ok');
 cmp_ok($second - 42, '>=', 2 ** 41,        'TEST 9: Rmpz_rrandomb ok');
 
 done_testing();
-
-
-
