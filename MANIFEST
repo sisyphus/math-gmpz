@@ -42,6 +42,7 @@ t/power.t
 t/primes.t
 t/random.t
 t/random2.t
+t/random3.t
 t/theoretic.t
 t/div2.t
 t/divby0.t
