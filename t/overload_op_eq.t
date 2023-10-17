@@ -117,7 +117,7 @@ else {
 $Math::GMPz::RETYPE = 1;
 
 if($have_gmpq) {
-  if($Math::GMPq::VERSION < 0.35) {
+  if($Math::GMPq::VERSION < 0.43) {
     warn "\n  Skipping Math::GMPq tests -  Math::GMPq version 0.35(or later)\n" .
           "  is needed. We have only version $Math::GMPq::VERSION\n";
   }
