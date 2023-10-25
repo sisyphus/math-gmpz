@@ -808,7 +808,6 @@ void Rmpz_get_d_2exp(pTHX_ mpz_t * n) {
 
      ST(0) = sv_2mortal(newSVnv(d));
      ST(1) = sv_2mortal(newSVuv(exp));
-     PL_markstack_ptr++;
      XSRETURN(2);
 }
 
@@ -1641,7 +1640,6 @@ void Rmpz_export_UV(pTHX_ SV * order, SV * size, SV * endian, SV * nails, mpz_t 
     }
 
     Safefree(arr);
-    PL_markstack_ptr++;
     XSRETURN(count);
 }
 
@@ -1760,9 +1758,6 @@ for(i = 0; i < abits; ++i) {
    }
 
 Safefree(addon);
-
-/* PUTBACK; */ /* not needed */
-PL_markstack_ptr++;
 XSRETURN(size);
 
 }
@@ -1976,8 +1971,6 @@ for(i = 0; i < b; ++i) {
 
 Safefree(v);
 
-/* PUTBACK; */ /* not needed */
-PL_markstack_ptr++;
 XSRETURN(size);
 
 }
@@ -2765,7 +2758,7 @@ SV * overload_sqrt(pTHX_ mpz_t * p, SV * second, SV * third) {
      return obj_ref;
 }
 
-SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
+SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
@@ -2851,7 +2844,7 @@ SV * overload_and(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      croak("Invalid argument supplied to Math::GMPz::overload_and");
 }
 
-SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
+SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
@@ -2937,7 +2930,7 @@ SV * overload_ior(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      croak("Invalid argument supplied to Math::GMPz::overload_ior");
 }
 
-SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
+SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
@@ -3023,7 +3016,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third, ...) {
      croak("Invalid argument supplied to Math::GMPz::overload_xor");
 }
 
-SV * overload_com(pTHX_ mpz_t * p, SV * second, SV * third, ...) {
+SV * overload_com(pTHX_ mpz_t * p, SV * second, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
 
@@ -3686,7 +3679,7 @@ SV * overload_not(pTHX_ mpz_t * a, SV * second, SV * third) {
 
 /* Finish typemapping */
 
-SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
+SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -3782,7 +3775,7 @@ SV * overload_xor_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      croak("Invalid argument supplied to Math::GMPz::overload_xor_eq");
 }
 
-SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
+SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -3877,7 +3870,7 @@ SV * overload_ior_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
      croak("Invalid argument supplied to Math::GMPz::overload_ior_eq");
 }
 
-SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third, ...) {
+SV * overload_and_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -5988,6 +5981,7 @@ void
 Rmpz_get_d_2exp (n)
 	mpz_t *	n
         CODE:
+        PL_markstack_ptr++;
         Rmpz_get_d_2exp(aTHX_ n);
         return; /* assume stack size is correct */
 
@@ -6924,6 +6918,7 @@ Rmpz_export_UV (order, size, endian, nails, op)
 	SV *	nails
 	mpz_t *	op
         CODE:
+        PL_markstack_ptr++;
         Rmpz_export_UV(aTHX_ order, size, endian, nails, op);
         return; /* assume stack size is correct */
 
@@ -6980,6 +6975,7 @@ Rsieve_gmp (x_arg, a, number)
 	int	a
 	mpz_t *	number
         CODE:
+        PL_markstack_ptr++;
         Rsieve_gmp(aTHX_ x_arg, a, number);
         return; /* assume stack size is correct */
 
@@ -7096,6 +7092,7 @@ void
 eratosthenes (x_arg)
 	SV *	x_arg
         CODE:
+        PL_markstack_ptr++;
         eratosthenes(aTHX_ x_arg);
         return; /* assume stack size is correct */
 
@@ -7238,36 +7235,36 @@ overload_and (a, b, third, ...)
 	mpz_t *	a
 	SV *	b
 	SV *	third
-        CODE:
-          RETVAL = overload_and(aTHX_ a, b, third);
-        OUTPUT:  RETVAL
+CODE:
+  RETVAL = overload_and (aTHX_ a, b, third);
+OUTPUT:  RETVAL
 
 SV *
 overload_ior (a, b, third, ...)
 	mpz_t *	a
 	SV *	b
 	SV *	third
-        CODE:
-          RETVAL = overload_ior(aTHX_ a, b, third);
-        OUTPUT:  RETVAL
+CODE:
+  RETVAL = overload_ior (aTHX_ a, b, third);
+OUTPUT:  RETVAL
 
 SV *
 overload_xor (a, b, third, ...)
 	mpz_t *	a
 	SV *	b
 	SV *	third
-        CODE:
-          RETVAL = overload_xor(aTHX_ a, b, third);
-        OUTPUT:  RETVAL
+CODE:
+  RETVAL = overload_xor (aTHX_ a, b, third);
+OUTPUT:  RETVAL
 
 SV *
 overload_com (p, second, third, ...)
 	mpz_t *	p
 	SV *	second
 	SV *	third
-        CODE:
-          RETVAL = overload_com(aTHX_ p, second, third);
-        OUTPUT:  RETVAL
+CODE:
+  RETVAL = overload_com (aTHX_ p, second, third);
+OUTPUT:  RETVAL
 
 int
 my_cmp_z (p, z)
@@ -7351,27 +7348,27 @@ overload_xor_eq (a, b, third, ...)
 	SV *	a
 	SV *	b
 	SV *	third
-        CODE:
-          RETVAL = overload_xor_eq(aTHX_ a, b, third);
-        OUTPUT:  RETVAL
+CODE:
+  RETVAL = overload_xor_eq (aTHX_ a, b, third);
+OUTPUT:  RETVAL
 
 SV *
 overload_ior_eq (a, b, third, ...)
 	SV *	a
 	SV *	b
 	SV *	third
-        CODE:
-          RETVAL = overload_ior_eq(aTHX_ a, b, third);
-        OUTPUT:  RETVAL
+CODE:
+  RETVAL = overload_ior_eq (aTHX_ a, b, third);
+OUTPUT:  RETVAL
 
 SV *
 overload_and_eq (a, b, third, ...)
 	SV *	a
 	SV *	b
 	SV *	third
-        CODE:
-          RETVAL = overload_and_eq(aTHX_ a, b, third);
-        OUTPUT:  RETVAL
+CODE:
+  RETVAL = overload_and_eq (aTHX_ a, b, third);
+OUTPUT:  RETVAL
 
 SV *
 overload_pow_eq (a, b, third)
@@ -7727,6 +7724,7 @@ autocorrelation (bitstream, offset)
 	mpz_t *	bitstream
 	int	offset
         CODE:
+        PL_markstack_ptr++;
         autocorrelation(aTHX_ bitstream, offset);
         return; /* assume stack size is correct */
 
