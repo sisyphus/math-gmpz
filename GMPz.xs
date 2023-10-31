@@ -3993,10 +3993,11 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
          }
        }
 
-       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
-         if(strEQ(h, "Math::MPFR")) {
+       if(strEQ(h, "Math::MPFR")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::MPFR::overload_pow", "Math::GMPz:overload_pow", &PL_sv_yes);
          }
+         else warn("This operation (**=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
      }
 
@@ -4228,14 +4229,18 @@ SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
-         if(strEQ(h, "Math::GMPq")) {
+       if(strEQ(h, "Math::GMPq")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
          }
+         else warn("This operation (/=) requires that $Math::GMPz::RETYPE is TRUE\n");
+       }
 
-         if(strEQ(h, "Math::MPFR")) {
+       if(strEQ(h, "Math::MPFR")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
          }
+         else warn("This operation (/=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -4330,14 +4335,18 @@ SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
-         if(strEQ(h, "Math::GMPq")) {
+       if(strEQ(h, "Math::GMPq")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
          }
+         else warn("This operation (-=) requires that $Math::GMPz::RETYPE is TRUE\n");
+       }
 
-         if(strEQ(h, "Math::MPFR")) {
+       if(strEQ(h, "Math::MPFR")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
          }
+         else warn("This operation (-=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -4435,14 +4444,18 @@ SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
-         if(strEQ(h, "Math::GMPq")) {
+       if(strEQ(h, "Math::GMPq")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add", newSViv(0));
          }
+         else warn("This operation (+=) requires that $Math::GMPz::RETYPE is TRUE\n");
+       }
 
-         if(strEQ(h, "Math::MPFR")) {
+       if(strEQ(h, "Math::MPFR")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add", newSViv(0));
          }
+         else warn("This operation (+=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -4535,14 +4548,18 @@ SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
-         if(strEQ(h, "Math::GMPq")) {
+       if(strEQ(h, "Math::GMPq")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
          }
+         else warn("This operation (*=) requires that $Math::GMPz::RETYPE is TRUE\n");
+       }
 
-         if(strEQ(h, "Math::MPFR")) {
+       if(strEQ(h, "Math::MPFR")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
            _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
          }
+         else warn("This operation (*=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
 
        if(strEQ(h, "Math::BigInt")) {
