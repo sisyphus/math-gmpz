@@ -2052,29 +2052,32 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
   mpz_t * mpz_t_obj;
   SV * obj_ref, * obj;
   const char *h;
-  int callback_object = 0;
+  int object = 0;
   MBI_DECLARATIONS
   MBI_GMP_DECLARATIONS
   PERL_UNUSED_ARG(third);
 
   if(sv_isobject(b)) {
+    object = 1;
     h = HvNAME(SvSTASH(SvRV(b)));
-    if( strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq") ) callback_object = 1;
+
+    if(strEQ(h, "Math::MPFR")) { /* will return if called */
+      _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
+    }
+
+    if(strEQ(h, "Math::GMPq")) { /* will return if called */
+      _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
+    }
   }
 
-  /* Do not enter this if{} block if _overload_callback()     *
-   * is going to be called. (We will call overload_callback() *
-   * when and only when the 2nd arg is a Math::MPFR or        *
-   * Math::GMPq object - ie when callback_object == 1         */
-  if(!sv_isobject(b) || callback_object) {
-    New(1, mpz_t_obj, 1, mpz_t);
-    if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_mul function");
-    obj_ref = newSV(0);
-    obj = newSVrv(obj_ref, "Math::GMPz");
-    mpz_init(*mpz_t_obj);
-    sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-    SvREADONLY_on(obj);
-  }
+  /* Having got here, we need to prepare a new object to return */
+  New(1, mpz_t_obj, 1, mpz_t);
+  if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_mul function");
+  obj_ref = newSV(0);
+  obj = newSVrv(obj_ref, "Math::GMPz");
+  mpz_init(*mpz_t_obj);
+  sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+  SvREADONLY_on(obj);
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
   if(SV_IS_IOK(b)) {
@@ -2114,13 +2117,11 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
     return obj_ref;
   }
 
-  if(sv_isobject(b)) {
+  if(object) {
+
     if(strEQ(h, "Math::GMPz")) {
       mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
       return obj_ref;
-    }
-    if(strEQ(h, "Math::MPFR")) {
-      _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
     }
 
     if(strEQ(h, "Math::BigInt")) {
@@ -2139,9 +2140,6 @@ SV * overload_mul(pTHX_ SV * a, SV * b, SV * third) {
       mpz_mul(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
       return obj_ref;
     }
-    if(strEQ(h, "Math::GMPq")) {
-      _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
-    }
   }
 
   croak("Invalid argument supplied to Math::GMPz::overload_mul");
@@ -2151,21 +2149,32 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      const char *h;
+     int object = 0;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
      PERL_UNUSED_ARG(third);
 
-     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
+     if(sv_isobject(b)) {
+       object = 1;
+       h = HvNAME(SvSTASH(SvRV(b)));
 
-     if(!sv_isobject(b) || (strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq"))) {
-       New(1, mpz_t_obj, 1, mpz_t);
-       if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_add function");
-       obj_ref = newSV(0);
-       obj = newSVrv(obj_ref, "Math::GMPz");
-       mpz_init(*mpz_t_obj);
-       sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-       SvREADONLY_on(obj);
+       if(strEQ(h, "Math::MPFR")) { /* will return if called */
+         _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add", newSViv(0));
+       }
+
+       if(strEQ(h, "Math::GMPq")) { /* will return if called */
+         _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add", newSViv(0));
+       }
      }
+
+     /* Having got here, we need to prepare a new object to return */
+     New(1, mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_add function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+     mpz_init(*mpz_t_obj);
+     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     SvREADONLY_on(obj);
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
@@ -2208,13 +2217,10 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(sv_isobject(b)) {
+     if(object) {
        if(strEQ(h, "Math::GMPz")) {
          mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
          return obj_ref;
-       }
-       if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add", newSViv(0));
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2237,34 +2243,40 @@ SV * overload_add(pTHX_ SV * a, SV * b, SV * third) {
          mpz_add(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
          return obj_ref;
        }
-       if(strEQ(h, "Math::GMPq")) {
-         _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add", newSViv(0));
-       }
      }
 
      croak("Invalid argument supplied to Math::GMPz::overload_add function");
-
 }
 
 SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      const char *h;
+     int object = 0;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
+     if(sv_isobject(b)) {
+       object = 1;
+       h = HvNAME(SvSTASH(SvRV(b)));
 
-     if(!sv_isobject(b) || (strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq"))) {
-       New(1, mpz_t_obj, 1, mpz_t);
-       if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_sub function");
-       obj_ref = newSV(0);
-       obj = newSVrv(obj_ref, "Math::GMPz");
-       mpz_init(*mpz_t_obj);
-       sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-       SvREADONLY_on(obj);
+       if(strEQ(h, "Math::MPFR")) { /* will return if called */
+         _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
+       }
+
+       if(strEQ(h, "Math::GMPq")) { /* will return if called */
+         _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
+       }
      }
 
+     /* Having got to here, we need to prepare a new object to return */
+     New(1, mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_sub function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+     mpz_init(*mpz_t_obj);
+     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     SvREADONLY_on(obj);
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
@@ -2319,13 +2331,10 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(sv_isobject(b)) {
+     if(object) {
        if(strEQ(h, "Math::GMPz")) {
          mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
          return obj_ref;
-       }
-       if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2348,9 +2357,6 @@ SV * overload_sub(pTHX_ SV * a, SV * b, SV * third) {
          mpz_sub(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *mpz_t_obj);
          return obj_ref;
        }
-       if(strEQ(h, "Math::GMPq")) {
-         _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
-       }
      }
 
      croak("Invalid argument supplied to Math::GMPz::overload_sub function");
@@ -2367,20 +2373,31 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      const char *h;
+     int object = 0;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
 
-     if(sv_isobject(b)) h = HvNAME(SvSTASH(SvRV(b)));
+     if(sv_isobject(b)) {
+       object = 1;
+       h = HvNAME(SvSTASH(SvRV(b)));
 
-     if(!sv_isobject(b) || (strNE(h, "Math::MPFR") && strNE(h, "Math::GMPq"))) {
-       New(1, mpz_t_obj, 1, mpz_t);
-       if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_div function");
-       obj_ref = newSV(0);
-       obj = newSVrv(obj_ref, "Math::GMPz");
-       mpz_init(*mpz_t_obj);
-       sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-       SvREADONLY_on(obj);
+       if(strEQ(h, "Math::MPFR")) { /* will return if called */
+         _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
+       }
+
+       if(strEQ(h, "Math::GMPq")) { /* will retrun if called */
+         _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
+       }
      }
+
+     /* Having got to here, we need to prepare a new object to return */
+     New(1, mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_div function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+     mpz_init(*mpz_t_obj);
+     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     SvREADONLY_on(obj);
 
 #ifdef MATH_GMPZ_NEED_LONG_LONG_INT
      if(SV_IS_IOK(b)) {
@@ -2444,13 +2461,10 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(sv_isobject(b)) {
+     if(object) {
        if(strEQ(h, "Math::GMPz")) {
          Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), INT2PTR(mpz_t *, SvIVX(SvRV(b))));
          return obj_ref;
-       }
-       if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -2468,9 +2482,6 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
          mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
          Rmpz_tdiv_q(mpz_t_obj, INT2PTR(mpz_t *, SvIVX(SvRV(a))), mpz_t_obj);
          return obj_ref;
-       }
-       if(strEQ(h, "Math::GMPq")) {
-         _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
        }
      }
 
@@ -2702,19 +2713,29 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
      unsigned long int ui = 0;
+     const char *h;
+     int object = 0;
 
      if(mpz_fits_uint_p(*(INT2PTR(mpz_t *, SvIVX(SvRV(a))))))
        ui = mpz_get_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))));
 
-     if(!sv_isobject(b)) {
-       New(1, mpz_t_obj, 1, mpz_t);
-       if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_pow function");
-       obj_ref = newSV(0);
-       obj = newSVrv(obj_ref, "Math::GMPz");
-       mpz_init(*mpz_t_obj);
-       sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-       SvREADONLY_on(obj);
+     if(sv_isobject(b)) {
+       object = 1;
+       h = HvNAME(SvSTASH(SvRV(b)));
+
+       if(strEQ(h, "Math::MPFR")) { /* will return if called */
+         _overload_callback("Math::MPFR::overload_pow", "Math::GMPz:overload_pow", &PL_sv_yes);
+       }
      }
+
+     /* Having got to here, we need to prepare a new object to return */
+     New(1, mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_pow function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+     mpz_init(*mpz_t_obj);
+     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     SvREADONLY_on(obj);
 
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
@@ -2741,24 +2762,13 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
        return obj_ref;
      }
 
-     if(sv_isobject(b)) {
-       const char *h = HvNAME(SvSTASH(SvRV(b)));
+     if(object) {
        if(strEQ(h, "Math::GMPz")) {
          if(mpz_fits_uint_p(*(INT2PTR(mpz_t *, SvIVX(SvRV(b)))))) {
-           New(1, mpz_t_obj, 1, mpz_t);
-           if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_pow function");
-           obj_ref = newSV(0);
-           obj = newSVrv(obj_ref, "Math::GMPz");
-           mpz_init(*mpz_t_obj);
-           sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-           SvREADONLY_on(obj);
            ui = mpz_get_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
            mpz_pow_ui(*mpz_t_obj, *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), ui);
            return obj_ref;
          }
-       }
-       if(strEQ(h, "Math::MPFR")) {
-         _overload_callback("Math::MPFR::overload_pow", "Math::GMPz:overload_pow", &PL_sv_yes);
        }
      }
 
@@ -5173,7 +5183,7 @@ SV * _wrap_count(pTHX) {
 
 void Rprbg_ms(pTHX_ mpz_t * outref, mpz_t * p, mpz_t * q, mpz_t * seed, unsigned long bits_required) {
      mpz_t n, phi, pless1, qless1, mod, keep;
-     unsigned long e, k, bign, r, its, i, r_shift, check;
+     unsigned long e, k, bign, r, its, i, r_shift, check = 0;
      double kdoub;
      gmp_randstate_t state;
 
