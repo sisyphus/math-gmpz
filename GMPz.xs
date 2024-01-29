@@ -14,6 +14,7 @@
 
 
 #include "math_gmpz_include.h"
+#include "math_gmpz_unused.h"
 
 SV * MATH_GMPz_IV_MAX(pTHX) {
      return newSViv((IV)IV_MAX);
@@ -236,6 +237,7 @@ void Rmpz_set_uj(mpz_t * copy, UV original) {
      mpz_add_ui(*copy, *copy, original & 4294967295UL);
 
 #else
+     PERL_UNUSED_ARG2(copy, original);
      croak("Rmpz_set_uj function not implemented on this build of perl");
 
 #endif
@@ -251,6 +253,7 @@ void Rmpz_set_sj(mpz_t * copy, IV original) {
      }
 
 #else
+     PERL_UNUSED_ARG2(copy, original);
      croak("Rmpz_set_sj function not implemented on this build of perl");
 
 #endif
@@ -473,6 +476,7 @@ int Rmpz_cmp_uj(mpz_t * a, UV b) {
     mpz_clear(temp);
     return ret;
 #else
+     PERL_UNUSED_ARG2(a, b);
     croak("Rmpz_cmp_uj is unavailable because MATH_GMPZ_NEED_LONG_LONG_INT is not defined");
 #endif
 }
@@ -488,6 +492,7 @@ int Rmpz_cmp_sj(mpz_t * a, IV b) {
     mpz_clear(temp);
     return ret;
 #else
+    PERL_UNUSED_ARG2(a, b);
     croak("Rmpz_cmp_sj is unavailable because MATH_GMPZ_NEED_LONG_LONG_INT is not defined");
 #endif
 }
@@ -557,8 +562,7 @@ void _mpf_set_dd(mpf_t * q, SV * p) {
 
      mpf_clear(t);
 #else
-     PERL_UNUSED_ARG(q);
-     PERL_UNUSED_ARG(p);
+     PERL_UNUSED_ARG2(q, p);
      croak("_mpf_set_dd is unavailable because NV is not DoubleDouble");
 
 #endif
@@ -618,6 +622,7 @@ void Rmpz_set_NV(pTHX_ mpz_t * copy, SV * original) {
      Safefree(buffer);
 
 #elif defined(USE_LONG_DOUBLE)
+     PERL_UNUSED_VAR(returned);
 # if defined(NV_IS_DOUBLEDOUBLE)
      mpf_init2(f, 2098);
      _mpf_set_dd(&f, original);
@@ -2592,8 +2597,7 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_string(pTHX_ mpz_t * p, SV * second, SV * third) {
      char * out;
      SV * outsv;
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
 
      New(2, out, mpz_sizeinbase(*p, 10) + 3, char);
      if(out == NULL) croak("Failed to allocate memory in overload_string function");
@@ -2607,8 +2611,7 @@ SV * overload_string(pTHX_ mpz_t * p, SV * second, SV * third) {
 SV * overload_copy(pTHX_ mpz_t * p, SV * second, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_copy function");
@@ -2624,8 +2627,7 @@ SV * overload_copy(pTHX_ mpz_t * p, SV * second, SV * third) {
 SV * overload_abs(pTHX_ mpz_t * p, SV * second, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_abs function");
@@ -2778,8 +2780,7 @@ SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
 SV * overload_sqrt(pTHX_ mpz_t * p, SV * second, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_sqrt function");
@@ -3058,8 +3059,7 @@ SV * overload_xor(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_com(pTHX_ mpz_t * p, SV * second, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
 
      New(1, mpz_t_obj, 1, mpz_t);
      if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_com function");
@@ -3716,8 +3716,7 @@ SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
 }
 
 SV * overload_not(pTHX_ mpz_t * a, SV * second, SV * third) {
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
      if(mpz_cmp_ui(*a, 0)) return newSViv(0);
      return newSViv(1);
 }
@@ -4099,14 +4098,12 @@ SV * overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 }
 
 void overload_inc(pTHX_ SV * p, SV * second, SV * third) {
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
      mpz_add_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), 1);
 }
 
 void overload_dec(pTHX_ SV * p, SV * second, SV * third) {
-     PERL_UNUSED_ARG(second);
-     PERL_UNUSED_ARG(third);
+     PERL_UNUSED_ARG2(second, third);
      mpz_sub_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), 1);
 }
 
