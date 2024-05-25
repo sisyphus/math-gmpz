@@ -6,6 +6,7 @@ use Math::GMPz qw(:mpz);
 use Test::More;
 
 my($have_mpq, $have_mpf) = (0, 0);
+my $not_zero = ~0;
 
 eval {require Math::GMPq;};
 $have_mpq = 1 unless $@;
@@ -28,7 +29,7 @@ if($Config{nvtype} eq 'long double') {
 }
 
 Rmpz_sprintf($buf, "%Zd", Math::GMPz->new(~0), $buflen);
-cmp_ok($buf, 'eq', '18446744073709551615', "Math::GMPz: ~0 ok");
+cmp_ok($buf, 'eq', "$not_zero", "Math::GMPz: ~0 ok");
 
 Rmpz_sprintf($buf, "%s", 'hello world', $buflen);
 cmp_ok($buf, 'eq', 'hello world', "'hello world' ok for PV");
