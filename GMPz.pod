@@ -446,8 +446,10 @@
    Rmpz_divexact($rop, $op1, $op2);
    Rmpz_divexact_ui($rop, $op, $ui);
     $rop = 2nd arg / 3rd arg.
-    These 2 functions provide correct results only when it
-    is known that the 3rd arg divides the 2nd arg.
+    These 2 functions provide correct results only when the
+    2nd arg is exactly divisible by the 3rd arg.
+    (Exactness can be checked by using Rmpz_divisible_p and
+    Rmpz_divisible_ui_p, below.)
 
    $bool = Rmpz_divisible_p($op1, $op2);
    $bool = Rmpz_divisible_ui_p($op, $ui);
@@ -1127,7 +1129,7 @@
     (is "retyped" to) a Math::MPFR object that contains the result of
     the operation, using default Math::MPFR precision and default
     Math::MPFR rounding mode.
-    $Math::GMPz::RETYPE is initially set to 0 (false).
+    $Math::GMPz::RETYPE is initially set to 1.
 
     Math::GMPq objects can be provided as the second arg with the
     comparison operators ( == != < <= > >= <=> ) and also, iff
