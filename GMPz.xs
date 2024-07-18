@@ -2644,7 +2644,8 @@ SV * overload_abs(pTHX_ mpz_t * p, SV * second, SV * third) {
 SV * overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(third);
+
+     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be left-shifted must be an IV");
 
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
@@ -2679,7 +2680,8 @@ SV * overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
 SV * overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
-     PERL_UNUSED_ARG(third);
+
+     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be right-shifted must be an IV");
 
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
@@ -4054,7 +4056,8 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
 }
 
 SV * overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
-     PERL_UNUSED_ARG(third);
+
+     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be right-shifted must be an IV");
 
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
@@ -4076,7 +4079,8 @@ SV * overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 }
 
 SV * overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
-     PERL_UNUSED_ARG(third);
+
+     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be left-shifted must be an IV");
 
      if(SV_IS_IOK(b)) {
        if(SvUOK(b)) {
