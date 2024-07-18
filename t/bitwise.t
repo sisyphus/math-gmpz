@@ -47,8 +47,38 @@ cmp_ok(1208, '==', $x ^ $mbiy, "TEST 11");
 cmp_ok($x - (~$mbix), '==', 2463, "TEST 12");
 cmp_ok($y - (~$mbiy), '==', 239, "TEST 13");
 
+cmp_ok($x, '==', 1231, "TEST 14");
+($x <<= 3) >>= 3;
+cmp_ok($x, '==', 1231, "TEST 15");
+($x >>= 2) <<= 2;
+cmp_ok($x, '==', 1228, "TEST 16");
 
+if($] > 5.041001) {
+  # These tests are known to FAIL if $] <= 5.041001
+  # See https://github.com/Perl/perl5/pull/22414
 
+  my $iv = 123456789;
+  ($iv &= 987654321) ^= 555555555;
+
+  my $z = Math::GMPz->new(123456789);
+  ($z &= 987654321) ^= 555555555;
+  cmp_ok($z, '==', $iv, "TEST 17");
+
+  $z = Math::GMPz->new(987654321);
+  ($z &= 123456789) ^= 555555555;
+  cmp_ok($z, '==', $iv, "TEST 18");
+
+  $iv = 123456789;
+  ($iv |= 987654321) &= 555555555;
+
+  $z = Math::GMPz->new(123456789);
+  ($z |= 987654321) &= 555555555;
+  cmp_ok($z, '==', $iv, "TEST 19");
+
+  $z = Math::GMPz->new(987654321);
+  ($z |= 123456789) &= 555555555;
+  cmp_ok($z, '==', $iv, "TEST 20");
+}
 
 done_testing();
 
