@@ -53,8 +53,8 @@ cmp_ok($x, '==', 1231, "TEST 15");
 ($x >>= 2) <<= 2;
 cmp_ok($x, '==', 1228, "TEST 16");
 
-if($] > 5.041001) {
-  # These tests are known to FAIL if $] <= 5.041001
+if($] > 5.041002) {
+  # These tests are known to FAIL if $] <= 5.041002
   # See https://github.com/Perl/perl5/pull/22414
 
   my $iv = 123456789;
