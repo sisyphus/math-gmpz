@@ -27,6 +27,7 @@ t/alloc.t
 t/arith.t
 t/bits.t
 t/bitwise.t
+t/bitwise_lvalue.t
 t/cmp.t
 t/cmp_q.t
 t/constants.t
