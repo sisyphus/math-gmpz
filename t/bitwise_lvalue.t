@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use Test::More;
+use Math::GMPz qw(:mpz);
 
 BEGIN{
  if($] <= 5.041002) {
