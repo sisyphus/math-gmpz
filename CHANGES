@@ -1,5 +1,7 @@
 Revision history for Perl module Math::GMPz
 
+0.63
+
 0.62
  - On Windows only: set the constant GMPZ_WIN32_FMT_BUG to 0 if the gmp
    library was built with -D__USE_MINGW_ANSI_STDIO; else set it to 1.
