@@ -22,7 +22,7 @@ if($Config{nvtype} eq 'double') {
   cmp_ok($buf, 'eq', '1.4142', "sqrt 2 ok for 'double'");
 }
 
-if($Config{nvtype} eq 'long double') {
+if($Config{nvtype} eq 'long double' && !Math::GMPz::GMPZ_WIN32_FMT_BUG) {
   Rmpz_snprintf($buf, 7, "%.14Lg", $nv, $buflen);
   cmp_ok($buf, 'eq', '1.4142', "sqrt 2 ok for 'long double'");
 }
