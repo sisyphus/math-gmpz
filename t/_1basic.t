@@ -6,7 +6,9 @@ use Math::GMPz qw(__GNU_MP_VERSION __GNU_MP_VERSION_MINOR __GNU_MP_VERSION_PATCH
 use Math::GMPz::V;
 
 my $tests = 9;
-my $skip = $^O =~ /MSWin/ && $Config{cc} eq 'cl' ? 2 : 0; # Skip 2 tests for MSVC-built perls
+# Skip 2 tests for MSVC-built perls as vcpkg-builds of gmp
+# may not define __GMP_CC and__GMP_CFLAGS.
+my $skip = $^O =~ /MSWin/ && $Config{cc} eq 'cl' ? 2 : 0;
 $tests -= $skip;
 
 print "1..$tests\n";
@@ -27,6 +29,7 @@ warn "# MATH_GMPz_IV_MAX is ", MATH_GMPz_IV_MAX(), "\n";
 warn "# MATH_GMPz_IV_MIN is ", MATH_GMPz_IV_MIN(), "\n";
 warn "# MATH_GMPz_UV_MAX is ", MATH_GMPz_UV_MAX(), "\n";
 warn "# LD_PRINTF_BROKEN is ", Math::GMPz::_ld_printf_broken(), "\n";
+warn "# GMPZ_WIN32_FMT_BUG is ", Math::GMPz::GMPZ_WIN32_FMT_BUG, "\n";
 
 if($Math::GMPz::VERSION eq '0.62' && $Math::GMPz::Random::VERSION eq '0.62' &&
    $Math::GMPz::V::VERSION eq '0.62' &&
