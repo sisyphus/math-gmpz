@@ -524,21 +524,33 @@ sub Rmpz_snprintf {
 }
 
 sub overload_lshift {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "When overloading '<<', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
   return _overload_lshift(@_) if $_[1] >= 0;
   return _overload_rshift($_[0], -$_[1], $_[2]);
 }
 
 sub overload_lshift_eq {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "When overloading '<<=', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
   return _overload_lshift_eq(@_) if $_[1] >= 0;
   return _overload_rshift_eq($_[0], -$_[1], $_[2]);
 }
 
 sub overload_rshift {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "When overloading '>>', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
   return _overload_rshift(@_) if $_[1] >= 0;
   return _overload_lshift($_[0], -$_[1], $_[2]);
 }
 
 sub overload_rshift_eq {
+  if($_[2] || !_looks_like_number($_[1])) {
+    die "When overloading '>>=', the argument that specifies the number of bits to be shifted must be a perl number";
+  }
   return _overload_rshift_eq(@_) if $_[1] >= 0;
   return _overload_lshift_eq($_[0], -$_[1], $_[2]);
 }

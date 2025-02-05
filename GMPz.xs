@@ -2647,7 +2647,7 @@ SV * _overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be left-shifted must be an IV");
 
-     if(SV_IS_IOK(b)) {
+     if(SV_IS_IOK(b) || SvNOK(b)) {
        if(SvUOK(b)) {
          CHECK_MP_BITCNT_T_OVERFLOW(b)
          New(1, mpz_t_obj, 1, mpz_t);
@@ -2661,7 +2661,6 @@ SV * _overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
          return obj_ref;
        }
 
-       if(SvIV(b) < 0) croak("Negative shift not allowed in Math::GMPz::overload_lshift");
        CHECK_MP_BITCNT_T_OVERFLOW(b)
        New(1, mpz_t_obj, 1, mpz_t);
        if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_lshift function");
@@ -2683,7 +2682,7 @@ SV * _overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
 
      if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be right-shifted must be an IV");
 
-     if(SV_IS_IOK(b)) {
+     if(SV_IS_IOK(b) || SvNOK(b)) {
        if(SvUOK(b)) {
          CHECK_MP_BITCNT_T_OVERFLOW(b)
          New(1, mpz_t_obj, 1, mpz_t);
@@ -2697,7 +2696,6 @@ SV * _overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
          return obj_ref;
        }
 
-       if(SvIV(b) < 0) croak("Negative shift not allowed in Math::GMPz::overload_rshift");
        CHECK_MP_BITCNT_T_OVERFLOW(b)
        New(1, mpz_t_obj, 1, mpz_t);
        if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_rshift function");
@@ -4059,7 +4057,7 @@ SV * _overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be right-shifted must be an IV");
 
-     if(SV_IS_IOK(b)) {
+     if(SV_IS_IOK(b) || SvNOK(b)) {
        if(SvUOK(b)) {
          CHECK_MP_BITCNT_T_OVERFLOW(b)
          SvREFCNT_inc(a);
@@ -4067,7 +4065,6 @@ SV * _overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(b) < 0) croak("Negative shift not allowed in Math::GMPz::overload_rshift_eq");
        CHECK_MP_BITCNT_T_OVERFLOW(b)
        SvREFCNT_inc(a);
        mpz_div_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
@@ -4082,7 +4079,7 @@ SV * _overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be left-shifted must be an IV");
 
-     if(SV_IS_IOK(b)) {
+     if(SV_IS_IOK(b) || SvNOK(b)) {
        if(SvUOK(b)) {
          CHECK_MP_BITCNT_T_OVERFLOW(b)
          SvREFCNT_inc(a);
@@ -4090,7 +4087,6 @@ SV * _overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
          return a;
        }
 
-       if(SvIV(b) < 0) croak("Negative shift not allowed in Math::GMPz::overload_lshift_eq");
        CHECK_MP_BITCNT_T_OVERFLOW(b)
        SvREFCNT_inc(a);
        mpz_mul_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUV(b));
@@ -5703,9 +5699,10 @@ int _ld_printf_broken(void) {
 #endif
 }
 
-
-
-
+int _looks_like_number(pTHX_ SV * in) {
+  if(looks_like_number(in)) return 1;
+  return 0;
+}
 
 
 MODULE = Math::GMPz  PACKAGE = Math::GMPz
@@ -7903,4 +7900,11 @@ _has_pv_nv_bug ()
 int
 _ld_printf_broken ()
 
+
+int
+_looks_like_number (in)
+	SV *	in
+CODE:
+  RETVAL = _looks_like_number (aTHX_ in);
+OUTPUT:  RETVAL
 
