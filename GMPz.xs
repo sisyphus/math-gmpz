@@ -2641,7 +2641,7 @@ SV * overload_abs(pTHX_ mpz_t * p, SV * second, SV * third) {
      return obj_ref;
 }
 
-SV * overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
 
@@ -2677,7 +2677,7 @@ SV * overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_lshift");
 }
 
-SV * overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
 
@@ -2691,7 +2691,7 @@ SV * overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
          obj_ref = newSV(0);
          obj = newSVrv(obj_ref, "Math::GMPz");
          mpz_init(*mpz_t_obj);
-         mpz_tdiv_q_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUVX(b));
+         mpz_div_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUVX(b));
          sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
          SvREADONLY_on(obj);
          return obj_ref;
@@ -2704,7 +2704,7 @@ SV * overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
        obj_ref = newSV(0);
        obj = newSVrv(obj_ref, "Math::GMPz");
        mpz_init(*mpz_t_obj);
-       mpz_tdiv_q_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUVX(b));
+       mpz_div_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUVX(b));
        sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
        SvREADONLY_on(obj);
        return obj_ref;
@@ -4055,7 +4055,7 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_pow_eq. Exponent must fit into an unsigned long");
 }
 
-SV * overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * _overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be right-shifted must be an IV");
 
@@ -4063,14 +4063,14 @@ SV * overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(SvUOK(b)) {
          CHECK_MP_BITCNT_T_OVERFLOW(b)
          SvREFCNT_inc(a);
-         mpz_tdiv_q_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
+         mpz_div_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
          return a;
        }
 
        if(SvIV(b) < 0) croak("Negative shift not allowed in Math::GMPz::overload_rshift_eq");
        CHECK_MP_BITCNT_T_OVERFLOW(b)
        SvREFCNT_inc(a);
-       mpz_tdiv_q_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
+       mpz_div_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
        return a;
      }
 
@@ -4078,7 +4078,7 @@ SV * overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_rshift_eq");
 }
 
-SV * overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * _overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 
      if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be left-shifted must be an IV");
 
@@ -7282,21 +7282,21 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-overload_lshift (a, b, third)
+_overload_lshift (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_lshift (aTHX_ a, b, third);
+  RETVAL = _overload_lshift (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_rshift (a, b, third)
+_overload_rshift (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_rshift (aTHX_ a, b, third);
+  RETVAL = _overload_rshift (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
@@ -7467,21 +7467,21 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-overload_rshift_eq (a, b, third)
+_overload_rshift_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_rshift_eq (aTHX_ a, b, third);
+  RETVAL = _overload_rshift_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_lshift_eq (a, b, third)
+_overload_lshift_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_lshift_eq (aTHX_ a, b, third);
+  RETVAL = _overload_lshift_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 void

@@ -523,6 +523,27 @@ sub Rmpz_snprintf {
     return $len;
 }
 
+sub overload_lshift {
+  return _overload_lshift(@_) if $_[1] >= 0;
+  return _overload_rshift($_[0], -$_[1], $_[2]);
+}
+
+sub overload_lshift_eq {
+  return _overload_lshift_eq(@_) if $_[1] >= 0;
+  return _overload_rshift_eq($_[0], -$_[1], $_[2]);
+}
+
+sub overload_rshift {
+  return _overload_rshift(@_) if $_[1] >= 0;
+  return _overload_lshift($_[0], -$_[1], $_[2]);
+}
+
+sub overload_rshift_eq {
+  return _overload_rshift_eq(@_) if $_[1] >= 0;
+  return _overload_lshift_eq($_[0], -$_[1], $_[2]);
+}
+
+
 sub __GNU_MP_VERSION            () {return ___GNU_MP_VERSION()}
 sub __GNU_MP_VERSION_MINOR      () {return ___GNU_MP_VERSION_MINOR()}
 sub __GNU_MP_VERSION_PATCHLEVEL () {return ___GNU_MP_VERSION_PATCHLEVEL()}

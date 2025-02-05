@@ -1,6 +1,7 @@
 Revision history for Perl module Math::GMPz
 
 0.63
+ - Corrections to overloading of '>>', '>>=', '<<' and '<<=' operators.
 
 0.62
  - On Windows only: set the constant GMPZ_WIN32_FMT_BUG to 0 if the gmp
