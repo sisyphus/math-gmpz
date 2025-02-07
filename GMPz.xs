@@ -2645,70 +2645,36 @@ SV * _overload_lshift(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
 
-     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be left-shifted must be an IV");
+     /* b will always be >= 0 */
 
-     if(SV_IS_IOK(b) || SvNOK(b)) {
-       if(SvUOK(b)) {
-         CHECK_MP_BITCNT_T_OVERFLOW(b)
-         New(1, mpz_t_obj, 1, mpz_t);
-         if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_lshift function");
-         obj_ref = newSV(0);
-         obj = newSVrv(obj_ref, "Math::GMPz");
-         mpz_init(*mpz_t_obj);
-         mpz_mul_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUV(b));
-         sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-         SvREADONLY_on(obj);
-         return obj_ref;
-       }
-
-       CHECK_MP_BITCNT_T_OVERFLOW(b)
-       New(1, mpz_t_obj, 1, mpz_t);
-       if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_lshift function");
-       obj_ref = newSV(0);
-       obj = newSVrv(obj_ref, "Math::GMPz");
-       mpz_init(*mpz_t_obj);
-       mpz_mul_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUV(b));
-       sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-       SvREADONLY_on(obj);
-       return obj_ref;
-     }
-
-     croak("Invalid argument supplied to Math::GMPz::overload_lshift");
+     CHECK_MP_BITCNT_T_OVERFLOW(b)
+     New(1, mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_lshift function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+     mpz_init(*mpz_t_obj);
+     mpz_mul_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUV(b));
+     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     SvREADONLY_on(obj);
+     return obj_ref;
 }
 
 SV * _overload_rshift(pTHX_ mpz_t * a, SV * b, SV * third) {
      mpz_t * mpz_t_obj;
      SV * obj_ref, * obj;
 
-     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be right-shifted must be an IV");
+     /* b will always be >= 0 */
 
-     if(SV_IS_IOK(b) || SvNOK(b)) {
-       if(SvUOK(b)) {
-         CHECK_MP_BITCNT_T_OVERFLOW(b)
-         New(1, mpz_t_obj, 1, mpz_t);
-         if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_rshift function");
-         obj_ref = newSV(0);
-         obj = newSVrv(obj_ref, "Math::GMPz");
-         mpz_init(*mpz_t_obj);
-         mpz_div_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUVX(b));
-         sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-         SvREADONLY_on(obj);
-         return obj_ref;
-       }
-
-       CHECK_MP_BITCNT_T_OVERFLOW(b)
-       New(1, mpz_t_obj, 1, mpz_t);
-       if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_rshift function");
-       obj_ref = newSV(0);
-       obj = newSVrv(obj_ref, "Math::GMPz");
-       mpz_init(*mpz_t_obj);
-       mpz_div_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUVX(b));
-       sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
-       SvREADONLY_on(obj);
-       return obj_ref;
-     }
-
-     croak("Invalid argument supplied to Math::GMPz::overload_rshift");
+     CHECK_MP_BITCNT_T_OVERFLOW(b)
+     New(1, mpz_t_obj, 1, mpz_t);
+     if(mpz_t_obj == NULL) croak("Failed to allocate memory in overload_rshift function");
+     obj_ref = newSV(0);
+     obj = newSVrv(obj_ref, "Math::GMPz");
+     mpz_init(*mpz_t_obj);
+     mpz_div_2exp(*mpz_t_obj, *a, (mp_bitcnt_t)SvUV(b));
+     sv_setiv(obj, INT2PTR(IV, mpz_t_obj));
+     SvREADONLY_on(obj);
+     return obj_ref;
 }
 
 SV * overload_pow(pTHX_ SV * a, SV * b, SV * third) {
@@ -4055,46 +4021,22 @@ SV * overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 SV * _overload_rshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 
-     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be right-shifted must be an IV");
+     /* b will always be >= 0 */
 
-     if(SV_IS_IOK(b) || SvNOK(b)) {
-       if(SvUOK(b)) {
-         CHECK_MP_BITCNT_T_OVERFLOW(b)
-         SvREFCNT_inc(a);
-         mpz_div_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
-         return a;
-       }
-
-       CHECK_MP_BITCNT_T_OVERFLOW(b)
-       SvREFCNT_inc(a);
-       mpz_div_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUVX(b));
-       return a;
-     }
-
-     SvREFCNT_dec(a);
-     croak("Invalid argument supplied to Math::GMPz::overload_rshift_eq");
+     CHECK_MP_BITCNT_T_OVERFLOW(b)
+     SvREFCNT_inc(a);
+     mpz_div_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUV(b));
+     return a;
 }
 
 SV * _overload_lshift_eq(pTHX_ SV * a, SV * b, SV * third) {
 
-     if(SWITCH_ARGS) croak("The argument that specifies the number of bits to be left-shifted must be an IV");
+     /* b will always be >= 0 */
 
-     if(SV_IS_IOK(b) || SvNOK(b)) {
-       if(SvUOK(b)) {
-         CHECK_MP_BITCNT_T_OVERFLOW(b)
-         SvREFCNT_inc(a);
-         mpz_mul_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUV(b));
-         return a;
-       }
-
-       CHECK_MP_BITCNT_T_OVERFLOW(b)
-       SvREFCNT_inc(a);
-       mpz_mul_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUV(b));
-       return a;
-     }
-
-     SvREFCNT_dec(a);
-     croak("Invalid argument supplied to Math::GMPz::overload_lshift_eq");
+     CHECK_MP_BITCNT_T_OVERFLOW(b)
+     SvREFCNT_inc(a);
+     mpz_mul_2exp(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), (mp_bitcnt_t)SvUV(b));
+     return a;
 }
 
 void overload_inc(pTHX_ SV * p, SV * second, SV * third) {

@@ -11,6 +11,7 @@ use warnings;
 use Math::GMPz qw(:mpz);
 use Math::BigInt;
 use Math::BigFloat;
+use Config;
 
 use Test::More;
 
@@ -53,7 +54,20 @@ eval {my $discard = $z >> Math::BigInt->new(7);};
 like($@, qr/argument that specifies the number of bits to be/, "Math::BigInt shift arg throws expected error");
 
 eval {$z <<= Math::BigInt->new(7);};
-like($@, qr/argument that specifies the number of bits to be/, "Math::BigFloat shift throws expected error");
+like($@, qr/argument that specifies the number of bits to be/, "Math::BigFloat shift arg throws expected error");
 
+if($Config{longsize} < $Config{ivsize}) {
+  eval { my $discard = $z >> ~0;};
+  like ( $@, qr/Magnitude of UV argument overflows mp_bitcnt_t/, "mp_bitcnt_t overflow is caught in '>>'");
+
+  eval { my $discard = $z << ~0;};
+  like ( $@, qr/Magnitude of UV argument overflows mp_bitcnt_t/, "mp_bitcnt_t overflow is caught in '<<'");
+
+  eval { $z >>= ~0;};
+  like ( $@, qr/Magnitude of UV argument overflows mp_bitcnt_t/, "mp_bitcnt_t overflow is caught in '>>='");
+
+  eval { $z <<= ~0;};
+  like ( $@, qr/Magnitude of UV argument overflows mp_bitcnt_t/, "mp_bitcnt_t overflow is caught in '<<='");
+}
 
 done_testing();
