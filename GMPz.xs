@@ -2494,7 +2494,7 @@ SV * overload_div(pTHX_ SV * a, SV * b, SV * third) {
 
 }
 
-SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * overload_mod (pTHX_ SV * a, SV * b, SV * third) {
      mpz_t *mpz_t_obj;
      SV * obj_ref, * obj;
      MBI_DECLARATIONS
@@ -2512,10 +2512,10 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
      if(SV_IS_IOK(b)) {
        Rmpz_set_IV(aTHX_ mpz_t_obj, b);
        if(SWITCH_ARGS) {
-         mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
+         mpz_mod(*mpz_t_obj, *mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))));
          return obj_ref;
        }
-       mpz_mod(*mpz_t_obj, *a, *mpz_t_obj);
+       mpz_mod(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), *mpz_t_obj);
        return obj_ref;
      }
 #else
@@ -2523,19 +2523,19 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
        if(SvUOK(b)) {
          if(SWITCH_ARGS) {
            mpz_set_ui(*mpz_t_obj, SvUVX(b));
-           mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
+           mpz_mod(*mpz_t_obj, *mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))));
            return obj_ref;
          }
-         mpz_mod_ui(*mpz_t_obj, *a, SvUVX(b));
+         mpz_mod_ui(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), SvUVX(b));
          return obj_ref;
        }
 
        mpz_set_si(*mpz_t_obj, SvIVX(b));
        if(SWITCH_ARGS) {
-         mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
+         mpz_mod(*mpz_t_obj, *mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))));
          return obj_ref;
        }
-       mpz_mod(*mpz_t_obj, *a, *mpz_t_obj);
+       mpz_mod(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), *mpz_t_obj);
        return obj_ref;
      }
 #endif
@@ -2550,29 +2550,40 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
        if(mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0))
           croak(" Invalid string (%s) supplied to Math::GMPz::overload_mod", SvPV_nolen(b));
        if(SWITCH_ARGS) {
-         mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
+         mpz_mod(*mpz_t_obj, *mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))));
          return obj_ref;
        }
-       mpz_mod(*mpz_t_obj, *a, *mpz_t_obj);
+       mpz_mod(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), *mpz_t_obj);
        return obj_ref;
      }
 
      if(SV_IS_NOK(b)) {
        Rmpz_set_NV(aTHX_ mpz_t_obj, b);
        if(SWITCH_ARGS) {
-         mpz_mod(*mpz_t_obj, *mpz_t_obj, *a);
+         mpz_mod(*mpz_t_obj, *mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))));
          return obj_ref;
        }
-       mpz_mod(*mpz_t_obj, *a, *mpz_t_obj);
+       mpz_mod(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), *mpz_t_obj);
        return obj_ref;
      }
 
      if(sv_isobject(b)) {
        const char *h = HvNAME(SvSTASH(SvRV(b)));
        if(strEQ(h, "Math::GMPz")) {
-         mpz_mod(*mpz_t_obj, *a, *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
+         mpz_mod(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
          return obj_ref;
-         }
+       }
+
+       if(strEQ(h, "Math::MPFR")) { /* will return if called */
+         _overload_callback("Math::MPFR::overload_fmod", "Math::GMPz::overload_mod", &PL_sv_yes);
+         return obj_ref;
+       }
+
+       if(strEQ(h, "Math::GMPq")) { /* will return if called */
+         _overload_callback("Math::GMPq::overload_fmod", "Math::GMPz::overload_mod", &PL_sv_yes);
+         return obj_ref;
+       }
+
        if(strEQ(h, "Math::BigInt")) {
          VALIDATE_MBI_OBJECT
            croak("Invalid Math::BigInt object supplied to Math::GMPz::overload_mod");
@@ -2580,13 +2591,13 @@ SV * overload_mod (pTHX_ mpz_t * a, SV * b, SV * third) {
          MBI_GMP_INSERT
 
          if(mpz) {
-           mpz_mod(*mpz_t_obj, *a, (mpz_srcptr)mpz);
+           mpz_mod(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), (mpz_srcptr)mpz);
            /* if(strEQ("-", sign)) ...... sign of divisor has no bearing on mod */
            return obj_ref;
          }
 
          mpz_set_str(*mpz_t_obj, SvPV_nolen(b), 0);
-         mpz_mod(*mpz_t_obj, *a, *mpz_t_obj);
+         mpz_mod(*mpz_t_obj, *INT2PTR(mpz_t *, SvIVX(SvRV(a))), *mpz_t_obj);
          return obj_ref;
        }
      }
@@ -4114,6 +4125,22 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(strEQ(h, "Math::GMPz")) {
          mpz_mod(*(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(a)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(b)))));
          return a;
+       }
+
+       if(strEQ(h, "Math::MPFR")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
+           _overload_callback("Math::MPFR::overload_fmod", "Math::GMPz::overload_mod", &PL_sv_yes);
+           return a;
+         }
+         else warn("This operation (%=) requires that $Math::GMPz::RETYPE is TRUE\n");
+       }
+
+       if(strEQ(h, "Math::GMPq")) {
+         if(SvIV(get_sv("Math::GMPz::RETYPE", 0))) {
+           _overload_callback("Math::GMPq::overload_fmod", "Math::GMPz::overload_mod", &PL_sv_yes);
+           return a;
+         }
+         else warn("This operation (%=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
 
        if(strEQ(h, "Math::BigInt")) {
@@ -7186,7 +7213,7 @@ OUTPUT:  RETVAL
 
 SV *
 overload_mod (a, b, third)
-	mpz_t *	a
+	SV *	a
 	SV *	b
 	SV *	third
 CODE:
