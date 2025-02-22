@@ -4132,7 +4132,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
            _overload_callback("Math::MPFR::overload_fmod", "Math::GMPz::overload_mod", &PL_sv_yes);
            return a;
          }
-         else warn("This operation (%=) requires that $Math::GMPz::RETYPE is TRUE\n");
+         else warn("This operation (%%=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
 
        if(strEQ(h, "Math::GMPq")) {
@@ -4140,7 +4140,7 @@ SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
            _overload_callback("Math::GMPq::overload_fmod", "Math::GMPz::overload_mod", &PL_sv_yes);
            return a;
          }
-         else warn("This operation (%=) requires that $Math::GMPz::RETYPE is TRUE\n");
+         else warn("This operation (%%=) requires that $Math::GMPz::RETYPE is TRUE\n");
        }
 
        if(strEQ(h, "Math::BigInt")) {
