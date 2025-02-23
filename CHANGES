@@ -1,5 +1,7 @@
 Revision history for Perl module Math::GMPz
 
+0.64
+
 0.63
  - Corrections to overloading of '>>', '>>=', '<<' and '<<=' operators.
  - Allow '%' and '%=' overloading with  Math::GMPq and Math::MPFR objects.
