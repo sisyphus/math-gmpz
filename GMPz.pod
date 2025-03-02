@@ -1080,9 +1080,12 @@
    OPERATOR OVERLOADING
 
     Overloading works with numbers, strings, Math::GMPz objects,
-    Math::BigInt objects, Math::GMPq objects and Math::MPFR objects.
+    Math::BigInt objects and, to a limited extent, Math::GMPq objects
+    (iff the gmp library is version 6.1.0 or later) and Math::MPFR
+    objects (iff version 3.13 or later of Math::MPFR has been
+    installed).
 
-    The following operators are overloaded:
+   The following operators are overloaded:
     + - * / % **
     += -= *= /= %= **=
     << >> <<= >>=
@@ -1097,10 +1100,11 @@
           read it thoroughly, including the documentation regarding
           'copy constructors'.
 
-    The "power" operators ('**' and '**=') do not accept perl scalars
-    that are either NVs (floating point types) or -ve IVs (integers).
-    Values that are too large to fit into a C 'unsigned long int'
-    will be silently truncated.
+    As their "exponent" argument, '**' and '**=' do not accept perl scalars
+    that are either PVs (strings), NVs (floating point types) or negative
+    IVs (integers). Values that are too large to fit into a C 'unsigned
+    long int' will throw an error. (Please report if it crashes.)
+    TODO - allow PV exponents.
 
     Division uses 'tdiv' (see 'Integer Division', above).
     Check that '~', '%', and '%=' are working as you expect
@@ -1110,23 +1114,31 @@
     been blessed into some package other than 'Math::BigInt', 'Math::GMP',
    'Math::GMPz', 'Math::GMPq', or 'Math::MPFR' will not work.
 
-    YMMV with earlier versions of Math::MPFR, but with Math-MPFR-4.35 and
-    later, Math::MPFR objects can be provided as the second arg  with
-    '+', '+=', '-', '-=', '*', '*=', '/', '/=, '%', '%=', '**' and '**=='
-    operators - in which case the operation will return a Math::MPFR
-    object (calculated using default Math::MPFR precision and default
-    Math::MPFR rounding mode).
-
+    Math::MPFR objects can be provided as the second arg  with '+',
+    '-', '*', '/' and '**' operators - in which case the operation will
+    return a Math::MPFR object (calculated using default Math::MPFR
+    precision and default Math::MPFR rounding mode).
     For comparisons (==, !=, <, <=, >, >=, <=>) between Math::MPFR and
     Math::GMPz objects, you need to invoke the Math::MPFR overloading
     as the Math::GMPz overloading does not accommodate such comparisons.
-    eg - evaluate ($mpfr_obj > $mpz_obj), not ($mpz_obj < $mpfr_obj).
+    eg - do ($mpfr_obj > $mpz_obj), not ($mpz_obj < $mpfr_obj).
 
-    YMMV with earlier versions of Math::GMPq, but with Math-GMPq-0.61
-    or later,  Math::GMPq objects can be provided as the second arg
-    with the  comparison operators ( == != < <= > >= <=> ) and also
-    with '+', '+=',  '-', '-=', '/', '/=', '%', '%=', '*' and '*='
+    If $Math::GMPz:RETYPE is set to 1, then Math::MPFR objects can also
+    be provided as the second arg with '+=', '*=', '-=', '/=' and '**='
+    operators. In such instances, the Math::GMPz object becomes
+    (is "retyped" to) a Math::MPFR object that contains the result of
+    the operation, using default Math::MPFR precision and default
+    Math::MPFR rounding mode.
+    $Math::GMPz::RETYPE is initially set to 1.
+
+    Math::GMPq objects can be provided as the second arg with the
+    comparison operators ( == != < <= > >= <=> ) and also, iff
+    Math-GMPq-0.43 or later is installed, with '+', '-', '/', and '*'
     operators (in which case a Math::GMPq object is returned).
+    If $Math::GMPz::RETYPE is set to 1, then Math::GMPq objects can
+    also be used with '+=', '*=', '-=', and '/=' and operators.
+    In such instances, the Math::GMPz object becomes (is "retyped" to)
+    a Math::GMPq object containing the exact result of the operation.
 
     To determine the type and value of the second argument the subroutine
     works through the following steps (in order), using the first value
