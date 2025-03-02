@@ -1080,7 +1080,7 @@
    OPERATOR OVERLOADING
 
     Overloading works with numbers, strings, Math::GMPz objects,
-    Math::BigInt objects, Math::GMPq objects and Math::MPFR
+    Math::BigInt objects, Math::GMPq objects and Math::MPFR objects.
 
     The following operators are overloaded:
     + - * / % **
@@ -1111,21 +1111,22 @@
    'Math::GMPz', 'Math::GMPq', or 'Math::MPFR' will not work.
 
     YMMV with earlier versions of Math::MPFR, but with Math-MPFR-4.35 and
-    Math::MPFR objects can be provided as the second arg  with '+', '+=',
-    '-', '-=', '*', '*=', '/', '/=, '**' and '**==' operators - in which
-    case the operation will return a Math::MPFR object (calculated using
-    default Math::MPFR precision and default Math::MPFR rounding mode).
+    later, Math::MPFR objects can be provided as the second arg  with
+    '+', '+=', '-', '-=', '*', '*=', '/', '/=, '%', '%=', '**' and '**=='
+    operators - in which case the operation will return a Math::MPFR
+    object (calculated using default Math::MPFR precision and default
+    Math::MPFR rounding mode).
 
     For comparisons (==, !=, <, <=, >, >=, <=>) between Math::MPFR and
     Math::GMPz objects, you need to invoke the Math::MPFR overloading
     as the Math::GMPz overloading does not accommodate such comparisons.
     eg - evaluate ($mpfr_obj > $mpz_obj), not ($mpz_obj < $mpfr_obj).
 
-    Math::GMPq objects can be provided as the second arg with the
-    comparison operators ( == != < <= > >= <=> ) and also, iff
-    Math-GMPq-0.61 or later is installed, with '+', '+=',  '-', '-=',
-    '/', '/=', '%', '%=', '*' and '*=' operators (in which case a
-    Math::GMPq object is returned).
+    YMMV with earlier versions of Math::GMPq, but with Math-GMPq-0.61
+    or later,  Math::GMPq objects can be provided as the second arg
+    with the  comparison operators ( == != < <= > >= <=> ) and also
+    with '+', '+=',  '-', '-=', '/', '/=', '%', '%=', '*' and '*='
+    operators (in which case a Math::GMPq object is returned).
 
     To determine the type and value of the second argument the subroutine
     works through the following steps (in order), using the first value
