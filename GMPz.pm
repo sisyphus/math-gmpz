@@ -555,6 +555,67 @@ sub overload_rshift_eq {
   return _overload_lshift_eq($_[0], -$_[1], $_[2]);
 }
 
+sub overload_gt {
+  if(_itsa($_[1]) == 5) { # Math::MPFR object
+    return 0 if Math::MPFR::Rmpfr_nan_p($_[1]);
+    return 1 if Math::MPFR::Rmpfr_cmp_z($_[1], $_[0]) <  0;
+    return 0;
+  }
+  return _overload_gt(@_);
+}
+
+sub overload_gte {
+  if(_itsa($_[1]) == 5) { # Math::MPFR object
+    return 0 if Math::MPFR::Rmpfr_nan_p($_[1]);
+    return 1 if Math::MPFR::Rmpfr_cmp_z($_[1], $_[0]) <=  0;
+    return 0;
+  }
+  return _overload_gte(@_);
+}
+
+sub overload_lt {
+  if(_itsa($_[1]) == 5) { # Math::MPFR object
+    return 0 if Math::MPFR::Rmpfr_nan_p($_[1]);
+    return 1 if Math::MPFR::Rmpfr_cmp_z($_[1], $_[0]) >  0;
+    return 0;
+  }
+  return _overload_lt(@_);
+}
+
+sub overload_lte {
+  if(_itsa($_[1]) == 5) { # Math::MPFR object
+    return 0 if Math::MPFR::Rmpfr_nan_p($_[1]);
+    return 1 if Math::MPFR::Rmpfr_cmp_z($_[1], $_[0]) >=  0;
+    return 0;
+  }
+  return _overload_lte(@_);
+}
+
+sub overload_spaceship {
+  if(_itsa($_[1]) == 5) { # Math::MPFR object
+    return undef if Math::MPFR::Rmpfr_nan_p($_[1]);
+    return Math::MPFR::Rmpfr_cmp_z($_[1], $_[0]) * -1;
+  }
+  return _overload_spaceship(@_);
+}
+
+sub overload_equiv {
+  if(_itsa($_[1]) == 5) { # Math::MPFR object
+    return 0 if Math::MPFR::Rmpfr_nan_p($_[1]);
+    return 1 if Math::MPFR::Rmpfr_cmp_z($_[1], $_[0]) ==  0;
+    return 0;
+  }
+  return _overload_equiv(@_);
+}
+
+sub overload_not_equiv {
+  if(_itsa($_[1]) == 5) { # Math::MPFR object
+    return 1 if Math::MPFR::Rmpfr_nan_p($_[1]);
+    return 1 if Math::MPFR::Rmpfr_cmp_z($_[1], $_[0]) !=  0;
+    return 0;
+  }
+  return _overload_not_equiv(@_);
+}
 
 sub __GNU_MP_VERSION            () {return ___GNU_MP_VERSION()}
 sub __GNU_MP_VERSION_MINOR      () {return ___GNU_MP_VERSION_MINOR()}
