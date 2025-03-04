@@ -3061,7 +3061,7 @@ int my_cmp_z(mpq_t * p, mpz_t *z) {
     return ret;
 }
 
-SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
      MBI_DECLARATIONS
@@ -3156,7 +3156,7 @@ SV * overload_gt(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_gt");
 }
 
-SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
      MBI_DECLARATIONS
@@ -3250,7 +3250,7 @@ SV * overload_gte(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_gte");
 }
 
-SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
      MBI_DECLARATIONS
@@ -3344,7 +3344,7 @@ SV * overload_lt(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_lt");
 }
 
-SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
      MBI_DECLARATIONS
@@ -3438,7 +3438,7 @@ SV * overload_lte(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_lte");
 }
 
-SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret;
      mpz_t t;
      MBI_DECLARATIONS
@@ -3520,7 +3520,7 @@ SV * overload_spaceship(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_spaceship");
 }
 
-SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret = 0;
      mpz_t t;
      MBI_DECLARATIONS
@@ -3606,7 +3606,7 @@ SV * overload_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      croak("Invalid argument supplied to Math::GMPz::overload_equiv");
 }
 
-SV * overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
+SV * _overload_not_equiv(pTHX_ mpz_t * a, SV * b, SV * third) {
      int ret = 0;
      mpz_t t;
      MBI_DECLARATIONS
@@ -4949,6 +4949,8 @@ SV * _itsa(pTHX_ SV * a) {
      if(SV_IS_NOK(a)) return newSViv(3);
      if(sv_isobject(a)) {
        const char *h = HvNAME(SvSTASH(SvRV(a)));
+       if(strEQ(h, "Math::MPFR")) return newSVuv(5);
+       if(strEQ(h, "Math::GMPf")) return newSVuv(6);
        if(strEQ(h, "Math::GMPz"))        return newSViv(8);
        if(strEQ(h, "Math::GMP"))         return newSViv(9);
        if(strEQ(h, "Math::BigInt"))      return newSViv(-1);
@@ -7325,66 +7327,66 @@ my_cmp_z (p, z)
 	mpz_t *	z
 
 SV *
-overload_gt (a, b, third)
+_overload_gt (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_gt (aTHX_ a, b, third);
+  RETVAL = _overload_gt (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_gte (a, b, third)
+_overload_gte (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_gte (aTHX_ a, b, third);
+  RETVAL = _overload_gte (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_lt (a, b, third)
+_overload_lt (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_lt (aTHX_ a, b, third);
+  RETVAL = _overload_lt (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_lte (a, b, third)
+_overload_lte (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_lte (aTHX_ a, b, third);
+  RETVAL = _overload_lte (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_spaceship (a, b, third)
+_overload_spaceship (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_spaceship (aTHX_ a, b, third);
+  RETVAL = _overload_spaceship (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_equiv (a, b, third)
+_overload_equiv (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_equiv (aTHX_ a, b, third);
+  RETVAL = _overload_equiv (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-overload_not_equiv (a, b, third)
+_overload_not_equiv (a, b, third)
 	mpz_t *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = overload_not_equiv (aTHX_ a, b, third);
+  RETVAL = _overload_not_equiv (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
