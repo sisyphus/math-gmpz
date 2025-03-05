@@ -617,6 +617,40 @@ sub overload_not_equiv {
   return _overload_not_equiv(@_);
 }
 
+sub overload_pow  {
+  my $itsa = _itsa($_[1]);
+  if($itsa == 4 && _looks_like_number($_[1])) { # PV
+    # Check that it's an integer string
+    die "Non-integer string value ($_[1]) passed to overload_pow()"
+      if int("$_[1]") != "$_[1]" + 0;
+    my $z = Math::GMPz->new("$_[1]");
+    return _overload_pow($z, $_[0], 0) if $_[2];
+    return _overload_pow($_[0], $z, 0);
+  }
+  if($itsa == 3) { # NV
+    my $z = Math::GMPz->new($_[1]);
+    return _overload_pow($z, $_[0], 0) if $_[2];
+    return _overload_pow($_[0], $z, 0);
+  }
+  return _overload_pow(@_);
+}
+
+sub overload_pow_eq {
+  my $itsa = _itsa($_[1]);
+  if($itsa == 4 && _looks_like_number($_[1])) { # PV
+    # Check that it's an integer string
+    die "Non-integer string value ($_[1]) passed to overload_pow()"
+      if int("$_[1]") != "$_[1]" + 0;
+    my $z = Math::GMPz->new("$_[1]");
+    return _overload_pow_eq($_[0], $z, 0);
+  }
+  if($itsa == 3) { # NV
+    my $z = Math::GMPz->new($_[1]);
+    return _overload_pow_eq($_[0], $z, 0);
+  }
+  return _overload_pow_eq(@_);
+}
+
 sub __GNU_MP_VERSION            () {return ___GNU_MP_VERSION()}
 sub __GNU_MP_VERSION_MINOR      () {return ___GNU_MP_VERSION_MINOR()}
 sub __GNU_MP_VERSION_PATCHLEVEL () {return ___GNU_MP_VERSION_PATCHLEVEL()}

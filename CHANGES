@@ -1,6 +1,7 @@
 Revision history for Perl module Math::GMPz
 
 0.64
+ - Allow strings and NVs with the overloaded the pow operators (**' and '**=').
  - Simplify "overloading" documentation.
  - Allow Math::GMPz to overload cmp ops between Math::GMPz and Math::MPFR objects.
    Previously such comparisons could be handled only by the Math::MPFR overloading.

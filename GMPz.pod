@@ -1079,23 +1079,24 @@
 
    OPERATOR OVERLOADING
 
-    Overloading works with numbers, strings, Math::GMPz objects,
-    Math::BigInt objects.
-
-    TODO - check on the status of using Math::GMP objects with the
-           overloaded operators, and fix any deficiencies.
+    Overloading works with numbers, strings (integer only), Math::GMPz
+    objects, and Math::BigInt objects. Non-integer NV values will be
+    truncated (ie rounded towards zero) to an integer value.
 
     YMMV if you use old versions of Math::GMPq and Math::MPFR, but if you
     have Math-GMPq-0.61 (or later) and Math-MPFR-4.37 (or later) then, apart
     from the exceptions noted below, you will be able to use Math::GMPq and
-    Math::MPFR with the overloaded Math::GMPz oprations.
+    Math::MPFR with the overloaded Math::GMPz operations. Such operations
+    return Math::MPFR objects calculated in accordance with Math::MPFR
+    default precision & default rounding, and (respectively) Math::GMPq
+    objects.
 
    The following operators are overloaded:
-    + - * / % **
-    += -= *= /= %= **=
+    + - * / % **           # '**'  not usable with Math::GMPq objects
+    += -= *= /= %= **=     # '**=' not usable with Math::GMPq objects
     << >> <<= >>=
-    & | ^ ~   # Not yet usable with Math::GMPq and Math::MPFR objects
-    &= |= ^=  # Not yet usable with Math::GMPq and Math::MPFR objects
+    & | ^ ~       # Not usable with Math::GMPq and Math::MPFR objects
+    &= |= ^=      # Not usable with Math::GMPq and Math::MPFR objects
     < <= > >= == != <=>
     ! abs
     =
@@ -1104,12 +1105,6 @@
           you understand its caveats. See 'perldoc overload' and
           read it thoroughly, including the documentation regarding
           'copy constructors'.
-
-    As their "exponent" argument, '**' and '**=' do not accept perl scalars
-    that are either PVs (strings), NVs (floating point types) or negative
-    IVs (integers). Values that are too large to fit into a C 'unsigned
-    long int' will throw an error. (TODO - verify this claim.)
-    TODO - allow PV exponents.
 
     Division uses 'tdiv' (see 'Integer Division', above).
     Check that '~', '%', and '%=' are working as you expect
