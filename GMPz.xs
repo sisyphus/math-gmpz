@@ -2740,7 +2740,6 @@ SV * _overload_pow(pTHX_ SV * a, SV * b, SV * third) {
          /* else: */
 #if IVSIZE > LONGSIZE
          if(SvUVX(b) > ULONG_MAX) {
-           mpz_clear(*mpz_t_obj);
            croak("Exponent does not fit into unsigned long int in Math::GMPz::overload_pow");
          }
 #endif
@@ -2767,12 +2766,10 @@ SV * _overload_pow(pTHX_ SV * a, SV * b, SV * third) {
        /* else: */
 #if IVSIZE > LONGSIZE
        if(SvIVX(b) > ULONG_MAX) {
-         mpz_clear(*mpz_t_obj);
          croak("Exponent does not fit into unsigned long int in Math::GMPz::overload_pow");
        }
 #endif
        if(SvIVX(b) < 0) {
-         mpz_clear(*mpz_t_obj);
          croak("Negative argument supplied to Math::GMPz::overload_pow");
        }
 
@@ -2788,7 +2785,6 @@ SV * _overload_pow(pTHX_ SV * a, SV * b, SV * third) {
            return obj_ref;
          }
          /* else: */
-         mpz_clear(*mpz_t_obj);
          croak("Exponent does not fit into unsigned long int in Math::GMPz::overload_pow");
        }
      }
