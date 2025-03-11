@@ -53,7 +53,13 @@ unless($@) {
         cmp_ok(is_equivalent($mod1, $mod2, $op2), '==', 1, "$op1 % $op2 ok between mpz and mpq");
         if($have_mpfr) {
           # Math::MPFR and Math::GMPq should always agree on whether a negative value is returmed.
-          cmp_ok($mod2, '==', Math::GMPz->new($op1) % Math::MPFR->new($op2), "$op1 % $op2 ok between mpfr and mpq");
+          # Here we use Math::MPFR::overload_equiv to compare the LHS (Math::MPFR::object) with $mod2 (Math::GMPq::object).
+          cmp_ok(Math::GMPz->new($op1) % Math::MPFR->new($op2), '==', $mod2, "$op1 % $op2 ok between mpfr and mpq");
+          # Here we perform the same comparison, but using Math::GMPq::overload_equiv - which could not handle
+          # Math::MPFR objects prior to Math-GMPq-0.62.
+          if($Math::GMPq::VERSION >= 0.62) {
+            cmp_ok($mod2, '==', Math::GMPz->new($op1) % Math::MPFR->new($op2), "$op1 % $op2 ok between mpq and mpfr");
+          }
         }
       }
     }
