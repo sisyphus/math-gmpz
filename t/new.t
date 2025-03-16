@@ -4,7 +4,7 @@ use Math::GMPz qw(:mpz);
 use Math::BigFloat;
 use Config;
 
-print "1..5\n";
+print "1..6\n";
 
 print "# Using gmp version ", Math::GMPz::gmp_v(), "\n";
 
@@ -184,7 +184,7 @@ else {print "not ok 4 $ok\n"}
 
 $ok = '';
 
-# New tests (testing new behaviour) added in Math-GMPz-0.65.
+# Test 5 tests new behaviour added in Math-GMPz-0.65.
 
 eval { require Math::GMP;};
 unless($@) {
@@ -221,4 +221,11 @@ else {
 
 if($ok eq 'abc') {print "ok 5\n"}
 else {print "not ok 5 $ok\n"}
+
+# The GMP documentation says that the following should succeed:
+my $z = Math::GMPz->new("1234  \n 56 \t 78");
+if($z == 12345678) { print "ok 6\n" }
+else {print "not ok 6 $z\n" }
+
+
 
