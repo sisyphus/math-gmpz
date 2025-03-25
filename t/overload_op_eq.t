@@ -149,12 +149,17 @@ if($have_mpfr) {
         cmp_ok(ref($c2), 'eq', ref($c1),               "/ Z: references match");
         cmp_ok($c1 * $c2, '==', _approx($c1 * $c2, 1), "/ Z: values match");
 #
-        ($c1, $c2) = ($z % $fr, $fr % $z);
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p,          "% Z: C1 precision ok");
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', $p,          "% Z: C2 precision ok");
-        cmp_ok(ref($c1), 'eq', 'Math::MPFR',           "% Z: reference ok");
-        cmp_ok(ref($c2), 'eq', ref($c1),               "% Z: references match");
-        cmp_ok($c2, '==', Math::MPFR->new($fr),        "% Z: F % Z == F");
+        if($Math::MPFR::VERSION >= 4.35) {
+          ($c1, $c2) = ($z % $fr, $fr % $z);
+          cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p,          "% Z: C1 precision ok");
+          cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', $p,          "% Z: C2 precision ok");
+          cmp_ok(ref($c1), 'eq', 'Math::MPFR',           "% Z: reference ok");
+          cmp_ok(ref($c2), 'eq', ref($c1),               "% Z: references match");
+          cmp_ok($c2, '==', Math::MPFR->new($fr),        "% Z: F % Z == F");
+        }
+        else {
+          warn "Skipping some '%' and '%=' overloading tests as Math-MPFR-4.35 or later is required - have only $Math::MPFR::VERSION\n";
+        }
       }
 
 #########################################################
