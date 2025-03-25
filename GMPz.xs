@@ -4069,11 +4069,10 @@ SV * _overload_pow_eq(pTHX_ SV * a, SV * b, SV * third) {
            return a;
          }
        }
-       /* Relocated to GMPz.pm - this XS implementation returns a default precision object.
+
        if(strEQ(h, "Math::MPFR")) {
           _overload_callback("Math::MPFR::overload_pow", "Math::GMPz:overload_pow", &PL_sv_yes);
        }
-       */
      }
 
      SvREFCNT_dec(a);
@@ -4110,7 +4109,7 @@ void overload_dec(pTHX_ SV * p, SV * second, SV * third) {
      mpz_sub_ui(*(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), *(INT2PTR(mpz_t *, SvIVX(SvRV(p)))), 1);
 }
 
-SV * _overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_mod_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -4223,7 +4222,7 @@ SV * get_refcnt(pTHX_ SV * s) {
  avoid segfault, on division by zero.
  **************************************************************************/
 
-SV * _overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -4299,11 +4298,11 @@ SV * _overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(strEQ(h, "Math::GMPq")) {
          _overload_callback("Math::GMPq::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
        }
-       /* Relocated to GMPz.pm - this XS implementation returns a default precision object.
+
        if(strEQ(h, "Math::MPFR")) {
          _overload_callback("Math::MPFR::overload_div", "Math::GMPz::overload_div", &PL_sv_yes);
        }
-       */
+
        if(strEQ(h, "Math::BigInt")) {
          VALIDATE_MBI_OBJECT {
          SvREFCNT_dec(a);
@@ -4332,7 +4331,7 @@ SV * _overload_div_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 }
 
-SV * _overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -4400,11 +4399,11 @@ SV * _overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(strEQ(h, "Math::GMPq")) {
          _overload_callback("Math::GMPq::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
        }
-       /* Relocated to GMPz.pm - this XS implementation returns a default precision object.
+
        if(strEQ(h, "Math::MPFR")) {
          _overload_callback("Math::MPFR::overload_sub", "Math::GMPz::overload_sub", &PL_sv_yes);
        }
-       */
+
        if(strEQ(h, "Math::BigInt")) {
          VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
@@ -4435,7 +4434,7 @@ SV * _overload_sub_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 }
 
-SV * _overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -4504,11 +4503,11 @@ SV * _overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(strEQ(h, "Math::GMPq")) {
          _overload_callback("Math::GMPq::overload_add", "Math::GMPz::overload_add", newSViv(0));
        }
-       /* Relocated to GMPz.pm - this XS implementation returns a default precision object.
+
        if(strEQ(h, "Math::MPFR")) {
          _overload_callback("Math::MPFR::overload_add", "Math::GMPz::overload_add", newSViv(0));
        }
-       */
+
        if(strEQ(h, "Math::BigInt")) {
          VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
@@ -4539,7 +4538,7 @@ SV * _overload_add_eq(pTHX_ SV * a, SV * b, SV * third) {
 
 }
 
-SV * _overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
+SV * overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
      mpz_t t;
      MBI_DECLARATIONS
      MBI_GMP_DECLARATIONS
@@ -4603,11 +4602,11 @@ SV * _overload_mul_eq(pTHX_ SV * a, SV * b, SV * third) {
        if(strEQ(h, "Math::GMPq")) {
          _overload_callback("Math::GMPq::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
        }
-       /* Relocated to GMPz.pm - this XS implementation returns a default precision object.
+
        if(strEQ(h, "Math::MPFR")) {
          _overload_callback("Math::MPFR::overload_mul", "Math::GMPz::overload_mul", newSViv(0));
        }
-       */
+
        if(strEQ(h, "Math::BigInt")) {
          VALIDATE_MBI_OBJECT {
            SvREFCNT_dec(a);
@@ -7492,12 +7491,12 @@ overload_dec (p, second, third)
         XSRETURN_EMPTY; /* return empty stack */
 
 SV *
-_overload_mod_eq (a, b, third)
+overload_mod_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = _overload_mod_eq (aTHX_ a, b, third);
+  RETVAL = overload_mod_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
@@ -7508,39 +7507,39 @@ CODE:
 OUTPUT:  RETVAL
 
 SV *
-_overload_div_eq (a, b, third)
+overload_div_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = _overload_div_eq (aTHX_ a, b, third);
+  RETVAL = overload_div_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-_overload_sub_eq (a, b, third)
+overload_sub_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = _overload_sub_eq (aTHX_ a, b, third);
+  RETVAL = overload_sub_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-_overload_add_eq (a, b, third)
+overload_add_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = _overload_add_eq (aTHX_ a, b, third);
+  RETVAL = overload_add_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
-_overload_mul_eq (a, b, third)
+overload_mul_eq (a, b, third)
 	SV *	a
 	SV *	b
 	SV *	third
 CODE:
-  RETVAL = _overload_mul_eq (aTHX_ a, b, third);
+  RETVAL = overload_mul_eq (aTHX_ a, b, third);
 OUTPUT:  RETVAL
 
 SV *
