@@ -2,6 +2,8 @@ Revision history for Perl module Math::GMPz
 
 0.66
  - Provide better clarity in OPERATOR OVERLOADING documentation.
+ - Small adjustments to t/mpfr_NV_checks to (hopefully) fix
+   https://www.cpantesters.org/cpan/report/67d1c3b4-12d6-11f0-ae08-b38bff174ad1
 
 0.65
  - Allow new() to accept Math::GMPq objects and Math::MPFR objects.
