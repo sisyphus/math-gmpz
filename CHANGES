@@ -1,5 +1,7 @@
 Revision history for Perl module Math::GMPz
 
+0.67
+
 0.66
  - Provide better clarity in OPERATOR OVERLOADING documentation.
  - Small adjustments to t/mpfr_NV_checks to (hopefully) fix
