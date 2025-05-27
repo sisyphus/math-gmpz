@@ -157,9 +157,6 @@ if($have_mpfr) {
           cmp_ok(ref($c2), 'eq', ref($c1),               "% Z: references match");
           cmp_ok($c2, '==', Math::MPFR->new($fr),        "% Z: F % Z == F");
         }
-        else {
-          warn "Skipping some '%' and '%=' overloading tests as Math-MPFR-4.35 or later is required - have only $Math::MPFR::VERSION\n";
-        }
       }
 
 #########################################################
@@ -172,7 +169,7 @@ if($have_mpfr) {
         my $z_copy = Math::GMPz->new($z);
         Math::MPFR::Rmpfr_set_default_prec($p);
         my ($c1, $c2) = ($z *= $fr, $fr *= $z_copy);
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p,  "*= Z: C1 precision ok");
+        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', 70,  "*= Z: C1 precision ok");
         cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', 70,  "*= Z: C2 precision ok");
         cmp_ok(ref($c1), 'eq', 'Math::MPFR',   "*= Z: reference ok");
         cmp_ok(ref($c2), 'eq', ref($c1),       "*= Z: references match");
@@ -180,7 +177,7 @@ if($have_mpfr) {
         cmp_ok(ref($fr), 'eq', 'Math::MPFR',   "*= Z: Math::MPFR object stays a Math::MPFR object");
         cmp_ok($c1, '==', $z,                  "*= Z: \$c1 set correctly");
         cmp_ok($c2, '==', $fr,                 "*= Z: \$c2 set correctly");
-        #cmp_ok($c1, '==', $c2,                 "*= Z: values match"); # Different precs can mean different values
+        cmp_ok($c1, '==', $c2,                 "*= Z: values match");
       }
 
 #########################################################
@@ -193,7 +190,7 @@ if($have_mpfr) {
         my $z_copy = Math::GMPz->new($z);
         Math::MPFR::Rmpfr_set_default_prec($p);
         my ($c1, $c2) = ($z += $fr, $fr += $z_copy);
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p,  "+= Z: C1 precision ok");
+        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', 70,  "+= Z: C1 precision ok");
         cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', 70,  "+= Z: C2 precision ok");
         cmp_ok(ref($c1), 'eq', 'Math::MPFR',   "+= Z: reference ok");
         cmp_ok(ref($c2), 'eq', ref($c1),       "+= Z: references match");
@@ -201,7 +198,7 @@ if($have_mpfr) {
         cmp_ok(ref($fr), 'eq', 'Math::MPFR',   "+= Z: Math::MPFR object stays a Math::MPFR object");
         cmp_ok($c1, '==', $z,                  "+= Z: \$c1 set correctly");
         cmp_ok($c2, '==', $fr,                 "+= Z: \$c2 set correctly");
-        #cmp_ok($c1, '==', $c2,                 "+= Z: values match"); # Different precs can mean different values.
+        cmp_ok($c1, '==', $c2,                 "+= Z: values match");
       }
 
 #########################################################
@@ -214,7 +211,7 @@ if($have_mpfr) {
         my $z_copy = Math::GMPz->new($z);
         Math::MPFR::Rmpfr_set_default_prec($p);
         my ($c1, $c2) = ($z -= $fr, $fr -= $z_copy);
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p,  "-= Z: C1 precision ok");
+        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', 70,  "-= Z: C1 precision ok");
         cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', 70,  "-= Z: C2 precision ok");
         cmp_ok(ref($c1), 'eq', 'Math::MPFR',   "-= Z: reference ok");
         cmp_ok(ref($c2), 'eq', ref($c1),       "-= Z: references match");
@@ -223,7 +220,8 @@ if($have_mpfr) {
         cmp_ok($c1, '==', $z,                  "-= Z: \$c1 set correctly");
         cmp_ok($c2, '==', $fr,                 "-= Z: \$c2 set correctly");
         Math::MPFR::Rmpfr_mul_si($c2, $c2, -1, 0); # Do not use overloaded ops here.
-        #cmp_ok($c1, '==', $c2,                "-= Z: values match"); # Different precs can mean different values.
+        cmp_ok($c1, '==', $c2,                "-= Z: values match");
+
       }
 
 #########################################################
@@ -236,7 +234,7 @@ if($have_mpfr) {
         my $z_copy = Math::GMPz->new($z);
         Math::MPFR::Rmpfr_set_default_prec($p);
         my ($c1, $c2) = ($z /= $fr, $fr /= $z_copy);
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p,          "/= Z: C1 precision ok");
+        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', 70,          "/= Z: C1 precision ok");
         cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', 70,          "/= Z: C2 precision ok");
         cmp_ok(ref($c1), 'eq', 'Math::MPFR',           "/= Z: reference ok");
         cmp_ok(ref($c2), 'eq', ref($c1),               "/= Z: references match");
@@ -245,7 +243,7 @@ if($have_mpfr) {
         cmp_ok($c1, '==', $z,                          "/= Z: \$c1 set correctly");
         cmp_ok($c2, '==', $fr,                         "/= Z: \$c2 set correctly");
         Math::MPFR::Rmpfr_mul($c1, $c1, $c2, 0); # Do not use overloaded '*' here.
-        # cmp_ok($c1, '==', _approx($c1, 1), "/= Z: values match"); # Different precisions, more than 1 ULP difference.
+        cmp_ok($c1, '==', _approx($c1, 1), "/= Z: values match");
       }
 #
       for my $p(@precs) { #### test '**' and '**=' ####
@@ -266,35 +264,44 @@ if($have_mpfr) {
         $zv **= $f2;
         $fv **= $z2;
 
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($zv), '==', $p, "**= Z: ZV precision ok");
+        cmp_ok(Math::MPFR::Rmpfr_get_prec($zv), '==', 300, "**= Z: ZV precision ok");
         cmp_ok(Math::MPFR::Rmpfr_get_prec($fv), '==', 300, "**= Z: FV precision ok");
-        # cmp_ok($zv, '==', $fv,                 "**= Z: values match"); # Different precisions, different values
+        cmp_ok($zv, '==', $fv,                 "**= Z: values match");
+        if($p > 64) {
+          cmp_ok($c1, '==', $zv,                 "**= Z: C1 == ZV");
+          cmp_ok($c2, '==', $fv,                 "**= Z: C2 == FV");
+        }
+        else {
+          cmp_ok($c1, '!=', $zv,                 "**= Z: C1 != ZV");
+          cmp_ok($c2, '!=', $fv,                 "**= Z: C2 != FV");
+        }
       }
 
-      for my $p(@precs) { #### test '%' and '%=' ####
-        my ($f_val, $f_div) = (Math::MPFR::Rmpfr_init2(300), Math::MPFR::Rmpfr_init2(300));
-        Math::MPFR::Rmpfr_set_NV($f_val, 65.5, 0);
-        Math::MPFR::Rmpfr_set_NV($f_div, 6.75, 0);
-        my $z_val = Math::GMPz->new(70);
-        my $z_div = Math::GMPz->new(7);
+      if($Math::MPFR::VERSION >= 4.35) {
+        for my $p(@precs) { #### test '%' and '%=' ####
+          my ($f_val, $f_div) = (Math::MPFR::Rmpfr_init2(300), Math::MPFR::Rmpfr_init2(300));
+          Math::MPFR::Rmpfr_set_NV($f_val, 65.5, 0);
+          Math::MPFR::Rmpfr_set_NV($f_div, 6.75, 0);
+          my $z_val = Math::GMPz->new(70);
+          my $z_div = Math::GMPz->new(7);
 
-        Math::MPFR::Rmpfr_set_default_prec($p);
+          Math::MPFR::Rmpfr_set_default_prec($p);
 
-        my($c1, $c2) = ($z_val % $f_div, $f_val % $z_div);
+          my($c1, $c2) = ($z_val % $f_div, $f_val % $z_div);
 
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p, "% Z: C1 precision ok");
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', $p, "% Z: C2 precision ok");
-        cmp_ok($c1, '==', $c2,                "% Z:values match");
+          cmp_ok(Math::MPFR::Rmpfr_get_prec($c1), '==', $p, "% Z: C1 precision ok");
+          cmp_ok(Math::MPFR::Rmpfr_get_prec($c2), '==', $p, "% Z: C2 precision ok");
+          cmp_ok($c1, '==', $c2,                "% Z:values match");
 
-        $f_val %= $z_div;
-        $z_val %= $f_div;
+          $f_val %= $z_div;
+          $z_val %= $f_div;
 
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($f_val), '==', 300, "% Z: F_VAL precision ok");
-        cmp_ok(Math::MPFR::Rmpfr_get_prec($z_val), '==', $p, "% Z: Z_VAL precision ok");
+          cmp_ok(Math::MPFR::Rmpfr_get_prec($f_val), '==', 300, "% Z: F_VAL precision ok");
+          cmp_ok(Math::MPFR::Rmpfr_get_prec($z_val), '==', 300, "% Z: Z_VAL precision ok");
 
-        cmp_ok($c1, '==', $z_val,                 "**= Z: C1 == Z_VAL");
-        cmp_ok($c2, '==', $f_val,                 "**= Z: C2 == F_VAL");
-
+          cmp_ok($c1, '==', $z_val,                 "**= Z: C1 == Z_VAL");
+          cmp_ok($c2, '==', $f_val,                 "**= Z: C2 == F_VAL");
+        }
       }
     }
   }

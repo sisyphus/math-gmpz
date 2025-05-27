@@ -1,6 +1,8 @@
 Revision history for Perl module Math::GMPz
 
 0.67
+ - Fix bug in t/overload_op_eq.t. Fixes:
+   https://www.cpantesters.org/cpan/report/92ed61d1-72f8-1014-830e-990a97a7943c
 
 0.66
  - Provide better clarity in OPERATOR OVERLOADING documentation.
