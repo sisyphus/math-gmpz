@@ -14,8 +14,6 @@ use strict;
 use warnings;
 use Math::GMPz qw(:mpz);
 
-#use Devel::Peek;
-
 eval {require Math::BigInt::GMP;};
 
 unless($@) {
