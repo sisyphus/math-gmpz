@@ -61,5 +61,5 @@ $z >= $q ? print "ok 13\n"
          : print "not ok 13\n";
 
 ($z <=> $q) == 0 ? print "ok 14\n"
-                 : print "ok 14\n";
+                 : print "not ok 14\n";
 
