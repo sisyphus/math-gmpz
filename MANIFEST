@@ -55,6 +55,7 @@ t/IV_UV_NV.t
 t/longdouble.t
 t/mpfr_NV_checks.t
 t/new.t
+t/new_new.t
 t/NOK_and_POK.t
 t/not_zero.t
 t/pod.t
