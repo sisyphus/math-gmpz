@@ -83,4 +83,10 @@ like( $@, qr/^Too many arguments supplied to new()/, "Test 19 ok");
 eval { $rop = $obj->new($mbi, 16);};
 like( $@, qr/^Too many arguments supplied to new()/, "Test 20 ok");
 
+eval { $rop = Math::GMPz->new($obj, 16);};
+like( $@, qr/^Too many arguments supplied to new()/, "Test 21 ok");
+
+eval { $rop = Math::GMPz::new($obj, 16);};
+like( $@, qr/^Too many arguments supplied to new()/, "Test 22 ok");
+
 done_testing();
