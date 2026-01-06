@@ -13,7 +13,7 @@ use Test::More;
 
 if($Math::GMPz::VERSION < 0.69) {
   is(1,1);
-  warn "Skipping all tests - Math-GMP-0.69 is required - this is only $Math::GMPz::VERSION\n";
+  warn "Skipping all tests - Math-GMPz-0.69 is required - this is only $Math::GMPz::VERSION\n";
   done_testing();
   exit 0;
 }
