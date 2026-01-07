@@ -169,19 +169,28 @@ sub new {
     if(!ref($_[0]) && Math::GMPz::_SvPOK($_[0]) && $_[0] eq "Math::GMPz") {
       shift;
       if(!@_) {return Rmpz_init()}
-      $called_as_method = 1; # Implies merely that the first argument received
-                             # by this sub was the string "Math::GMPz". Else,
-                             # $called_as_method remains set to 0.
+      $called_as_method = 1;
     }
+    # The following elsif block is currently not implemented
+    #elsif(ref($_[0]) eq "Math::GMPz") {
+    #
+    #  # new() was called as $math_gmpz_object->new($val). Apart from $_[0] which
+    #  # is (the automatically included $math_gmpz_object), only one argument ($val)
+    #  # should have been explicitly provided ... unless, of course, $val is a PV
+    #  # (string), in which case a a second ($base) argument is optionally allowed.
+    #
+    #   shift; # Remove 1st argument
+    #
+    #  # Allow for possibility of an additional ($base) argument.
+    #  # The possibility of there being even more arguments has already been ruled out.
+    #
+    #   if(@_ > 1 && _itsa($_[0]) != _POK_T ) {die "Too many arguments supplied to new() - expected only one"}
+    #   return Math::GMPz->new(@_);
+    #} # close elsif
 
     # @_ can now contain a maximum of 2 args - the value, and iff the value is
     # a string, (optionally) the base of the numeric string.
-    # However, as of version 0.69 we also make allowance for the possibility that
-    # new has been called via (eg):
-    # $new_obj = $existing_obj->new($number);
-    # or
-    # $new_obj = $existing_obj->new($string, [$base]);
-    if(@_ > 2 && ref($_[0]) ne 'Math::GMPz' && !$called_as_method) {die "Too many arguments supplied to new() - expected no more than two"}
+    if(@_ > 2) {die "Too many arguments supplied to new() - expected no more than two"}
 
     my ($arg1, $type, $base);
 
@@ -222,13 +231,7 @@ sub new {
     }
 
     if($type == _MATH_GMPz_T || $type == _MATH_GMP_T) { # Math::GMPz or Math::GMP object
-      if(@_) {
-        if(!$called_as_method) {
-          return Math::GMPz->new($_[0])        if (@_ == 1);
-          return Math::GMPz->new($_[0], $_[1]) if (@_ == 2 && _looks_like_number($_[1]));
-        }
-        die "Too many arguments supplied to new() - expected only one";
-      }
+      if(@_) {die "Too many arguments supplied to new() - expected only one"}
       return Rmpz_init_set($arg1);
     }
 

@@ -1,8 +1,6 @@
 Revision history for Perl module Math::GMPz
 
 0.69
- - Accept that new() can also be called (as a method) on an existing Math::GMPz
-   object, as requested at https://rt.cpan.org/Public/Bug/Display.html?id=167809
 
 0.68
  - Ensure that overloaded <=> operations return one of 1, -1, 0, and undef.
