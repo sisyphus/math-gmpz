@@ -1,6 +1,7 @@
 Revision history for Perl module Math::GMPz
 
 0.69
+ - Document use of Math::GMP_OLOAD
 
 0.68
  - Ensure that overloaded <=> operations return one of 1, -1, 0, and undef.
