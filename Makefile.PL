@@ -123,7 +123,7 @@ $libopts    = '-lquadmath -lgmp'
 
 my %options = (
   NAME => 'Math::GMPz',
-  AUTHOR => 'Sisyphus (sisyphus at (@) cpan dot (.) org)',
+  AUTHOR => 'Sisyphus (sisyphus359 at (@) gmail dot (.) com)',
   ABSTRACT => 'Perl interface to the GMP integer functions',
   DEFINE   => $defines,
 
